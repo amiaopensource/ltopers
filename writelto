@@ -1,0 +1,51 @@
+#!/bin/bash
+# name: writelto
+# description: writelto writes the contents of a specified directory onto a mounted LTFS-formated LTO tape.
+
+TAPE_MOUNT_POINT="/Volumes"
+TAPE_SERIAL_REGEX="[A-Z][0-9]\{5\}"
+
+usage(){
+	echo "writelto"
+	echo "Usage:"
+	echo "	-t tape serial"
+	echo "	-d source directory"
+	exit 1
+}
+
+# command-line options
+OPTIND=1
+while getopts ":t:d:" opt ; do
+    case "${opt}" in
+        t) TAPE_SERIAL="${OPTARG}" ;;
+        d) SOURCE_DIR="${OPTARG}"  ;;
+        *) echo "bad option -${OPTARG}" ; usage ;;
+        :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
+    esac
+done
+shift $(( ${OPTIND} - 1 ))
+
+checkdir(){
+if [[ ! -d "${1}" ]] ; then
+	echo "${SOURCE_DIR}" is not a directory.
+	usage
+	exit 1
+fi
+}
+if [[ ! $(echo "${TAPE_SERIAL}" | grep "$TAPE_SERIAL_REGEX") ]] ; then
+	echo "${TAPE_SERIAL}" is not a capital letter followed by a 5 digit number
+	usage
+	exit 1
+fi
+
+TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
+
+checkdir "${SOURCE_DIR}"
+checkdir "${TAPE_PATH}"
+
+rsync -rtv --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
+RSYNC_ERR_1="$?"
+rsync -rtv --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
+RSYNC_ERR_2="$?"
+umount "${TAPE_PATH}"
+echo "rsync exited with $RSYNC_ERR_1 on the first pass and $RSYNC_ERR_2 on the second pass."
