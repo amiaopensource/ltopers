@@ -1,8 +1,8 @@
 #!/bin/bash
 # This script presumes that you've setup a filemaker database with Filemaker Server using two tables called "lto_tapes" and "lto_files" with fields according to the LTFS XML format.
 
-SCRIPTNAME=$(basename "$0")
-CONFIG_FILE="${scriptdir}/ltoper.conf"
+SCRIPTDIR=$(dirname "$0")
+CONFIG_FILE="${SCRIPTDIR}/ltoper.conf"
 
 # load configuration file
 if [ -f "${CONFIG_FILE}" ] ; then
