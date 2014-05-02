@@ -1,0 +1,70 @@
+#!/bin/bash
+# mountlto
+
+SCRIPTDIR=$(dirname "$0")
+CONFIG_FILE="${SCRIPTDIR}/ltoper.conf"
+
+# load configuration file
+if [ -f "${CONFIG_FILE}" ] ; then
+    . "${CONFIG_FILE}"
+elif [ ! "${CONFIG}" = "Y" ] ; then
+    echo "The configuration file is not set. You amust first create ${CONFIG_FILE} by running ltoperconfig." 1>&2
+    exit 1
+fi
+
+LTOLOGS="$HOME/Documents/lto_indexes"
+if [ ! ${LTO_ARRAY} ] ; then
+    LTO_ARRAY=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | xargs) # try to figure out how many lto decks are attached
+fi
+
+RED="$(tput setaf 1)"   # Red      - For Warnings
+GREEN="$(tput setaf 2)" # Green    - For Declarations
+BLUE="$(tput setaf 4)"  # Blue     - For Questions
+NC="$(tput sgr0)"       # No Color
+
+cleanup(){
+    schemafile="$LTOLOGS/${tapeid}.schema"
+    if [[ "$schemafile" -nt "$deckfile" ]] ; then
+        echo "${GREEN}Updating index for ${tapeid}…${NC}"
+        xml sel -t -m ".//file" -m "ancestor-or-self::directory" -v name -o "/" -b -v name -n "$schemafile" > "${schemafile%.*}.txt"
+        "${SCRIPTDIR}/lto2filemaker" "$schemafile" &
+    fi
+   if [ -d "${mountdir}" ] ; then
+       echo calling umount
+       umount "${mountdir}"
+       rmdir "${mountdir}"
+   fi
+}
+[ ! -d "$LTOLOGS" ] && mkdir -p "$LTOLOGS"
+if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
+   PS3="${BLUE}Which LTO deck?${NC} "
+   eval set "${LTO_ARRAY[@]}"
+   select deck in "$@"
+   do
+       break
+   done
+   if [ ! $deck ] ; then
+       echo "${RED}Error, you selected an invalid deck.${NC}"
+       exit 1
+   fi
+else
+   deck=0
+fi
+deckfile="$LTOLOGS/${deck}_last_used.txt"
+touch "$deckfile"
+printf "${BLUE}Enter the 6 character tape number:${NC} "
+read tapeid
+if [[ ! $(echo "$tapeid" | grep -E  "^[A-Z0-9]{6}$") ]] ; then
+   echo "${RED}ERROR The tape id must contain exactly 6 capital letters and/or numbers.${NC}"
+   exit 1
+fi
+mountdir="/Volumes/$tapeid"
+echo "${GREEN}MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${RED}${mountdir}${GREEN} FOLDER${NC}"
+echo "${GREEN}MOUNTING TAPE : AFTER MOUNT PRESS ${RED}CONTROL-C${GREEN} TO EJECT${NC}"
+trap cleanup SIGHUP SIGINT SIGTERM
+if [ $(which ltfs_ldun) ] ; then
+    ltfs_ldun load $deck
+fi
+mkdir -p "${mountdir}"
+ltfs -f -o work_directory="$LTOLOGS" -o eject -o capture_index -o devname=$deck -o volname="$tapeid" "${mountdir}"
+[ -d "${mountdir}" ] && rmdir "${mountdir}"
