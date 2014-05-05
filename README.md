@@ -3,13 +3,13 @@
 
 **LTO tapes need to be formatted before they can be used. Run the following command:**
 
-$mkltfs --device=$deck --tape-serial="$tapeid" --no-compression -r "size=5M/name= *txt:*.xml:*.jpg:*.log:*.json:*.framemd5:*.scc" --volume-name="$tapeid"
+`$mkltfs --device=$deck --tape-serial="$tapeid" --no-compression -r "size=5M/name= *txt:*.xml:*.jpg:*.log:*.json:*.framemd5:*.scc" --volume-name="$tapeid"`
 
 (You can remove the --device part if you only have one deck. The -r parts are rules for what files can live in the index partition which gives faster access.)
 
 **$tapeid is the identifier for the tape.  Name the tape like so:**
 
-Lxxxxx
+`Lxxxxx`
 
 (where xxxxx is a 5-digit sequential number, e.g. L00001, L00002, etc.)
 
@@ -23,10 +23,10 @@ If this is the first time you are running the LTO scripts, you must first edit t
 
 **Follow the prompts to edit the following variables:**
     
-FILEMAKER_USER=  XXXXX
-FILEMAKER_PASS=   XXXXX
-FILEMAKER_DB= XXXXX
-FILEMAKER_XML_URL=xxx.xxx/xxx.xml
+`FILEMAKER_USER=  XXXXX`
+`FILEMAKER_PASS=   XXXXX`
+`FILEMAKER_DB= XXXXX`
+`FILEMAKER_XML_URL=xxx.xxx/xxx.xml`
 
 ##Mounting LTO & Creating XMLs##
 
@@ -59,10 +59,11 @@ The script will run rsync twice the transfer the data to the LTO tape. It runs t
 
 ##Writing LTO metadata to FileMaker##
 
-This process happens automatically via the lto2filemaker script, which runs when the user unmounts the LTO tape using the mountlto script.  Using XML Starlet, the lto2filemaker script parses the xml documents and sends the metadata to the lto_tapes and lto_files tables in FileMaker.
+This process happens automatically via the lto2filemaker script, which runs when the user unmounts the LTO tape using the mountlto script.  Using XML Starlet, the lto2filemaker script parses the xml documents and sends the metadata to the lto\_tapes and lto\_files tables in FileMaker.
 
 Lto2filemaker can also be invoked independently:
-$lto2filemaker yourfile.schema
+
+`$lto2filemaker yourfile.schema`
 
 ##Tools##
 *mountlto
