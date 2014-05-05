@@ -1,9 +1,9 @@
-#LTOopers Documentation#
+#LTOpers Documentation#
 ##Formatting LTO##
 
 **LTO tapes need to be formatted before they can be used. Run the following command:**
 
-$mkltfs --device=$deck --tape-serial="$tapeid" --no-compression -r "size=5M/name=*txt:*.xml:*.jpg:*.log:*.json:*.framemd5:*.scc" --volume-name="$tapeid"
+$mkltfs --device=$deck --tape-serial="$tapeid" --no-compression -r "size=5M/name= *txt:*.xml:*.jpg:*.log:*.json:*.framemd5:*.scc" --volume-name="$tapeid"
 
 (You can remove the --device part if you only have one deck. The -r parts are rules for what files can live in the index partition which gives faster access.)
 
@@ -19,7 +19,7 @@ Lxxxxx
 
 If this is the first time you are running the LTO scripts, you must first edit the configuration file.
 
-**Run ltoperconfig script (see tools section below).**
+**Run ltoperconfig script.**
 
 **Follow the prompts to edit the following variables:**
     
@@ -32,7 +32,7 @@ FILEMAKER_XML_URL=xxx.xxx/xxx.xml
 
 **Put tape you want to mount in the deck (you do not have to push it in all the way).**
 
-**Run the mountlto script (see tools section below) to mount the tape.**
+**Run the mountlto script to mount the tape.**
 
 Script will check for attached tape drive, and will prompt for deck name if there are multiple drives.
 
@@ -50,7 +50,7 @@ The mountlto script will then prompt the lto2filemaker script (see tools section
 
 ##Writing LTO##
 
-**To write data onto a tape, run the writelto script (see tools section below).**
+**To write data onto a tape, run the writelto script.**
 
 **When prompted, enter the tapeid and the source directory.**
 
@@ -66,12 +66,16 @@ $lto2filemaker yourfile.schema
 
 ##Tools##
 *mountlto
+
 *writelto
+
 *ltoperconfig
+
 *lto2filemaker (requires XMLStarlet)
 
 ##External locations of LTO scripts and related tools:##
 https://github.com/amiaopensource/ltopers
+
 http://xmlstar.sourceforge.net/
 
 
