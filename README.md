@@ -5,15 +5,15 @@ You can easily install these tools using Homebrew. To install Homebrew, follow t
 
 To install LTOpers tools, run the following commands:
 
-'brew tap amiaopensource/amiaos'
+`brew tap amiaopensource/amiaos'`
 { this taps the homebrew recipes of the amiaopensource account }
 
-'brew install ltopers'
+`brew install ltopers`
 { just installed it to version 0.0.1 }
 
 If it ever updates you can update via:
-'brew update'
-'brew upgrade'
+`brew update`
+`brew upgrade`
 {nb: this will update/upgrade every package you've installed using brew}
 
 ##Formatting LTO##
