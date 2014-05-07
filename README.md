@@ -1,19 +1,17 @@
 #LTOpers Documentation#
 ##Formatting LTO##
 
-**LTO tapes need to be formatted before they can be used. Run the following command:**
+**LTO tapes need to be formatted before they can be used. Run the formatlto script.**
 
-`$mkltfs --device=$deck --tape-serial="$tapeid" --no-compression -r "size=5M/name= *txt:*.xml:*.jpg:*.log:*.json:*.framemd5:*.scc" --volume-name="$tapeid"`
-
-(You can remove the --device part if you only have one deck. The -r parts are rules for what files can live in the index partition which gives faster access.)
-
-**$tapeid is the identifier for the tape.  Name the tape like so:**
+**The script will ask you select a deck (if you have more than one attached) and to name your tape. Give your tape a 6-digit ID, e.g.:**
 
 `Lxxxxx`
 
 (where xxxxx is a 5-digit sequential number, e.g. L00001, L00002, etc.)
 
-**Remember to physically label the tape with the tapeid!**
+The script will format your tape with as LTFS, with no compression, and sets rules that allow smaller types of files to live in the index partition of the tape, which gives you faster access. If you need to change this, edit the mkltfs line in the script to suit your preferences.
+
+**Remember to physically label the tape with the tape id!**
 
 ##Set Configuration##
 
