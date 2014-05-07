@@ -1,4 +1,21 @@
 #LTOpers Documentation#
+
+##Installing LTOpers tools##
+You can easily install these tools using Homebrew. To install Homebrew, follow the instructions here http://brew.sh/
+
+To install LTOpers tools, run the following commands:
+
+'brew tap amiaopensource/amiaos'
+{ this taps the homebrew recipes of the amiaopensource account }
+
+'brew install ltopers'
+{ just installed it to version 0.0.1 }
+
+If it ever updates you can update via:
+'brew update'
+'brew upgrade'
+{nb: this will update/upgrade every package you've installed using brew}
+
 ##Formatting LTO##
 
 **LTO tapes need to be formatted before they can be used. Run the formatlto script.**
@@ -44,7 +61,7 @@ Tape will load in deck and mount.
 
 Whenever a tape is ejected, the script will write the tape’s xml (a .schema file) to $HOME/Documents/lto_indexes. If a .schema file for that tape already exists, it will just update the existing schema file with any new data.
 
-The mountlto script will then prompt the lto2filemaker script (see tools section below) to run.
+The mountlto script will then prompt the lto2filemaker script to run.
 
 ##Writing LTO##
 
