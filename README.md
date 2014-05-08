@@ -26,7 +26,7 @@ If it ever updates you can update via:
 
 (where xxxxx is a 5-digit sequential number, e.g. L00001, L00002, etc.)
 
-The script will format your tape with as LTFS, with no compression, and sets rules that allow smaller types of files to live in the index partition of the tape, which gives you faster access. If you need to change this, edit the mkltfs line in the script to suit your preferences.
+The script will format your tape in LTFS format, with no compression, and sets rules that allow smaller types of files to live in the index partition of the tape, which gives you faster access. If you need to change this, edit the mkltfs line in the script to suit your preferences.
 
 **Remember to physically label the tape with the tape id!**
 
@@ -59,7 +59,7 @@ Tape will load in deck and mount.
 
 **To unmount the tape, Ctrl-C in Terminal.**
 
-Whenever a tape is ejected, the script will write the tape’s xml (a .schema file) to $HOME/Documents/lto_indexes. If a .schema file for that tape already exists, it will just update the existing schema file with any new data.
+Whenever a tape is ejected, the script will export the tape’s index (as an xml .schema file) to $HOME/Documents/lto_indexes on your computer. If a .schema file for that tape already exists in that location, it will just update the existing schema file with any new data.
 
 The mountlto script will then prompt the lto2filemaker script to run.
 
