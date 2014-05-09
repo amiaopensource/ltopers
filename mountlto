@@ -14,7 +14,7 @@ fi
 
 LTOLOGS="$HOME/Documents/lto_indexes"
 if [ ! ${LTO_ARRAY} ] ; then
-    LTO_ARRAY=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | xargs) # try to figure out how many lto decks are attached
+    LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | xargs)) # try to figure out how many lto decks are attached
 fi
 
 RED="$(tput setaf 1)"   # Red      - For Warnings
