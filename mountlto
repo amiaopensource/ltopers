@@ -31,7 +31,9 @@ cleanup(){
     if [[ "$schemafile" -nt "$deckfile" ]] ; then
         echo "${GREEN}Updating index for ${tapeid}…${NC}"
         xml sel -t -m ".//file" -m "ancestor-or-self::directory" -v name -o "/" -b -v name -n "$schemafile" > "${schemafile%.*}.txt"
-        "${SCRIPTDIR}/lto2filemaker" "$schemafile" &
+        if [[ -n "${FILEMAKER_XML_URL}" ]] ; then
+            "${SCRIPTDIR}/lto2filemaker" "$schemafile" &
+        fi
     fi
    if [ -d "${mountdir}" ] ; then
        echo calling umount
