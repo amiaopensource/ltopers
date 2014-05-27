@@ -3,7 +3,11 @@
 # formats an LTO tape for LTFS
 
 if [ ! ${LTO_ARRAY} ] ; then
-    LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | xargs)) # try to figure out how many lto decks are attached
+    if [[ $(uname -s) == "Darwin" ]] ; then
+        LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | xargs)) # try to figure out how many lto decks are attached
+    else
+        LTO_ARRAY=(0) # to do: itemize when there are multiple lto drives in Linux
+    fi
 fi
 
 RED="$(tput setaf 1)"   # Red      - For Warnings
