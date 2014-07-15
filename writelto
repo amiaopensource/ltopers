@@ -6,11 +6,11 @@ TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="[A-Z][0-9]\{5\}"
 
 usage(){
-	echo "writelto"
-	echo "Usage:"
-	echo "	-t tape serial"
-	echo "	-d source directory"
-	exit 1
+    echo "writelto"
+    echo "Usage:"
+    echo "    -t tape serial"
+    echo "    -d source directory"
+    exit 1
 }
 
 # command-line options
@@ -27,15 +27,15 @@ shift $(( ${OPTIND} - 1 ))
 
 checkdir(){
 if [[ ! -d "${1}" ]] ; then
-	echo "${SOURCE_DIR}" is not a directory.
-	usage
-	exit 1
+    echo "${SOURCE_DIR}" is not a directory.
+    usage
+    exit 1
 fi
 }
 if [[ ! $(echo "${TAPE_SERIAL}" | grep "$TAPE_SERIAL_REGEX") ]] ; then
-	echo "${TAPE_SERIAL}" is not a capital letter followed by a 5 digit number
-	usage
-	exit 1
+    echo "${TAPE_SERIAL}" is not a capital letter followed by a 5 digit number
+    usage
+    exit 1
 fi
 
 TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
