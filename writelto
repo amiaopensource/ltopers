@@ -57,3 +57,4 @@ if [[ "${hiddenfiles}" ]] ; then
 fi
 umount "${TAPE_PATH}"
 echo "rsync exited with $RSYNC_ERR_1 on the first pass and $RSYNC_ERR_2 on the second pass."
+echo "rsync exited with $RSYNC_ERR_1 on the first pass and $RSYNC_ERR_2 on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
