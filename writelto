@@ -9,16 +9,14 @@ usage(){
     echo "writelto"
     echo "Usage:"
     echo "    -t tape serial"
-    echo "    -d source directory"
     exit 1
 }
 
 # command-line options
 OPTIND=1
-while getopts ":t:d:" opt ; do
+while getopts ":t:" opt ; do
     case "${opt}" in
         t) TAPE_SERIAL="${OPTARG}" ;;
-        d) SOURCE_DIR="${OPTARG}"  ;;
         *) echo "bad option -${OPTARG}" ; usage ;;
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
     esac
@@ -32,6 +30,8 @@ if [[ ! -d "${1}" ]] ; then
     exit 1
 fi
 }
+
+SOURCE_DIR="${1}"
 if [[ ! $(echo "${TAPE_SERIAL}" | grep "$TAPE_SERIAL_REGEX") ]] ; then
     echo "${TAPE_SERIAL}" is not a capital letter followed by a 5 digit number
     usage
