@@ -1,7 +1,7 @@
 #!/bin/bash
 # name: writelto
 # description: writelto writes the contents of a specified directory onto a mounted LTFS-formated LTO tape.
-
+hiddenfiles=""
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="[A-Z][0-9]\{5\}"
 
@@ -48,7 +48,12 @@ checkdir "${TAPE_PATH}"
 
 rsync -rtv --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
 RSYNC_ERR_1="$?"
-rsync -rtv --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
-RSYNC_ERR_2="$?"
+hiddenfiles=$(find "${TAPE_PATH}" -name ".*")
+if [[ "${hiddenfiles}" ]] ; then
+	echo "Removing hidden files from tape."
+	find "${TAPE_PATH}" -name ".*" -delete
+	rsync -rtv --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
+	RSYNC_ERR_2="$?"
+fi
 umount "${TAPE_PATH}"
 echo "rsync exited with $RSYNC_ERR_1 on the first pass and $RSYNC_ERR_2 on the second pass."
