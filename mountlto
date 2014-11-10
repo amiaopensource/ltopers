@@ -41,6 +41,17 @@ cleanup(){
        rmdir "${mountdir}"
    fi
 }
+
+_version_schema(){
+schemafile="$LTOLOGS/${tapeid}.schema"
+if [ -f "${schemafile}" ] ; then
+report -dt "Creating a new version of the ltfs schema file."
+LASTSCHEMA="${schemafile%.*}_$(stat -t '%Y%m%d-%H%M%S' -l "${schemafile}" | awk '{print $6}').xml"
+mv -v "${schemafile}" "${LASTSCHEMA}"
+report -dt "$(get_iso8601): $(basename ${0}):${version}: schema file is versioned - ${schemafile} -> ${LASTSCHEMA}"
+fi
+}
+
 [ ! -d "$LTOLOGS" ] && mkdir -p "$LTOLOGS"
 if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
    PS3="${BLUE}Which LTO deck?${NC} "
@@ -76,5 +87,6 @@ if [ $(which ltfs_ldun) ] ; then
     ltfs_ldun load $deck
 fi
 mkdir -p "${mountdir}"
+_version_schema
 ltfs -f -o work_directory="$LTOLOGS" -o eject -o capture_index -o devname=$deck -o volname="$tapeid" "${mountdir}"
 [ -d "${mountdir}" ] && rmdir "${mountdir}"
