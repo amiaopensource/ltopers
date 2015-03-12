@@ -3,7 +3,7 @@
 # description: writelto writes the contents of a specified directory onto a mounted LTFS-formated LTO tape.
 hiddenfiles=""
 TAPE_MOUNT_POINT="/Volumes"
-TAPE_SERIAL_REGEX="[A-Z][0-9]\{5\}"
+TAPE_SERIAL_REGEX="[A-Z0-9]\{6\}"
 
 usage(){
     echo "writelto"
