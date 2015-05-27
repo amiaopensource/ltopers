@@ -88,5 +88,5 @@ if [ $(which ltfs_ldun) ] ; then
 fi
 mkdir -p "${mountdir}"
 _version_schema
-ltfs -f -o work_directory="$LTOLOGS" -o eject -o capture_index -o devname=$deck -o volname="$tapeid" "${mountdir}"
+ltfs -f -o work_directory="$LTOLOGS" -o eject -o capture_index -o devname=$deck -o volname="$tapeid" -o uid=$(id -u) "${mountdir}"
 [ -d "${mountdir}" ] && rmdir "${mountdir}"
