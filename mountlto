@@ -88,7 +88,7 @@ if [ $(which ltfs_ldun) ] ; then
     ltfs_ldun load $deck
 fi
 mkdir -p "${mountdir}"
-_version_schema
+#_version_schema
 
 LTFS_OPTIONS+=(-o eject)
 LTFS_OPTIONS+=(-o capture_index)
