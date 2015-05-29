@@ -42,7 +42,7 @@ TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 
 checkdir "${SOURCE_DIR}"
 # remove .DS_Store files
-find "$target" -name '.DS_Store' -type f -delete
+find "${SOURCE_DIR}/" -name '.DS_Store' -type f -delete
 
 checkdir "${TAPE_PATH}"
 
