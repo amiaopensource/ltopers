@@ -12,8 +12,9 @@ elif [ ! "${CONFIG}" = "Y" ] ; then
     exit 1
 fi
 
+unset ${LTO_ARRAY}
 LTOLOGS="$HOME/Documents/lto_indexes"
-if [ ! ${LTO_ARRAY} ] ; then
+if [[ -z ${LTO_ARRAY} ]] ; then
     if [[ $(uname -s) == "Darwin" ]] ; then
         LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | xargs)) # try to figure out how many lto decks are attached
     else
@@ -54,8 +55,8 @@ fi
 
 [ ! -d "$LTOLOGS" ] && mkdir -p "$LTOLOGS"
 if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
-   eval set "${LTO_ARRAY[@]}"
     PS3="${BLUE}Which LTO deck?${NC} "
+    eval set "${LTO_ARRAY[@]}"
     select deck in "$@"
     do
         break
