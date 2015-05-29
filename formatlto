@@ -36,10 +36,10 @@ if [[ ! $(echo "$tapeid" | grep -E  "^[A-Z0-9]{6}$") ]] ; then
    echo "${RED}ERROR The tape id must contain exactly 6 capital letters and/or numbers.${NC}"
    exit 1
 fi
-if [ $(which ltfs_ldun) ] ; then
-    ltfs_ldun load $deck
+if [[ $(which ltfs_ldun) ]] ; then
+    ltfs_ldun load "${deck}"
 fi
 mkltfs --device=$deck --tape-serial="$tapeid" --no-compression -r "size=5M/name=*txt:*.xml:*.jpg:*.log:*.json:*.framemd5:*.scc" --volume-name="$tapeid"
-if [ $(which ltfs_ldun) ] ; then
-    ltfs_ldun unload $deck
+if [[ $(which ltfs_ldun) ]] ; then
+    ltfs_ldun unload "${deck}"
 fi
