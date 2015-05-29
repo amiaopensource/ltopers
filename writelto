@@ -46,13 +46,13 @@ find "$target" -name '.DS_Store' -type f -delete
 
 checkdir "${TAPE_PATH}"
 
-rsync -rtv --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
+rsync -rtvO --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
 RSYNC_ERR_1="$?"
 hiddenfiles=$(find "${TAPE_PATH}" -name ".*")
 if [[ "${hiddenfiles}" ]] ; then
 	echo "Removing hidden files from tape."
 	find "${TAPE_PATH}" -name ".*" -delete
-	rsync -rtv --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
+	rsync -rtvO --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
 	RSYNC_ERR_2="$?"
 fi
 umount "${TAPE_PATH}"
