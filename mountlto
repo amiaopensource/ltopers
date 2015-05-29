@@ -45,10 +45,10 @@ cleanup(){
 _version_schema(){
     schemafile="$LTOLOGS/${tapeid}.schema"
     if [ -f "${schemafile}" ] ; then
-        echo "Creating a new version of the ltfs schema file."
+        echo "${GREEN}Creating a new version of the ltfs schema file.${NC}"
         LASTSCHEMA="${schemafile%.*}_$(stat -t '%Y%m%d-%H%M%S' -l "${schemafile}" | awk '{print $6}').schema"
         mv -v "${schemafile}" "${LASTSCHEMA}"
-        echo "$(basename ${0}): schema file is versioned - ${schemafile} -> ${LASTSCHEMA}"
+        echo "${GREEN}$(basename ${0}): schema file is versioned - ${schemafile} -> ${LASTSCHEMA}.${NC}"
     fi
 }
 
