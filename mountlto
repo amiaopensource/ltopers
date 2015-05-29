@@ -12,6 +12,7 @@ else
 fi
 
 unset ${LTO_ARRAY}
+unset ${LTFS_OPTIONS}
 LTOLOGS="$HOME/Documents/lto_indexes"
 if [[ -z ${LTO_ARRAY} ]] ; then
     if [[ $(uname -s) == "Darwin" ]] ; then
@@ -88,5 +89,12 @@ if [ $(which ltfs_ldun) ] ; then
 fi
 mkdir -p "${mountdir}"
 _version_schema
-ltfs -f -o work_directory="$LTOLOGS" -o eject -o capture_index -o devname=$deck -o volname="$tapeid" -o uid=$(id -u) "${mountdir}"
+
+LTFS_OPTIONS+=(-o eject)
+LTFS_OPTIONS+=(-o capture_index)
+LTFS_OPTIONS+=(-o devname=$deck)
+LTFS_OPTIONS+=(-o volname="$tapeid")
+LTFS_OPTIONS+=(-o uid=$(id -u))
+
+ltfs -f -o work_directory="$LTOLOGS" ${LTFS_OPTIONS[@]} "${mountdir}"
 [ -d "${mountdir}" ] && rmdir "${mountdir}"
