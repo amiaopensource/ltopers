@@ -34,11 +34,11 @@ cleanup(){
         if [[ -n "${FILEMAKER_XML_URL}" ]] ; then
             "${SCRIPTDIR}/lto2filemaker" "$schemafile" &
         fi
+    if [ -d "${mountdir}" ] ; then
+        echo calling umount
+        umount "${mountdir}"
+        rmdir "${mountdir}"
     fi
-   if [ -d "${mountdir}" ] ; then
-       echo calling umount
-       umount "${mountdir}"
-       rmdir "${mountdir}"
    fi
 }
 
@@ -54,31 +54,31 @@ fi
 
 [ ! -d "$LTOLOGS" ] && mkdir -p "$LTOLOGS"
 if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
-   PS3="${BLUE}Which LTO deck?${NC} "
    eval set "${LTO_ARRAY[@]}"
-   select deck in "$@"
-   do
-       break
-   done
-   if [ ! $deck ] ; then
-       echo "${RED}Error, you selected an invalid deck.${NC}"
-       exit 1
-   fi
+    PS3="${BLUE}Which LTO deck?${NC} "
+    select deck in "$@"
+    do
+        break
+    done
+    if [ ! $deck ] ; then
+        echo "${RED}Error, you selected an invalid deck.${NC}"
+        exit 1
+    fi
 else
-   deck=0
+    deck=0
 fi
 deckfile="$LTOLOGS/${deck}_last_used.txt"
 touch "$deckfile"
 printf "${BLUE}Enter the 6 character tape number:${NC} "
 read tapeid
 if [[ ! $(echo "$tapeid" | grep -E  "^[A-Z0-9]{6}$") ]] ; then
-   echo "${RED}ERROR The tape id must contain exactly 6 capital letters and/or numbers.${NC}"
-   exit 1
 fi
 if [[ $(uname -s) == "Darwin" ]] ; then
     mountdir="/Volumes/$tapeid"
 else
     mountdir="/mnt/$tapeid"
+    echo "${RED}ERROR The tape id must contain exactly 6 capital letters and/or numbers.${NC}"
+    exit 1
 fi
 echo "${GREEN}MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${RED}${mountdir}${GREEN} FOLDER${NC}"
 echo "${GREEN}MOUNTING TAPE : AFTER MOUNT PRESS ${RED}CONTROL-C${GREEN} TO EJECT${NC}"
