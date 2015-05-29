@@ -32,14 +32,14 @@ cleanup(){
         echo "${GREEN}Updating index for ${tapeid}…${NC}"
         xml sel -t -m ".//file" -m "ancestor-or-self::directory" -v name -o "/" -b -v name -n "$schemafile" > "${schemafile%.*}.txt"
         if [[ -n "${FILEMAKER_XML_URL}" ]] ; then
-            "${SCRIPTDIR}/lto2filemaker" "$schemafile" &
+            "${SCRIPTDIR}/lto2filemaker" "${schemafile}"
         fi
+    fi
     if [ -d "${mountdir}" ] ; then
         echo calling umount
         umount "${mountdir}"
         rmdir "${mountdir}"
     fi
-   fi
 }
 
 _version_schema(){
