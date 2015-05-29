@@ -43,13 +43,13 @@ cleanup(){
 }
 
 _version_schema(){
-schemafile="$LTOLOGS/${tapeid}.schema"
-if [ -f "${schemafile}" ] ; then
-report -dt "Creating a new version of the ltfs schema file."
-LASTSCHEMA="${schemafile%.*}_$(stat -t '%Y%m%d-%H%M%S' -l "${schemafile}" | awk '{print $6}').xml"
-mv -v "${schemafile}" "${LASTSCHEMA}"
-report -dt "$(get_iso8601): $(basename ${0}):${version}: schema file is versioned - ${schemafile} -> ${LASTSCHEMA}"
-fi
+    schemafile="$LTOLOGS/${tapeid}.schema"
+    if [ -f "${schemafile}" ] ; then
+        report -dt "Creating a new version of the ltfs schema file."
+        LASTSCHEMA="${schemafile%.*}_$(stat -t '%Y%m%d-%H%M%S' -l "${schemafile}" | awk '{print $6}').xml"
+        mv -v "${schemafile}" "${LASTSCHEMA}"
+        report -dt "$(get_iso8601): $(basename ${0}):${version}: schema file is versioned - ${schemafile} -> ${LASTSCHEMA}"
+    fi
 }
 
 [ ! -d "$LTOLOGS" ] && mkdir -p "$LTOLOGS"
