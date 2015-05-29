@@ -72,13 +72,13 @@ touch "$deckfile"
 printf "${BLUE}Enter the 6 character tape number:${NC} "
 read tapeid
 if [[ ! $(echo "$tapeid" | grep -E  "^[A-Z0-9]{6}$") ]] ; then
-fi
-if [[ $(uname -s) == "Darwin" ]] ; then
-    mountdir="/Volumes/$tapeid"
-else
-    mountdir="/mnt/$tapeid"
     echo "${RED}ERROR The tape id must contain exactly 6 capital letters and/or numbers.${NC}"
     exit 1
+fi
+if [[ $(uname -s) == "Darwin" ]] ; then
+    mountdir="/Volumes/${tapeid}"
+else
+    mountdir="/mnt/${tapeid}"
 fi
 echo "${GREEN}MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${RED}${mountdir}${GREEN} FOLDER${NC}"
 echo "${GREEN}MOUNTING TAPE : AFTER MOUNT PRESS ${RED}CONTROL-C${GREEN} TO EJECT${NC}"
