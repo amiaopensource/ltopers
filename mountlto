@@ -95,6 +95,7 @@ LTFS_OPTIONS+=(-o capture_index)
 LTFS_OPTIONS+=(-o devname=$deck)
 LTFS_OPTIONS+=(-o volname="$tapeid")
 LTFS_OPTIONS+=(-o uid=$(id -u))
+LTFS_OPTIONS+=(-o sync_type=unmount)
 
 ltfs -f -o work_directory="$LTOLOGS" ${LTFS_OPTIONS[@]} "${mountdir}"
 [ -d "${mountdir}" ] && rmdir "${mountdir}"
