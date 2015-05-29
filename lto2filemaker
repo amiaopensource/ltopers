@@ -43,4 +43,3 @@ while read file ; do
     fi
 done < "$LTO_FILE_TMP"
 echo "Done uploading metadata for $tapeid."
-rm "$LTO_FILE_TMP" "$LTO_TAPE_TMP"
