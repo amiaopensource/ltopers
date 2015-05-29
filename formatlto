@@ -1,6 +1,29 @@
 #!/bin/bash
 # formatlto
 # formats an LTO tape for LTFS
+version="0.2"
+
+usage(){
+    echo
+    echo "$(basename ${0}) ${version}"
+    echo "format lto tapes with ltfs"
+    echo "Dependencies: ${dependencies[@]}"
+    echo "Usage: $(basename $0) [ -f ]"
+    echo "  -f force formating"
+    echo "  -h ( display this help )"
+    echo
+    exit
+}
+
+unset middleoptions
+while getopts ":fh" opt ; do
+   case "${opt}" in
+       f) middleoptions+="-f";;
+       h) usage ;;
+       *) echo "bad option -$OPTARG" ; usage ;;
+       :) echo "Option -$OPTARG requires an argument" ; exit 1 ;;
+   esac
+done
 
 if [ ! ${LTO_ARRAY} ] ; then
     if [[ $(uname -s) == "Darwin" ]] ; then
@@ -39,7 +62,7 @@ fi
 if [[ $(which ltfs_ldun) ]] ; then
     ltfs_ldun load "${deck}"
 fi
-mkltfs --device=$deck --tape-serial="$tapeid" --no-compression -r "size=5M/name=*txt:*.xml:*.jpg:*.log:*.json:*.framemd5:*.scc" --volume-name="$tapeid"
+mkltfs ${middleoptions[@]} --device=$deck --tape-serial="$tapeid" -c --volume-name="$tapeid"
 if [[ $(which ltfs_ldun) ]] ; then
     ltfs_ldun unload "${deck}"
 fi
