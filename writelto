@@ -4,6 +4,8 @@
 hiddenfiles=""
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="[A-Z0-9]\{6\}"
+LTOLOGS="$HOME/Documents/lto_indexes"
+SCRIPTDIR=$(dirname "$0")
 
 usage(){
     echo "writelto"
@@ -58,3 +60,8 @@ fi
 umount "${TAPE_PATH}"
 echo "rsync exited with $RSYNC_ERR_1 on the first pass and $RSYNC_ERR_2 on the second pass."
 echo "rsync exited with $RSYNC_ERR_1 on the first pass and $RSYNC_ERR_2 on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
+
+schemafile="$LTOLOGS/${TAPE_SERIAL}.schema"
+if [[ -n "${FILEMAKER_XML_URL}" ]] ; then
+    "${SCRIPTDIR}/lto2filemaker" "${schemafile}"
+fi
