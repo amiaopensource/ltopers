@@ -28,9 +28,9 @@ BLUE="$(tput setaf 4)"  # Blue     - For Questions
 NC="$(tput sgr0)"       # No Color
 
 cleanup(){
-    schemafile="$LTOLOGS/${tapeid}.schema"
+    schemafile="$LTOLOGS/${TAPE_SERIAL}.schema"
     if [[ "$schemafile" -nt "$deckfile" ]] ; then
-        echo "${GREEN}Updating index for ${tapeid}…${NC}"
+        echo "${GREEN}Updating index for ${TAPE_SERIAL}…${NC}"
         xml sel -t -m ".//file" -m "ancestor-or-self::directory" -v name -o "/" -b -v name -n "$schemafile" > "${schemafile%.*}.txt"
         if [[ -n "${FILEMAKER_XML_URL}" ]] ; then
             "${SCRIPTDIR}/lto2filemaker" "${schemafile}"
@@ -44,7 +44,7 @@ cleanup(){
 }
 
 _version_schema(){
-    schemafile="$LTOLOGS/${tapeid}.schema"
+    schemafile="$LTOLOGS/${TAPE_SERIAL}.schema"
     if [ -f "${schemafile}" ] ; then
         echo "${GREEN}Creating a new version of the ltfs schema file.${NC}"
         LASTSCHEMA="${schemafile%.*}_$(stat -t '%Y%m%d-%H%M%S' -l "${schemafile}" | awk '{print $6}').schema"
@@ -71,15 +71,15 @@ fi
 deckfile="$LTOLOGS/${deck}_last_used.txt"
 touch "$deckfile"
 printf "${BLUE}Enter the 6 character tape number:${NC} "
-read tapeid
-if [[ ! $(echo "$tapeid" | grep -E  "^[A-Z0-9]{6}$") ]] ; then
+read TAPE_SERIAL
+if [[ ! $(echo "$TAPE_SERIAL" | grep -E  "^[A-Z0-9]{6}$") ]] ; then
     echo "${RED}ERROR The tape id must contain exactly 6 capital letters and/or numbers.${NC}"
     exit 1
 fi
 if [[ $(uname -s) == "Darwin" ]] ; then
-    mountdir="/Volumes/${tapeid}"
+    mountdir="/Volumes/${TAPE_SERIAL}"
 else
-    mountdir="/mnt/${tapeid}"
+    mountdir="/mnt/${TAPE_SERIAL}"
 fi
 echo "${GREEN}MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${RED}${mountdir}${GREEN} FOLDER${NC}"
 echo "${GREEN}MOUNTING TAPE : AFTER MOUNT PRESS ${RED}CONTROL-C${GREEN} TO EJECT${NC}"
@@ -93,7 +93,7 @@ mkdir -p "${mountdir}"
 LTFS_OPTIONS+=(-o eject)
 LTFS_OPTIONS+=(-o capture_index)
 LTFS_OPTIONS+=(-o devname=$deck)
-LTFS_OPTIONS+=(-o volname="$tapeid")
+LTFS_OPTIONS+=(-o volname="$TAPE_SERIAL")
 LTFS_OPTIONS+=(-o uid=$(id -u))
 LTFS_OPTIONS+=(-o sync_type=unmount)
 
