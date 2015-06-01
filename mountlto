@@ -28,14 +28,6 @@ BLUE="$(tput setaf 4)"  # Blue     - For Questions
 NC="$(tput sgr0)"       # No Color
 
 cleanup(){
-    schemafile="$LTOLOGS/${TAPE_SERIAL}.schema"
-    if [[ "$schemafile" -nt "$deckfile" ]] ; then
-        echo "${GREEN}Updating index for ${TAPE_SERIAL}…${NC}"
-        xml sel -t -m ".//file" -m "ancestor-or-self::directory" -v name -o "/" -b -v name -n "$schemafile" > "${schemafile%.*}.txt"
-        if [[ -n "${FILEMAKER_XML_URL}" ]] ; then
-            "${SCRIPTDIR}/lto2filemaker" "${schemafile}"
-        fi
-    fi
     if [ -d "${mountdir}" ] ; then
         echo calling umount
         umount "${mountdir}"
