@@ -5,7 +5,8 @@ hiddenfiles=""
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="[A-Z0-9]\{6\}"
 LTOLOGS="$HOME/Documents/lto_indexes"
-SCRIPTDIR=$(dirname "$0")
+SCRIPTDIR=$(dirname "${0}")
+. "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
 
 usage(){
     echo "writelto"

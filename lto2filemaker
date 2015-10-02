@@ -1,8 +1,8 @@
 #!/bin/bash
 # This script presumes that you've setup a filemaker database with Filemaker Server using two tables called "lto_tapes" and "lto_files" with fields according to the LTFS XML format.
-
-SCRIPTDIR=$(dirname "$0")
-CONFIG_FILE="${SCRIPTDIR}/ltoper.conf"
+REQUIRECONFIG="Y"
+SCRIPTDIR=$(dirname "${0}")
+. "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
 
 maketemp(){
     mktemp -q "/tmp/$(basename $0).XXXXXX"
@@ -11,14 +11,6 @@ maketemp(){
         exit 1
     fi
 }
-
-# load configuration file
-if [ -f "${CONFIG_FILE}" ] ; then
-    . "${CONFIG_FILE}"
-elif [ ! "${CONFIG}" = "Y" ] ; then
-    echo "The configuration file is not set. You amust first create ${CONFIG_FILE} by running ltoperconfig." 1>&2
-    exit 1
-fi
 
 LTO_TAPE_TMP=$(maketemp)
 xml sel -t -m "/ltfsindex" -o " --data-urlencode \"creator=" -v creator -o "\" --data-urlencode \"volumeuuid=" -v volumeuuid -o "\" --data-urlencode \"generationnumber=" -v generationnumber -o "\" --data-urlencode \"accesstime=" -v directory[1]/accesstime -o "\" --data-urlencode \"backuptime=" -v directory[1]/backuptime -o "\" --data-urlencode \"changetime=" -v directory[1]/changetime -o "\" --data-urlencode \"creationtime=" -v directory[1]/creationtime -o "\" --data-urlencode \"modifytime=" -v directory[1]/modifytime -o "\" --data-urlencode \"updatetime=" -v updatetime -o "\" --data-urlencode \"readonly=" -v directory[1]/readonly -o "\" --data-urlencode \"allowpolicyupdate=" -v allowpolicyupdate -o "\" --data-urlencode \"highestfileuid=" -v highestfileuid -o "\" --data-urlencode \"name=" -v directory[1]/name -o "\" --data-urlencode \"uniq=" -v directory[1]/modifytime -o "." -v directory[1]/highestfileuid -o "." -v volumeuuid -o "." -v updatetime -o "\"" -n "$1" > "$LTO_TAPE_TMP"

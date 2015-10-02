@@ -1,15 +1,9 @@
 #!/bin/bash
 # mountlto
 
-SCRIPTDIR=$(dirname "$0")
-CONFIG_FILE="${SCRIPTDIR}/ltoper.conf"
+SCRIPTDIR=$(dirname "${0}")
+. "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
 
-# load configuration file
-if [ -f "${CONFIG_FILE}" ] ; then
-    . "${CONFIG_FILE}"
-else
-    echo "The configuration file is not set. Some features will be disabled." 1>&2
-fi
 
 unset ${LTO_ARRAY}
 unset ${LTFS_OPTIONS}

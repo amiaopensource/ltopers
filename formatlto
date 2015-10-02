@@ -3,6 +3,9 @@
 # formats an LTO tape for LTFS
 version="0.2"
 
+SCRIPTDIR=$(dirname "${0}")
+. "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
+
 usage(){
     echo
     echo "$(basename ${0}) ${version}"
