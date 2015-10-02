@@ -5,10 +5,10 @@ SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
 
 
-unset ${LTO_ARRAY}
-unset ${LTFS_OPTIONS}
-LTOLOGS="$HOME/Documents/lto_indexes"
-if [[ -z ${LTO_ARRAY} ]] ; then
+unset "${LTO_ARRAY}"
+unset "${LTFS_OPTIONS}"
+LTO_LOGS="${HOME}/Documents/lto_indexes"
+if [[ -z "${LTO_ARRAY}" ]] ; then
     if [[ $(uname -s) == "Darwin" ]] ; then
         LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | xargs)) # try to figure out how many lto decks are attached
     else
@@ -21,23 +21,23 @@ GREEN="$(tput setaf 2)" # Green    - For Declarations
 BLUE="$(tput setaf 4)"  # Blue     - For Questions
 NC="$(tput sgr0)"       # No Color
 
-[ ! -d "$LTOLOGS" ] && mkdir -p "$LTOLOGS"
+[ ! -d "${LTO_LOGS}" ] && mkdir -p "${LTO_LOGS}"
 if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
     PS3="${BLUE}Which LTO deck?${NC} "
     eval set "${LTO_ARRAY[@]}"
-    select deck in "$@"
+    select DECK in "$@"
     do
         break
     done
-    if [ ! $deck ] ; then
+    if [ ! ${DECK} ] ; then
         echo "${RED}Error, you selected an invalid deck.${NC}"
         exit 1
     fi
 else
-    deck=0
+    DECK=0
 fi
-deckfile="$LTOLOGS/${deck}_last_used.txt"
-touch "$deckfile"
+DECKFILE="${LTO_LOGS}/${DECK}_last_used.txt"
+touch "${DECKFILE}"
 printf "${BLUE}Enter the 6 character tape number:${NC} "
 read TAPE_SERIAL
 if [[ ! $(echo "$TAPE_SERIAL" | grep -E  "^[A-Z0-9]{6}$") ]] ; then
@@ -45,25 +45,25 @@ if [[ ! $(echo "$TAPE_SERIAL" | grep -E  "^[A-Z0-9]{6}$") ]] ; then
     exit 1
 fi
 if [[ $(uname -s) == "Darwin" ]] ; then
-    mountdir="/Volumes/${TAPE_SERIAL}"
+    MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
 else
-    mountdir="/mnt/${TAPE_SERIAL}"
+    MOUNT_DIR="/mnt/${TAPE_SERIAL}"
 fi
-echo "${GREEN}MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${RED}${mountdir}${GREEN} FOLDER${NC}"
+echo "${GREEN}MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${RED}${MOUNT_DIR}${GREEN} FOLDER${NC}"
 echo "${GREEN}MOUNTING TAPE : AFTER MOUNT PRESS ${RED}CONTROL-C${GREEN} TO EJECT${NC}"
 trap _cleanup SIGHUP SIGINT SIGTERM
 if [ $(which ltfs_ldun) ] ; then
-    ltfs_ldun load $deck
+    ltfs_ldun load ${DECK}
 fi
-mkdir -p "${mountdir}"
+mkdir -p "${MOUNT_DIR}"
 #_version_schema
 
 LTFS_OPTIONS+=(-o eject)
 LTFS_OPTIONS+=(-o capture_index)
-LTFS_OPTIONS+=(-o devname=$deck)
+LTFS_OPTIONS+=(-o devname=${DECK})
 LTFS_OPTIONS+=(-o volname="$TAPE_SERIAL")
 LTFS_OPTIONS+=(-o uid=$(id -u))
 LTFS_OPTIONS+=(-o sync_type=unmount)
 
-ltfs -f -o work_directory="$LTOLOGS" ${LTFS_OPTIONS[@]} "${mountdir}"
-[ -d "${mountdir}" ] && rmdir "${mountdir}"
+ltfs -f -o work_directory="$LTO_LOGS" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
+[ -d "${MOUNT_DIR}" ] && rmdir "${MOUNT_DIR}"

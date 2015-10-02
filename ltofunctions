@@ -14,7 +14,7 @@ elif [ ! "${CONFIG}" = "Y" -a "${REQUIRECONFIG}" = "Y" ] ; then
 fi
 
 _maketemp(){
-    mktemp -q "/tmp/$(basename $0).XXXXXX"
+    mktemp -q "/tmp/$(basename ${0}).XXXXXX"
     if [ ${?} -ne 0 ]; then
         echo "${0}: Can't create temp file, exiting..."
         exit 1
@@ -30,68 +30,68 @@ _report(){
         local GREEN="$(tput setaf 2)" # Green    - For Declarations
         local BLUE="$(tput setaf 4)"  # Blue     - For Questions
         local NC="$(tput sgr0)"       # No Color
-        local color=""
-        local startmessage=""
-        local endmessage=""
-        local echoopt=""
+        local COLOR=""
+        local START_MESSAGE=""
+        local END_MESSAGE=""
+        local ECHOOPT=""
         OPTIND=1
         while getopts ":qdwstn" opt; do
             case "$opt" in
-                q) color="$BLUE" ;;                         # question mode, use color blue
-                d) color="$GREEN" ;;                        # declaration mode, use color green
-                w) color="$RED" ; log="Y";;                 # warning mode, use color red
-                s) startmessage+=([$(basename $0)] ) ;;     # prepend scriptname to the message
-                t) startmessage+=($(_get_iso8601) '- ' ) ;;     # prepend timestamp to the message
-                n) echoopt="-n" ;;                          # to avoid line breaks after echo
+                q) COLOR="${BLUE}" ;;                         # question mode, use color blue
+                d) COLOR="${GREEN}" ;;                        # declaration mode, use color green
+                w) COLOR="${RED}" ; LOG="Y";;                 # warning mode, use color red
+                s) START_MESSAGE+=([$(basename $0)] ) ;;     # prepend scriptname to the message
+                t) START_MESSAGE+=($(_get_iso8601) '- ' ) ;;     # prepend timestamp to the message
+                n) ECHOOPT="-n" ;;                          # to avoid line breaks after echo
             esac
         done
-        shift $(( ${OPTIND} - 1 ))
-        message="$1"
-        echo $echoopt "${color}${startmessage[@]}${message}${NC}"
-        [ "$log" = "Y" ] && _log -w "$message"
+        shift $(( "${OPTIND}" - 1 ))
+        MESSAGE="$1"
+        echo "${ECHOOPT}" "${COLOR}${START_MESSAGE[@]}${MESSAGE}${NC}"
+        [ "${LOG}" = "Y" ] && _log -w "${MESSAGE}"
 }
 
 _config_edit(){
-    [ -z "$1" -o -z "$2" ] && { _report -w "The config_edit function requires two arguments. Error." ; exit ;};
-    sedtemp=$(_maketemp)
-    sed "s:^$1=[^ ]*:$1=$2:" "$CONFIG_FILE" > "$sedtemp"
-    cp "$sedtemp" "$CONFIG_FILE"
+    [ -z "${1}" -o -z "${2}" ] && { _report -w "The config_edit function requires two arguments. Error." ; exit ;};
+    SEDTEMP=$(_maketemp)
+    sed "s:^$1=[^ ]*:$1=$2:" "${CONFIG_FILE}" > "${SEDTEMP}"
+    cp "${SEDTEMP}" "${CONFIG_FILE}"
 }
 
 _test_config(){
-    for directoryvariable in OUTDIR_INGESTFILE OUTDIR_INGESTXDCAM OUTDIR_PAPER AIP_STORAGE PODCASTDELIVER YOUTUBEDELIVER TMPDIR CUSTOM_LOG_DIR LTO_INDEX_DIR ; do
-        if [ -d "${!directoryvariable}" ] ; then
-            _report -d "${directoryvariable} is a valid directory"
+    for DIRECTORYVARIABLE in OUTDIR_INGESTFILE OUTDIR_INGESTXDCAM OUTDIR_PAPER AIP_STORAGE PODCASTDELIVER YOUTUBEDELIVER TMPDIR CUSTOM_LOG_DIR LTO_INDEX_DIR ; do
+        if [ -d "${!DIRECTORYVARIABLE}" ] ; then
+            _report -d "${DIRECTORYVARIABLE} is a valid directory"
         else
-            _report -w "${directoryvariable} is NOT a valid directory"
+            _report -w "${DIRECTORYVARIABLE} is NOT a valid directory"
         fi
     done
 }
 
 _add_key(){
-    key_to_add="$1"
-    grep -q "^$key_to_add=" "$CONFIG_FILE" ; grep_code="$?"
-    if [[ ! "${grep_code}" -eq "0" ]] ; then
-        _report -td "Adding NEW variable $key_to_add to $CONFIG_FILE"
-        echo "$key_to_add=" >> "$CONFIG_FILE"
+    KEY_TO_ADD="${1}"
+    grep -q "^$KEY_TO_ADD=" "${CONFIG_FILE}" ; GREP_CODE="$?"
+    if [[ ! "${GREP_CODE}" -eq "0" ]] ; then
+        _report -td "Adding NEW variable $key_to_add to ${CONFIG_FILE}"
+        echo "$KEY_TO_ADD=" >> "${CONFIG_FILE}"
     fi
 }
 
 _cleanup(){
-    if [ -d "${mountdir}" ] ; then
+    if [ -d "${MOUNT_DIR}" ] ; then
         echo calling umount
-        umount "${mountdir}"
-        rmdir "${mountdir}"
+        umount "${MOUNT_DIR}"
+        rmdir "${MOUNT_DIR}"
     fi
 }
 
 _version_schema(){
-    schemafile="$LTOLOGS/${TAPE_SERIAL}.schema"
-    if [ -f "${schemafile}" ] ; then
+    SCHEMA_FILE="$LTO_LOGS/${TAPE_SERIAL}.schema"
+    if [ -f "${SCHEMA_FILE}" ] ; then
         echo "${GREEN}Creating a new version of the ltfs schema file.${NC}"
-        LASTSCHEMA="${schemafile%.*}_$(stat -t '%Y%m%d-%H%M%S' -l "${schemafile}" | awk '{print $6}').schema"
-        mv -v "${schemafile}" "${LASTSCHEMA}"
-        echo "${GREEN}$(basename ${0}): schema file is versioned - ${schemafile} -> ${LASTSCHEMA}.${NC}"
+        LASTSCHEMA="${SCHEMA_FILE%.*}_$(stat -t '%Y%m%d-%H%M%S' -l "${SCHEMA_FILE}" | awk '{print $6}').schema"
+        mv -v "${SCHEMA_FILE}" "${LASTSCHEMA}"
+        echo "${GREEN}$(basename ${0}): schema file is versioned - ${SCHEMA_FILE} -> ${LASTSCHEMA}.${NC}"
     fi
 }
 
@@ -113,34 +113,34 @@ _pashua_run() {
     # , as in a doubleclickable application, cwd is /
     # BTW, all these quotes below are necessary to handle paths
     # containing spaces.
-    bundlepath="Pashua.app/Contents/MacOS/Pashua"
-    mypath=`dirname "$0"`
-    for searchpath in "$mypath/Pashua" "$mypath/$bundlepath" "./$bundlepath" \
-                      "/Applications/$bundlepath" "$HOME/Applications/$bundlepath"
+    BUNDLE_PATH="Pashua.app/Contents/MacOS/Pashua"
+    MY_PATH=`dirname "${0}"`
+    for SEARCH_PATH in "$mypath/Pashua" "$mypath/${BUNDLE_PATH}" "./${BUNDLE_PATH}" \
+                      "/Applications/${BUNDLE_PATH}" "$HOME/Applications/${BUNDLE_PATH}"
     do
-        if [ -f "$searchpath" -a -x "$searchpath" ]
+        if [ -f "${SEARCH_PATH}" -a -x "${SEARCH_PATH}" ]
         then
-            pashuapath=$searchpath
+            PASHUA_PATH="${SEARCH_PATH}"
             break
         fi
     done
-    if [ ! "$pashuapath" ] ; then
+    if [ ! "${PASHUA_PATH}" ] ; then
         echo "Error: Pashua is used to edit but is not found."
-        if [[ "${pashuainstall}" == "" ]] ; then
+        if [[ "${PASHUA_INSTALL}" == "" ]] ; then
             echo "Attempting to run: brew cask install pashua"
-            if [[ "${pashuainstall}" != "Y" ]] ; then
+            if [[ "${PASHUA_INSTALL}" != "Y" ]] ; then
                 brew cask install pashua
-                pashuainstall="Y"
+                PASHUA_INSTALL="Y"
                 _pashua_run
             else
                 break 2
             fi
         fi
     else
-        encoding=""
+        ENCODING=""
         
         # Get result
-        result=`"$pashuapath" $encoding $pashua_configfile | sed 's/ /;;;/g'`
+        result=`"${PASHUAPATH}" ${ENCODING} ${pashua_configfile} | sed 's/ /;;;/g'`
 
         # Parse result
         for line in $result

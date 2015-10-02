@@ -12,33 +12,33 @@ SCRIPTDIR=$(dirname "${0}")
 REQUIRED_VARIABLES=("FILEMAKER_USER" "FILEMAKER_PASS" "FILEMAKER_DB" "FILEMAKER_XML_URL")
 
 # set up configuration file if required
-if [[ ! -f "$CONFIG_FILE" ]] ; then
-    echo "# $(basename $CONFIG_FILE)" > "$CONFIG_FILE"
-    echo "# This configuration file contains variables used throughout $WHAT_IS_THIS." >> "$CONFIG_FILE"
+if [[ ! -f "${CONFIG_FILE}" ]] ; then
+    echo "# $(basename ${CONFIG_FILE})" > "${CONFIG_FILE}"
+    echo "# This configuration file contains variables used throughout ${WHAT_IS_THIS}." >> "${CONFIG_FILE}"
     echo "# Edit the lines below to form KEY=VALUE. Please do not add or remove the existing KEYs. Do not edit CONFIG_FILE_VERSION. Warning this stores a filemaker password in plain text, patches welcome." >> "$CONFIG_FILE"
-    echo "CONFIG_FILE_VERSION=$CONFIG_VERSION" >> "$CONFIG_FILE"
+    echo "CONFIG_FILE_VERSION=${CONFIG_VERSION}" >> "${CONFIG_FILE}"
 fi
 for KEY in "${REQUIRED_VARIABLES[@]}" ; do
-    _add_key "$KEY"
+    _add_key "${KEY}"
 done
 
 _report -d "Table of existing variables:"
 for KEY in "${REQUIRED_VARIABLES[@]}" ; do
-    VALUE=$(grep "^$KEY=" "$CONFIG_FILE" | cut -d= -f2)
-    printf '\t%-40s %-40s\n' "$KEY" "$VALUE"
+    VALUE=$(grep "^${KEY}=" "${CONFIG_FILE}" | cut -d= -f2)
+    printf '\t%-40s %-40s\n' "${KEY}" "${VALUE}"
 done
 while true ; do
-    EDITOPTION="Edit config file in nano"
+    EDIT_OPTION="Edit config file in nano"
     _report -q "Edit a variable? "
     PS3="Selection (enter by number)? "
-    select CONFIG_KEY in "$EDITOPTION" "${REQUIRED_VARIABLES[@]}" "Quit"
+    select CONFIG_KEY in "${EDIT_OPTION}" "${REQUIRED_VARIABLES[@]}" "Quit"
     do
         break
     done
-    [ "$CONFIG_KEY" = "Quit" ] && { echo Goodbye. ; exit 1 ;};
-    [ "$CONFIG_KEY" = "$EDITOPTION" ] && { nano "$CONFIG_FILE" ; exit 1 ;};
-    echo -n "Enter the value for $CONFIG_KEY: "
+    [ "${CONFIG_KEY}" = "Quit" ] && { echo Goodbye. ; exit 1 ;};
+    [ "${CONFIG_KEY}" = "${EDIT_OPTION}" ] && { nano "${CONFIG_FILE}" ; exit 1 ;};
+    echo -n "Enter the value for ${CONFIG_KEY}: "
     read "CONFIG_VALUE"
-    echo "$CONFIG_KEY is now set to $CONFIG_VALUE"
-    _config_edit "$CONFIG_KEY" "$CONFIG_VALUE"
+    echo "${CONFIG_KEY} is now set to ${CONFIG_VALUE}"
+    _config_edit "${CONFIG_KEY}" "${CONFIG_VALUE}"
 done

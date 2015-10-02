@@ -1,10 +1,10 @@
 #!/bin/bash
 # name: writelto
 # description: writelto writes the contents of a specified directory onto a mounted LTFS-formated LTO tape.
-hiddenfiles=""
+HIDDEN_FILES=""
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="[A-Z0-9]\{6\}"
-LTOLOGS="$HOME/Documents/lto_indexes"
+LTO_LOGS="$HOME/Documents/lto_indexes"
 SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
 
@@ -24,11 +24,11 @@ while getopts ":t:" opt ; do
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
     esac
 done
-shift $(( ${OPTIND} - 1 ))
+shift $(( "${OPTIND}" - 1 ))
 
 
 SOURCE_DIR="${1}"
-if [[ ! $(echo "${TAPE_SERIAL}" | grep "$TAPE_SERIAL_REGEX") ]] ; then
+if [[ ! $(echo "${TAPE_SERIAL}" | grep "${TAPE_SERIAL_REGEX}") ]] ; then
     echo "${TAPE_SERIAL}" is not a capital letter followed by a 5 digit number
     usage
     exit 1
@@ -44,18 +44,18 @@ _checkdir "${TAPE_PATH}"
 
 rsync -rtvO --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
 RSYNC_ERR_1="$?"
-hiddenfiles=$(find "${TAPE_PATH}" -name ".*")
-if [[ "${hiddenfiles}" ]] ; then
+HIDDEN_FILES=$(find "${TAPE_PATH}" -name ".*")
+if [[ "${HIDDEN_FILES}" ]] ; then
 	echo "Removing hidden files from tape."
 	find "${TAPE_PATH}" -name ".*" -delete
 	rsync -rtvO --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
 	RSYNC_ERR_2="$?"
 fi
 umount "${TAPE_PATH}"
-echo "rsync exited with $RSYNC_ERR_1 on the first pass and $RSYNC_ERR_2 on the second pass."
-echo "rsync exited with $RSYNC_ERR_1 on the first pass and $RSYNC_ERR_2 on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
+echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
+echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
 
-schemafile="$LTOLOGS/${TAPE_SERIAL}.schema"
+SCHEMA_FILE="$LTO_LOGS/${TAPE_SERIAL}.schema"
 if [[ -n "${FILEMAKER_XML_URL}" ]] ; then
-    "${SCRIPTDIR}/lto2filemaker" "${schemafile}"
+    "${SCRIPTDIR}/lto2filemaker" "${SCHEMA_FILE}"
 fi

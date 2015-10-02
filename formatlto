@@ -18,17 +18,17 @@ _usage(){
     exit
 }
 
-unset middleoptions
+unset MIDDLE_OPTIONS
 while getopts ":fh" opt ; do
    case "${opt}" in
-       f) middleoptions+="-f";;
+       f) MIDDLE_OPTIONS+="-f";;
        h) _usage ;;
        *) echo "bad option -$OPTARG" ; _usage ;;
        :) echo "Option -$OPTARG requires an argument" ; exit 1 ;;
    esac
 done
 
-if [ ! ${LTO_ARRAY} ] ; then
+if [ ! "${LTO_ARRAY}" ] ; then
     if [[ $(uname -s) == "Darwin" ]] ; then
         LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | xargs)) # try to figure out how many lto decks are attached
     else
@@ -44,28 +44,28 @@ NC="$(tput sgr0)"       # No Color
 if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
    PS3="${BLUE}Which LTO deck?${NC} "
    eval set "${LTO_ARRAY[@]}"
-   select deck in "$@"
+   select DECK in "$@"
    do
        break
    done
-   if [ ! $deck ] ; then
+   if [ ! "${DECK}" ] ; then
        echo "${RED}Error, you selected an invalid deck.${NC}"
        exit 1
    fi
 else
-   deck=0
+   DECK=0
 fi
 
 printf "${BLUE}Enter the 6 character tape number:${NC} "
-read tapeid
-if [[ ! $(echo "$tapeid" | grep -E  "^[A-Z0-9]{6}$") ]] ; then
+read TAPE_ID
+if [[ ! $(echo "${TAPE_ID}" | grep -E  "^[A-Z0-9]{6}$") ]] ; then
    echo "${RED}ERROR The tape id must contain exactly 6 capital letters and/or numbers.${NC}"
    exit 1
 fi
 if [[ $(which ltfs_ldun) ]] ; then
-    ltfs_ldun load "${deck}"
+    ltfs_ldun load "${DECK}"
 fi
-mkltfs ${middleoptions[@]} --device=$deck --tape-serial="$tapeid" -c --volume-name="$tapeid"
+mkltfs ${MIDDLE_OPTIONS[@]} --device=${DECK} --tape-serial="${TAPE_ID}" -c --volume-name="${TAPE_ID}"
 if [[ $(which ltfs_ldun) ]] ; then
-    ltfs_ldun unload "${deck}"
+    ltfs_ldun unload "${DECK}"
 fi
