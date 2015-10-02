@@ -21,24 +21,6 @@ GREEN="$(tput setaf 2)" # Green    - For Declarations
 BLUE="$(tput setaf 4)"  # Blue     - For Questions
 NC="$(tput sgr0)"       # No Color
 
-cleanup(){
-    if [ -d "${mountdir}" ] ; then
-        echo calling umount
-        umount "${mountdir}"
-        rmdir "${mountdir}"
-    fi
-}
-
-_version_schema(){
-    schemafile="$LTOLOGS/${TAPE_SERIAL}.schema"
-    if [ -f "${schemafile}" ] ; then
-        echo "${GREEN}Creating a new version of the ltfs schema file.${NC}"
-        LASTSCHEMA="${schemafile%.*}_$(stat -t '%Y%m%d-%H%M%S' -l "${schemafile}" | awk '{print $6}').schema"
-        mv -v "${schemafile}" "${LASTSCHEMA}"
-        echo "${GREEN}$(basename ${0}): schema file is versioned - ${schemafile} -> ${LASTSCHEMA}.${NC}"
-    fi
-}
-
 [ ! -d "$LTOLOGS" ] && mkdir -p "$LTOLOGS"
 if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
     PS3="${BLUE}Which LTO deck?${NC} "
@@ -69,7 +51,7 @@ else
 fi
 echo "${GREEN}MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${RED}${mountdir}${GREEN} FOLDER${NC}"
 echo "${GREEN}MOUNTING TAPE : AFTER MOUNT PRESS ${RED}CONTROL-C${GREEN} TO EJECT${NC}"
-trap cleanup SIGHUP SIGINT SIGTERM
+trap _cleanup SIGHUP SIGINT SIGTERM
 if [ $(which ltfs_ldun) ] ; then
     ltfs_ldun load $deck
 fi

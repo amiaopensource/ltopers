@@ -6,7 +6,7 @@ version="0.2"
 SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
 
-usage(){
+_usage(){
     echo
     echo "$(basename ${0}) ${version}"
     echo "format lto tapes with ltfs"
@@ -22,8 +22,8 @@ unset middleoptions
 while getopts ":fh" opt ; do
    case "${opt}" in
        f) middleoptions+="-f";;
-       h) usage ;;
-       *) echo "bad option -$OPTARG" ; usage ;;
+       h) _usage ;;
+       *) echo "bad option -$OPTARG" ; _usage ;;
        :) echo "Option -$OPTARG requires an argument" ; exit 1 ;;
    esac
 done

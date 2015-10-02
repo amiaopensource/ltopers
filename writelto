@@ -8,7 +8,7 @@ LTOLOGS="$HOME/Documents/lto_indexes"
 SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
 
-usage(){
+_usage(){
     echo "writelto"
     echo "Usage:"
     echo "    -t tape serial"
@@ -26,13 +26,6 @@ while getopts ":t:" opt ; do
 done
 shift $(( ${OPTIND} - 1 ))
 
-checkdir(){
-if [[ ! -d "${1}" ]] ; then
-    echo "${1}" is not a directory.
-    usage
-    exit 1
-fi
-}
 
 SOURCE_DIR="${1}"
 if [[ ! $(echo "${TAPE_SERIAL}" | grep "$TAPE_SERIAL_REGEX") ]] ; then
@@ -43,11 +36,11 @@ fi
 
 TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 
-checkdir "${SOURCE_DIR}"
+_checkdir "${SOURCE_DIR}"
 # remove .DS_Store files
 find "${SOURCE_DIR}/" -name '.DS_Store' -type f -delete
 
-checkdir "${TAPE_PATH}"
+_checkdir "${TAPE_PATH}"
 
 rsync -rtvO --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
 RSYNC_ERR_1="$?"
