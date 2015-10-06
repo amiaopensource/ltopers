@@ -140,7 +140,7 @@ _pashua_run() {
         ENCODING=""
         
         # Get result
-        result=`"${PASHUAPATH}" ${ENCODING} ${pashua_configfile} | sed 's/ /;;;/g'`
+        result=`"${PASHUA_PATH}" ${ENCODING} ${pashua_configfile} | sed 's/ /;;;/g'`
 
         # Parse result
         for line in $result
