@@ -42,15 +42,19 @@ find "${SOURCE_DIR}/" -name '.DS_Store' -type f -delete
 
 _checkdir "${TAPE_PATH}"
 
-rsync -rtvO --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
+rsync -rtvOh --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
 RSYNC_ERR_1="$?"
 HIDDEN_FILES=$(find "${TAPE_PATH}" -name ".*")
 if [[ "${HIDDEN_FILES}" ]] ; then
 	echo "Removing hidden files from tape."
 	find "${TAPE_PATH}" -name ".*" -delete
-	rsync -rtvO --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
+	rsync -rtvOh --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
 	RSYNC_ERR_2="$?"
 fi
+# creat a text file of tape contents on tape and local directory before unmounting
+ls "{TAPE_PATH}" > "{TAPE_PATH}/{TAPE_SERIAL}_contents.txt"
+ls "{TAPE_PATH}" > "$HOME/Documents/lto_contents/{TAPE_SERIAL}_contents.txt"
+
 umount "${TAPE_PATH}"
 echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
 echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
