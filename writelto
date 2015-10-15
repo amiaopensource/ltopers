@@ -6,7 +6,6 @@ TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="[A-Z0-9]\{6\}"
 LTO_LOGS="$HOME/Documents/lto_indexes"
 SCRIPTDIR=$(dirname "${0}")
-. "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
 
 _usage(){
     echo "writelto"
@@ -14,6 +13,8 @@ _usage(){
     echo "    -t tape serial"
     exit 1
 }
+
+. "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
 
 # command-line options
 OPTIND=1
@@ -24,7 +25,7 @@ while getopts ":t:" opt ; do
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
     esac
 done
-shift $(( "${OPTIND}" - 1 ))
+shift $(( ${OPTIND} - 1 ))
 
 
 SOURCE_DIR="${1}"

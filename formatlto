@@ -4,7 +4,6 @@
 version="0.2"
 
 SCRIPTDIR=$(dirname "${0}")
-. "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
 
 _usage(){
     echo
@@ -18,6 +17,10 @@ _usage(){
     exit
 }
 
+. "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
+dependencies=(mkltfs)
+
+
 unset MIDDLE_OPTIONS
 while getopts ":fh" opt ; do
    case "${opt}" in
@@ -30,7 +33,7 @@ done
 
 if [ ! "${LTO_ARRAY}" ] ; then
     if [[ $(uname -s) == "Darwin" ]] ; then
-        LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | xargs)) # try to figure out how many lto decks are attached
+        LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | sort | xargs)) # try to figure out how many lto decks are attached
     else
         LTO_ARRAY=(0) # to do: itemize when there are multiple lto drives in Linux
     fi
