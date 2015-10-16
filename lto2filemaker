@@ -1,6 +1,10 @@
 #!/bin/bash
 # This script presumes that you've setup a filemaker database with Filemaker Server using two tables called "lto_tapes" and "lto_files" with fields according to the LTFS XML format.
 REQUIRECONFIG="Y"
+VERSION=0.1
+DEPENDENCIES=(xml curl)
+unset CURL_OPTS
+
 _usage(){
     echo
     echo "$(basename "${0}") ${VERSION}"
@@ -29,12 +33,24 @@ while getopts ":v:h" opt ; do
 done
 shift $(( ${OPTIND} - 1 ))
 
+SCHEMA_FILE="${1}"
+SCHEMA_NAME=$(basename "${SCHEMA_FILE}")
+
+if [[ "${VERBOSITY}" = "0" ]] ; then
+    CURL_OPTS+="-s"
+fi
+
 LTO_TAPE_TMP=$(_maketemp)
-xml sel -t -m "/ltfsindex" -o " --data-urlencode \"creator=" -v creator -o "\" --data-urlencode \"volumeuuid=" -v volumeuuid -o "\" --data-urlencode \"generationnumber=" -v generationnumber -o "\" --data-urlencode \"accesstime=" -v directory[1]/accesstime -o "\" --data-urlencode \"backuptime=" -v directory[1]/backuptime -o "\" --data-urlencode \"changetime=" -v directory[1]/changetime -o "\" --data-urlencode \"creationtime=" -v directory[1]/creationtime -o "\" --data-urlencode \"modifytime=" -v directory[1]/modifytime -o "\" --data-urlencode \"updatetime=" -v updatetime -o "\" --data-urlencode \"readonly=" -v directory[1]/readonly -o "\" --data-urlencode \"allowpolicyupdate=" -v allowpolicyupdate -o "\" --data-urlencode \"highestfileuid=" -v highestfileuid -o "\" --data-urlencode \"name=" -v directory[1]/name -o "\" --data-urlencode \"uniq=" -v directory[1]/modifytime -o "." -v directory[1]/highestfileuid -o "." -v volumeuuid -o "." -v updatetime -o "\"" -n "$1" > "${LTO_TAPE_TMP}"
+xml sel -t -m "/ltfsindex" -o " --data-urlencode \"creator=" -v creator -o "\" --data-urlencode \"volumeuuid=" -v volumeuuid -o "\" --data-urlencode \"generationnumber=" -v generationnumber -o "\" --data-urlencode \"accesstime=" -v directory[1]/accesstime -o "\" --data-urlencode \"backuptime=" -v directory[1]/backuptime -o "\" --data-urlencode \"changetime=" -v directory[1]/changetime -o "\" --data-urlencode \"creationtime=" -v directory[1]/creationtime -o "\" --data-urlencode \"modifytime=" -v directory[1]/modifytime -o "\" --data-urlencode \"updatetime=" -v updatetime -o "\" --data-urlencode \"readonly=" -v directory[1]/readonly -o "\" --data-urlencode \"allowpolicyupdate=" -v allowpolicyupdate -o "\" --data-urlencode \"highestfileuid=" -v highestfileuid -o "\" --data-urlencode \"name=" -v directory[1]/name -o "\" --data-urlencode \"uniq=" -v directory[1]/modifytime -o "." -v directory[1]/highestfileuid -o "." -v volumeuuid -o "." -v updatetime -o "\"" -n "${SCHEMA_FILE}" > "${LTO_TAPE_TMP}"
+
+CURL_OUTPUT=$(_maketemp)
+
+CURL_OPTS+=(-S)
+CURL_OPTS+=(-o "${CURL_OUTPUT}")
 
 while read TAPE ; do
     if [[ "${TAPE}" ]] ; then
-        TAPE_CMD="curl -s -S -G "${TAPE}" \"http://"${FILEMAKER_XML_URL}"?-db="${FILEMAKER_DB}"&-lay=lto_tapes&-new\" 1>/dev/null"
+        TAPE_CMD="curl ${CURL_OPTS[@]} -G "${TAPE}" \"http://"${FILEMAKER_XML_URL}"?-db="${FILEMAKER_DB}"&-lay=lto_tapes&-new\""
         TAPE_ID=$(echo "${TAPE}" | grep -o "name=[^ ]*" | sed 's/"//g')
         _report -d "Uploading tape metadata for tape "${TAPE_ID}". Please wait…"
         eval "${TAPE_CMD}"
@@ -43,11 +59,12 @@ done < "${LTO_TAPE_TMP}"
 _report -d "Uploading file metadata for tape "${TAPE_ID}". Please wait…"
 
 LTO_FILE_TMP=$(_maketemp)
-xml sel -t -m ".//file" -o " --data-urlencode \"name=" -v name -o "\" --data-urlencode \"length=" -v "length" -o "\" --data-urlencode \"path=" -m "ancestor-or-self::directory" -v "name" -o "/" -b -v name -o "\" --data-urlencode \"readonly=" -v readonly -o "\" --data-urlencode \"creationtime=" -v creationtime -o "\" --data-urlencode \"changetime=" -v changetime -o "\" --data-urlencode \"modifytime=" -v modifytime -o "\" --data-urlencode \"accesstime=" -v accesstime -o "\" --data-urlencode \"backuptime=" -v backuptime -o "\" --data-urlencode \"fileuid=" -v fileuid -o "\" --data-urlencode \"uniq=" -v fileuid -o "." -v modifytime -o "." -v length -o "." -v name -o "\"" -n "$1" > "${LTO_FILE_TMP}"
+xml sel -t -m ".//file" -o " --data-urlencode \"name=" -v name -o "\" --data-urlencode \"length=" -v "length" -o "\" --data-urlencode \"path=" -m "ancestor-or-self::directory" -v "name" -o "/" -b -v name -o "\" --data-urlencode \"readonly=" -v readonly -o "\" --data-urlencode \"creationtime=" -v creationtime -o "\" --data-urlencode \"changetime=" -v changetime -o "\" --data-urlencode \"modifytime=" -v modifytime -o "\" --data-urlencode \"accesstime=" -v accesstime -o "\" --data-urlencode \"backuptime=" -v backuptime -o "\" --data-urlencode \"fileuid=" -v fileuid -o "\" --data-urlencode \"uniq=" -v fileuid -o "." -v modifytime -o "." -v length -o "." -v name -o "\"" -n "${SCHEMA_FILE}" > "${LTO_FILE_TMP}"
 
 while read FILE ; do
     if [[ "${FILE}" ]] ; then
-        FILE_CMD="curl -s -S -G "${FILE}" \"http://${FILEMAKER_XML_URL}?-db=${FILEMAKER_DB}&-lay=lto_files&-new\" 1>/dev/null"
+        FILE_CMD="curl ${CURL_OPTS[@]} -G "${FILE}" \"http://${FILEMAKER_XML_URL}?-db=${FILEMAKER_DB}&-lay=lto_files&-new\" ${REDIRECT}"
+        FILE_ID=$(echo "${FILE}" | grep -o "name=[^ ]*" | sed 's/"//g')
         eval "${FILE_CMD}"
     fi
 done < "${LTO_FILE_TMP}"
