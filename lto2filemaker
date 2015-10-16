@@ -36,11 +36,11 @@ while read TAPE ; do
     if [[ "${TAPE}" ]] ; then
         TAPE_CMD="curl -s -S -G "${TAPE}" \"http://"${FILEMAKER_XML_URL}"?-db="${FILEMAKER_DB}"&-lay=lto_tapes&-new\" 1>/dev/null"
         TAPE_ID=$(echo "${TAPE}" | grep -o "name=[^ ]*" | sed 's/"//g')
-        echo "Uploading tape metadata for tape "${TAPE_ID}". Please wait…"
+        _report -d "Uploading tape metadata for tape "${TAPE_ID}". Please wait…"
         eval "${TAPE_CMD}"
     fi
 done < "${LTO_TAPE_TMP}"
-echo "Uploading file metadata for tape "${TAPE_ID}". Please wait…"
+_report -d "Uploading file metadata for tape "${TAPE_ID}". Please wait…"
 
 LTO_FILE_TMP=$(_maketemp)
 xml sel -t -m ".//file" -o " --data-urlencode \"name=" -v name -o "\" --data-urlencode \"length=" -v "length" -o "\" --data-urlencode \"path=" -m "ancestor-or-self::directory" -v "name" -o "/" -b -v name -o "\" --data-urlencode \"readonly=" -v readonly -o "\" --data-urlencode \"creationtime=" -v creationtime -o "\" --data-urlencode \"changetime=" -v changetime -o "\" --data-urlencode \"modifytime=" -v modifytime -o "\" --data-urlencode \"accesstime=" -v accesstime -o "\" --data-urlencode \"backuptime=" -v backuptime -o "\" --data-urlencode \"fileuid=" -v fileuid -o "\" --data-urlencode \"uniq=" -v fileuid -o "." -v modifytime -o "." -v length -o "." -v name -o "\"" -n "$1" > "${LTO_FILE_TMP}"
@@ -51,4 +51,4 @@ while read FILE ; do
         eval "${FILE_CMD}"
     fi
 done < "${LTO_FILE_TMP}"
-echo "Done uploading metadata for ${TAPE_ID}."
+_report -d "Done uploading metadata for ${TAPE_ID}."
