@@ -67,3 +67,4 @@ LTFS_OPTIONS+=(-o sync_type=unmount)
 
 ltfs -f -o work_directory="$LTO_LOGS" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
 [ -d "${MOUNT_DIR}" ] && rmdir "${MOUNT_DIR}"
+renameschemas -u
