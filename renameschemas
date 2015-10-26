@@ -34,7 +34,7 @@ if [[ ! -d "${OLD_LOGS}" ]] ; then
 fi
 
 if [[ "${RENAME2UUID}" = "Y" ]] ; then
-    ls -1t "${LTO_LOGS}" | grep "[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}" | while read UUID_NAME ; do
+    ls -1t "${LTO_LOGS}" | grep "[0-9a-f]\{8\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{4\}-[0-9a-f]\{12\}.schema" | while read UUID_NAME ; do
         UUID_PATH="${LTO_LOGS}/${UUID_NAME}"
         NAME_PATH="${LTO_LOGS}/$(xml sel -t -m "/ltfsindex" -v directory[1]/name "${LTO_LOGS}/${UUID_NAME}").schema"
         if [[ -f "${NAME_PATH}" ]] ; then
