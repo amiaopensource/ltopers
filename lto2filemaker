@@ -4,6 +4,7 @@ REQUIRECONFIG="Y"
 VERSION=0.1
 DEPENDENCIES=(xml curl)
 unset CURL_OPTS
+VERBOSITY=0
 
 _usage(){
     echo
