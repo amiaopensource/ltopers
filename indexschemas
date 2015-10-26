@@ -1,0 +1,14 @@
+#!/bin/bash
+
+LTO_LOGS="${HOME}/Documents/lto_indexes"
+
+renameschemas -u
+
+for LTO_SCHEMA in "${LTO_LOGS}/"*.schema ; do
+    LTO_ID=$(basename "${LTO_SCHEMA%.*}")
+    LTO_INDEX="${LTO_LOGS}/${LTO_ID}.txt"
+    if [ "${LTO_SCHEMA}" -nt "${LTO_INDEX}" ] ; then
+        echo "Updating index for ${LTO_ID}."
+        xml sel -t -m ".//file" -m "ancestor-or-self::directory" -v "name" -o "/" -b -v name -n "$i" | grep -v "/metadata/\|/access/\|/trimmed_materials/" > "${LTO_INDEX}"
+    fi
+done
