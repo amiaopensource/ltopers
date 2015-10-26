@@ -56,6 +56,8 @@ umount "${TAPE_PATH}"
 echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
 echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
 
+renameschemas -u
+
 SCHEMA_FILE="$LTO_LOGS/${TAPE_SERIAL}.schema"
 if [[ -n "${FILEMAKER_XML_URL}" ]] ; then
     "${SCRIPTDIR}/lto2filemaker" "${SCHEMA_FILE}"
