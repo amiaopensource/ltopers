@@ -2,13 +2,43 @@
 
 LTO_LOGS="${HOME}/Documents/lto_indexes"
 
+_usage(){
+    echo "$(basename "${0}")"
+    echo "This script makes a text file listing certain files from the ltfs schema file."
+    echo "Usage:"
+    echo "    -t [check schema files modified today for volume names that may need to be overwritten]"
+    exit 1
+}
+
+[ "${#}" = 0 ] && _usage
+# command-line options
+OPTIND=1
+while getopts ":t" opt ; do
+    case "${opt}" in
+        t) TODAYCHECK=(-mtime -24h) ;;
+        *) echo "bad option -${OPTARG}" ; usage ;;
+        :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
+    esac
+done
+shift $(( ${OPTIND} - 1 ))
+
 renameschemas -u
 
-for LTO_SCHEMA in "${LTO_LOGS}/"*.schema ; do
+find "${LTO_LOGS}" -iname "*.schema" -maxdepth 1 -mindepth 1 "${TODAYCHECK[@]}" | while read LTO_SCHEMA ; do
     LTO_ID=$(basename "${LTO_SCHEMA%.*}")
     LTO_INDEX="${LTO_LOGS}/${LTO_ID}.txt"
+    BARCODE_OVERWRITE=$(xml sel -t -m "/ltfsindex" -v "directory/contents/file/name[substring-before(., '_') = 'barcode']" "${LTO_SCHEMA}" | cut -d_ -f 2 | cut -d. -f1)
+    if [[ ! -z "${BARCODE_OVERWRITE}" && "${BARCODE_OVERWRITE}" != "${LTO_ID}" ]] ; then
+        OVERWRITE_NAME=$(dirname "${LTO_SCHEMA}")/"${BARCODE_OVERWRITE}.schema"
+        if [[ -f "${OVERWRITE_NAME}" ]] ; then
+            OVERWRITE_NAME=$(dirname "${LTO_SCHEMA}")/"${BARCODE_OVERWRITE}x.schema"
+        fi
+        echo "An overwrite is requested to $(basename "${LTO_SCHEMA}") changing to ${BARCODE_OVERWRITE}."
+        mv -v "${LTO_SCHEMA}" "${OVERWRITE_NAME}"
+        LTO_SCHEMA="${OVERWRITE_NAME}"
+    fi
     if [ "${LTO_SCHEMA}" -nt "${LTO_INDEX}" ] ; then
         echo "Updating index for ${LTO_ID}."
-        xml sel -t -m ".//file" -m "ancestor-or-self::directory" -v "name" -o "/" -b -v name -n "$i" | grep -v "/metadata/\|/access/\|/trimmed_materials/" > "${LTO_INDEX}"
+        xml sel -t -m ".//file" -m "ancestor-or-self::directory" -v "name" -o "/" -b -v name -n "${LTO_SCHEMA}" | grep -v "/metadata/\|/access/\|/trimmed_materials/" > "${LTO_INDEX}"
     fi
 done
