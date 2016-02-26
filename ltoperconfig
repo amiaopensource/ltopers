@@ -4,14 +4,14 @@
 CONFIG="Y"
 CONFIG_VERSION="1.0"
 SCRIPTDIR=$(dirname "$0")
-CONFIG_FILE="${SCRIPTDIR}/ltoper.conf"
+LTO_CONFIG_FILE="${SCRIPTDIR}/ltoper.conf"
 SCRIPTDIR=$(dirname "${0}")
-. "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
 
-if [ -f "${CONFIG_FILE}" ] ; then
-    . "${CONFIG_FILE}"
+if [ -f "${LTO_CONFIG_FILE}" ] ; then
+    . "${LTO_CONFIG_FILE}"
 else
-    touch "${CONFIG_FILE}"
+    touch "${LTO_CONFIG_FILE}"
 fi
 
 conf="
@@ -86,24 +86,24 @@ cb.type=cancelbutton
 		echo ""
 	
 		# write config file
-		echo "#$(basename "${0}") config file" > "${CONFIG_FILE}"
-		echo  "${config_comment}" >> "${CONFIG_FILE}"
+		echo "#$(basename "${0}") config file" > "${LTO_CONFIG_FILE}"
+		echo  "${config_comment}" >> "${LTO_CONFIG_FILE}"
 
-		echo "${FILEMAKER_USER_COMMENT}" >> "${CONFIG_FILE}"
-		echo "FILEMAKER_USER=\"${FILEMAKER_USER}\"" >> "${CONFIG_FILE}"
-		echo  >> "${CONFIG_FILE}"
+		echo "${FILEMAKER_USER_COMMENT}" >> "${LTO_CONFIG_FILE}"
+		echo "FILEMAKER_USER=\"${FILEMAKER_USER}\"" >> "${LTO_CONFIG_FILE}"
+		echo  >> "${LTO_CONFIG_FILE}"
 
-		echo  "${FILEMAKER_PASS_COMMENT}" >> "${CONFIG_FILE}"
-		echo "FILEMAKER_PASS=\"${FILEMAKER_PASS}\"" >> "${CONFIG_FILE}"
-		echo  >> "${CONFIG_FILE}"
+		echo  "${FILEMAKER_PASS_COMMENT}" >> "${LTO_CONFIG_FILE}"
+		echo "FILEMAKER_PASS=\"${FILEMAKER_PASS}\"" >> "${LTO_CONFIG_FILE}"
+		echo  >> "${LTO_CONFIG_FILE}"
 
-		echo  "${FILEMAKER_DB_COMMENT}" >> "${CONFIG_FILE}"
-		echo "FILEMAKER_DB=\"${FILEMAKER_DB}\"" >> "${CONFIG_FILE}"
-		echo  >> "${CONFIG_FILE}"
+		echo  "${FILEMAKER_DB_COMMENT}" >> "${LTO_CONFIG_FILE}"
+		echo "FILEMAKER_DB=\"${FILEMAKER_DB}\"" >> "${LTO_CONFIG_FILE}"
+		echo  >> "${LTO_CONFIG_FILE}"
 
-		echo  "${FILEMAKER_XML_URL_COMMENT}" >> "${CONFIG_FILE}"
-		echo "FILEMAKER_XML_URL=\"${FILEMAKER_XML_URL}\"" >> "${CONFIG_FILE}"
-		echo  >> "${CONFIG_FILE}"
+		echo  "${FILEMAKER_XML_URL_COMMENT}" >> "${LTO_CONFIG_FILE}"
+		echo "FILEMAKER_XML_URL=\"${FILEMAKER_XML_URL}\"" >> "${LTO_CONFIG_FILE}"
+		echo  >> "${LTO_CONFIG_FILE}"
 
-		. "${CONFIG_FILE}"
+		. "${LTO_CONFIG_FILE}"
 	fi

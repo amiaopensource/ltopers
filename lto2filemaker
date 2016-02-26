@@ -20,7 +20,7 @@ _usage(){
 [ "${#}" = 0 ] && _usage
 
 SCRIPTDIR=$(dirname "${0}")
-. "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
 
 # command-line options
 OPTIND=1

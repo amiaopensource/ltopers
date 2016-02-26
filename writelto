@@ -14,7 +14,7 @@ _usage(){
     exit 1
 }
 
-. "${SCRIPTDIR}/ltofunctions" || { echo "Missing '${SCRIPTDIR}/ltofunctions'. Exiting." ; exit 1 ;};
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
 
 # command-line options
 OPTIND=1
@@ -43,13 +43,13 @@ find "${SOURCE_DIR}/" -name '.DS_Store' -type f -delete
 
 _checkdir "${TAPE_PATH}"
 
-rsync -rtvO --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
+"${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
 RSYNC_ERR_1="$?"
 HIDDEN_FILES=$(find "${TAPE_PATH}" -name ".*")
 if [[ "${HIDDEN_FILES}" ]] ; then
 	echo "Removing hidden files from tape."
 	find "${TAPE_PATH}" -name ".*" -delete
-	rsync -rtvO --progress "${SOURCE_DIR}/" "${TAPE_PATH}"
+	"${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
 	RSYNC_ERR_2="$?"
 fi
 umount "${TAPE_PATH}"
