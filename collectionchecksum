@@ -21,7 +21,7 @@ while [ "${*}" != "" ] ; do
     for CHECKSUMFILES in $(find ${INPUT} -maxdepth 3 -mindepth 3 -type f -iname "checksum.md5"); do 
         PACKAGE=$(basename $(dirname $(dirname "${CHECKSUMFILES}")))
         echo "${PACKAGE}"
-        cat "${CHECKSUMFILES}" | sed "s|  ./|  ./${PACKAGE}/|g" >> "${TEMPCHECKSUMFILE}"
+        cat "${CHECKSUMFILES}" | sed "s|  ./|  ./${PACKAGE}/objects/|g" >> "${TEMPCHECKSUMFILE}"
     done
 
     #create md5 checksums for all of the files in the metadata directory 
