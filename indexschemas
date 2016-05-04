@@ -26,7 +26,8 @@ renameschemas -u
 
 find "${LTO_LOGS}" -iname "*.schema" -maxdepth 1 -mindepth 1 "${TODAYCHECK[@]}" | while read LTO_SCHEMA ; do
     LTO_ID=$(basename "${LTO_SCHEMA%.*}")
-    LTO_INDEX="${LTO_LOGS}/${LTO_ID}.txt"
+    LTO_INDEX="${LTO_LOGS}/${LTO_ID}_index.txt"
+    LTO_NAMESIZE="${LTO_LOGS}/${LTO_ID}_namesize.txt"
     BARCODE_OVERWRITE=$(xml sel -t -m "/ltfsindex" -v "directory/contents/file/name[substring-before(., '_') = 'barcode']" "${LTO_SCHEMA}" | cut -d_ -f 2 | cut -d. -f1)
     if [[ ! -z "${BARCODE_OVERWRITE}" && "${BARCODE_OVERWRITE}" != "${LTO_ID}" ]] ; then
         OVERWRITE_NAME=$(dirname "${LTO_SCHEMA}")/"${BARCODE_OVERWRITE}.schema"
@@ -40,5 +41,6 @@ find "${LTO_LOGS}" -iname "*.schema" -maxdepth 1 -mindepth 1 "${TODAYCHECK[@]}" 
     if [ "${LTO_SCHEMA}" -nt "${LTO_INDEX}" ] ; then
         echo "Updating index for ${LTO_ID}."
         xml sel -t -m ".//file" -m "ancestor-or-self::directory" -v "name" -o "/" -b -v name -n "${LTO_SCHEMA}" | grep -v "/metadata/\|/access/\|/trimmed_materials/" > "${LTO_INDEX}"
+        xml sel -t -m ".//file" -m "ancestor-or-self::directory" -v "name" -o "/" -b -v name -o " " -v length -n "${LTO_SCHEMA}" | grep -v "/metadata/\|/access/\|/trimmed_materials/" | awk -F/ '{print $NF}' > "${LTO_NAMESIZE}"
     fi
 done
