@@ -27,7 +27,7 @@ while [ "${*}" != "" ] ; do
     #create md5 checksums for all of the files in the metadata directory 
     md5deep -rel ./*/metadata >> "${TEMPCHECKSUMFILE}"
     
-    sort -k2 "${TEMPCHECKSUMFILE}" >> "${TAPECHECKSUMFILE}"
+    sort -k2 "${TEMPCHECKSUMFILE}" | grep -v .DS_Store >> "${TAPECHECKSUMFILE}"
     
     shift
 done
