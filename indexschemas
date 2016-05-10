@@ -10,7 +10,6 @@ _usage(){
     exit 1
 }
 
-[ "${#}" = 0 ] && _usage
 # command-line options
 OPTIND=1
 while getopts ":t" opt ; do
