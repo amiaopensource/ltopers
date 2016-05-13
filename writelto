@@ -50,10 +50,10 @@ _checkdir "${TAPE_PATH}"
 RSYNC_ERR_1="$?"
 HIDDEN_FILES=$(find "${TAPE_PATH}" -name ".*")
 if [[ "${HIDDEN_FILES}" ]] ; then
-	echo "Removing hidden files from tape."
-	find "${TAPE_PATH}" -name ".*" -delete
-	"${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
-	RSYNC_ERR_2="$?"
+    echo "Removing hidden files from tape."
+    find "${TAPE_PATH}" -name ".*" -delete
+    "${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
+    RSYNC_ERR_2="$?"
 fi
 case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
