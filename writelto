@@ -13,6 +13,7 @@ _usage(){
     echo "Usage:"
     echo "    -t tape serial"
     echo "    -e [ N|Y ] (state yes or no to ejecting the tape after write, default is yes)"
+	echo "    -v reads back and creates checksums for the contents of a tape, and writes checksums to a file named with the tape name and date, located in the LTO logs directory."
     exit 1
 }
 
@@ -20,10 +21,11 @@ _usage(){
 
 # command-line options
 OPTIND=1
-while getopts ":t:e:" opt ; do
+while getopts ":t:e:v" opt ; do
     case "${opt}" in
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
+        v) VERIFY="Y" ;;
         *) echo "bad option -${OPTARG}" ; usage ;;
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
     esac
@@ -46,6 +48,8 @@ find "${SOURCE_DIR}/" -name '.DS_Store' -type f -delete
 
 _checkdir "${TAPE_PATH}"
 
+gcp --preserve=mode,timestamps -nRv "${SOURCE_DIR}/"* "${TAPE_PATH}"
+
 "${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
 RSYNC_ERR_1="$?"
 HIDDEN_FILES=$(find "${TAPE_PATH}" -name ".*")
@@ -55,6 +59,14 @@ if [[ "${HIDDEN_FILES}" ]] ; then
     "${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
     RSYNC_ERR_2="$?"
 fi
+
+if [ "${VERIFY}" == "Y" ] ; then
+    VERIFYTIME=$(_get_iso8601_c)
+    READBACKDIR="${LTO_LOGS}/readback_checksums"
+    _mkdir2  "${READBACKDIR}"
+    find "${TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
+fi
+
 case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
     *) echo "Done writing but not ejecting ${TAPE_SERIAL}." ;;
