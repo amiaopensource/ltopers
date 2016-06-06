@@ -26,7 +26,7 @@ while getopts ":t:e:v" opt ; do
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
         v) VERIFY="Y" ;;
-        *) echo "bad option -${OPTARG}" ; usage ;;
+        *) echo "bad option -${OPTARG}" ; _usage ;;
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
     esac
 done
