@@ -12,6 +12,7 @@ _usage(){
     echo "Dependencies: ${dependencies[@]}"
     echo "Usage: $(basename $0) [ -f ]"
     echo "  -f force formating"
+	echo "  -c use compression"
     echo "  -h ( display this help )"
     echo
     exit
@@ -22,14 +23,21 @@ dependencies=(mkltfs)
 
 
 unset MIDDLE_OPTIONS
-while getopts ":fh" opt ; do
+while getopts ":fch" opt ; do
    case "${opt}" in
-       f) MIDDLE_OPTIONS+="-f";;
+       f) MIDDLE_OPTIONS+=(-f);;
+	   c) COMPRESS=1;;
        h) _usage ;;
        *) echo "bad option -$OPTARG" ; _usage ;;
        :) echo "Option -$OPTARG requires an argument" ; exit 1 ;;
    esac
 done
+
+if [ ! "${COMPRESS}" = "1" ] ; then
+	MIDDLE_OPTIONS+=(-c)
+else
+	echo "${GREEN}Will use compression.${NC}"
+fi
 
 if [ ! "${LTO_ARRAY}" ] ; then
     if [[ $(uname -s) == "Darwin" ]] ; then
@@ -68,7 +76,7 @@ fi
 if [[ $(which ltfs_ldun) ]] ; then
     ltfs_ldun load "${DECK}"
 fi
-mkltfs ${MIDDLE_OPTIONS[@]} --device=${DECK} --tape-serial="${TAPE_ID}" -c --volume-name="${TAPE_ID}"
+mkltfs ${MIDDLE_OPTIONS[@]} --device=${DECK} --tape-serial="${TAPE_ID}"  --volume-name="${TAPE_ID}"
 if [[ $(which ltfs_ldun) ]] ; then
     ltfs_ldun unload "${DECK}"
 fi
