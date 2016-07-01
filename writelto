@@ -67,6 +67,9 @@ if [ "${VERIFY}" == "Y" ] ; then
     find "${TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
 fi
 
+echo -n "$(date +%FT%T) " >> "${LTO_LOGS}/tape_capacity.txt"
+echo $(df -Ph "${TAPE_PATH}" | tail -n 1) >> "${LTO_LOGS}/tape_capacity.txt"
+
 case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
     *) echo "Done writing but not ejecting ${TAPE_SERIAL}." ;;
