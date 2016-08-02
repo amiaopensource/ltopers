@@ -3,6 +3,8 @@
 ##Installing LTOpers tools##
 You can easily install these tools using Homebrew. To install Homebrew, follow the instructions here http://brew.sh/
 
+Install the LTFS utilities. Please use version 2.2 on the [Quantum site](http://www.quantum.com/serviceandsupport/softwareanddocumentationdownloads/ltfs/index.aspx?whattab=Third).
+
 To install LTOpers tools, run the following commands:
 
 `brew tap amiaopensource/amiaos'`
