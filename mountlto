@@ -49,7 +49,6 @@ LTFS_OPTIONS+=(-o capture_index)
 LTFS_OPTIONS+=(-o devname=${DECK})
 LTFS_OPTIONS+=(-o volname="${TAPE_SERIAL}")
 LTFS_OPTIONS+=(-o uid=$(id -u))
-LTFS_OPTIONS+=(-o sync_type=unmount)
 
 ltfs -f -o work_directory="$LTO_LOGS" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
 [ -d "${MOUNT_DIR}" ] && rmdir "${MOUNT_DIR}"
