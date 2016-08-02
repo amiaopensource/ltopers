@@ -4,7 +4,6 @@
 SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
 
-
 unset LTO_ARRAY
 unset LTFS_OPTIONS
 LTO_LOGS="${HOME}/Documents/lto_indexes"
@@ -36,8 +35,6 @@ if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
 else
     DECK=0
 fi
-DECKFILE="${LTO_LOGS}/${DECK}_last_used.txt"
-touch "${DECKFILE}"
 printf "${BLUE}Enter the 6 character tape number:${NC} "
 read TAPE_SERIAL
 if [[ ! $(echo "$TAPE_SERIAL" | grep -E  "^[A-Z0-9]{6}$") ]] ; then
@@ -56,7 +53,6 @@ if [ $(which ltfs_ldun) ] ; then
     ltfs_ldun load ${DECK}
 fi
 mkdir -p "${MOUNT_DIR}"
-#_version_schema
 
 LTFS_OPTIONS+=(-o eject)
 LTFS_OPTIONS+=(-o noatime)
