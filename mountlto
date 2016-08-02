@@ -24,6 +24,9 @@ if [[ "${LTO_COUNT}" -eq 0 ]] ; then
 fi
 
 [ ! -d "${LTO_LOGS}" ] && mkdir -p "${LTO_LOGS}"
+
+echo "${GREEN}Checking for ready tapes${NC}..."
+
 for i in $(seq 1 "$LTO_COUNT") ; do
 DECK=$(echo "$i - 1" | bc)
 if [ $(which ltfs_ldun) ] ; then
