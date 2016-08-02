@@ -59,6 +59,7 @@ mkdir -p "${MOUNT_DIR}"
 #_version_schema
 
 LTFS_OPTIONS+=(-o eject)
+LTFS_OPTIONS+=(-o noatime)
 LTFS_OPTIONS+=(-o capture_index)
 LTFS_OPTIONS+=(-o devname=${DECK})
 LTFS_OPTIONS+=(-o volname="$TAPE_SERIAL")
