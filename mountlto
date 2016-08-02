@@ -4,16 +4,14 @@
 SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
 
-unset LTO_ARRAY
+unset LTO_COUNT
 unset LTFS_OPTIONS
 LTO_LOGS="${HOME}/Documents/lto_indexes"
-if [[ -z "${LTO_ARRAY}" ]] ; then
     if [[ $(uname -s) == "Darwin" ]] ; then
-        LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | sort | xargs)) # try to figure out how many lto decks are attached
+        LTO_COUNT=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | wc -l | awk '{print $1}') # try to figure out how many lto decks are attached
     else
-        LTO_ARRAY=(0) # to do: itemize when there are multiple lto drives in Linux
+        LTO_COUNT=1 # to do: itemize when there are multiple lto drives in Linux
     fi
-fi
 
 RED="$(tput setaf 1)"   # Red      - For Warnings
 GREEN="$(tput setaf 2)" # Green    - For Declarations
@@ -21,26 +19,19 @@ BLUE="$(tput setaf 4)"  # Blue     - For Questions
 NC="$(tput sgr0)"       # No Color
 
 [ ! -d "${LTO_LOGS}" ] && mkdir -p "${LTO_LOGS}"
-if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
-    PS3="${BLUE}Which LTO deck?${NC} "
-    eval set "${LTO_ARRAY[@]}"
-    select DECK in "$@"
-    do
-        break
-    done
-    if [ ! ${DECK} ] ; then
-        echo "${RED}Error, you selected an invalid deck.${NC}"
-        exit 1
-    fi
-else
-    DECK=0
-fi
-printf "${BLUE}Enter the 6 character tape number:${NC} "
-read TAPE_SERIAL
-if [[ ! $(echo "$TAPE_SERIAL" | grep -E  "^[A-Z0-9]{6}$") ]] ; then
-    echo "${RED}ERROR The tape id must contain exactly 6 capital letters and/or numbers.${NC}"
+if [[ "${LTO_COUNT}" -eq 0 ]] ; then
+    echo "${RED}No LTO decks were found.${NC}"
     exit 1
 fi
+
+for i in $(seq 1 "$LTO_COUNT") ; do
+DECK=$(echo "$i - 1" | bc)
+if [ $(which ltfs_ldun) ] ; then
+    ltfs_ldun load ${DECK} 1>/dev/null
+fi
+TAPE_SERIAL=$(ltfs -f -o devname="${DECK}" 2>&1 | grep "Volser(Barcode)" | cut -d: -f2 | awk '{print $1}')
+if [[ -n "${TAPE_SERIAL}" ]] ;then
+echo "Deck ${DECK} found with tape ${TAPE_SERIAL}"
 if [[ $(uname -s) == "Darwin" ]] ; then
     MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
 else
@@ -65,3 +56,9 @@ LTFS_OPTIONS+=(-o sync_type=unmount)
 ltfs -f -o work_directory="$LTO_LOGS" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
 [ -d "${MOUNT_DIR}" ] && rmdir "${MOUNT_DIR}"
 renameschemas -u
+break
+fi
+if [[ "$i" -eq "${LTO_COUNT}" ]] ; then
+    echo "${GREEN}Checked ${LTO_COUNT} decks and none appear to have tapes ready to mount.${NC}"
+fi
+done
