@@ -40,9 +40,7 @@ fi
 echo "${GREEN}MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${RED}${MOUNT_DIR}${GREEN} FOLDER${NC}"
 echo "${GREEN}MOUNTING TAPE : AFTER MOUNT PRESS ${RED}CONTROL-C${GREEN} TO EJECT${NC}"
 trap _cleanup_mount_dir SIGHUP SIGINT SIGTERM
-if [ $(which ltfs_ldun) ] ; then
-    ltfs_ldun load ${DECK}
-fi
+
 mkdir -p "${MOUNT_DIR}"
 
 LTFS_OPTIONS+=(-o eject)
