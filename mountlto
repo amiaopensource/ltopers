@@ -34,10 +34,10 @@ if [ $(which ltfs_ldun) ] ; then
 fi
 LOADTMP=$(_maketemp)
 ltfs -f -o devname="${DECK}" 2> "${LOADTMP}"
-TAPE_SERIAL=$(cat "${LOADTMP}" | grep "Volser(Barcode)" | cut -d: -f2 | awk '{print $1}')
+TAPE_SERIAL=$(cat "${LOADTMP}" | grep -a "Volser(Barcode)" | cut -d: -f2 | awk '{print $1}')
 if [[ -z "$TAPE_SERIAL" ]] ; then
-    if [[ $(cat "${LOADTMP}" | grep "Mounting the volume") ]] ;then
-        DECKSERIAL=$(cat "$LOADTMP" | grep -o "serial number is [A-Za-z0-9]*" | awk '{print $4}' )
+    if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") ]] ;then
+        DECKSERIAL=$(cat "$LOADTMP" | grep -a -o "serial number is [A-Za-z0-9]*" | awk '{print $4}' )
         TAPE_SERIAL="${DECKSERIAL}"
     fi
 fi
