@@ -33,7 +33,7 @@ shift $(( ${OPTIND} - 1 ))
 
 SOURCE_DIR="${1}"
 if [[ ! $(echo "${TAPE_SERIAL}" | grep "${TAPE_SERIAL_REGEX}") ]] ; then
-    echo "${TAPE_SERIAL}" is not a capital letter followed by a 5 digit number
+    echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers."
     _usage
     exit 1
 fi
