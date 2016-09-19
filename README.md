@@ -8,15 +8,15 @@ Install the LTFS utilities. Please use version 2.2 on the [Quantum site](http://
 To install LTOpers tools, run the following commands:
 
 `brew tap amiaopensource/amiaos`
-{ this taps the homebrew recipes of the amiaopensource account }
+(this taps the homebrew recipes of the amiaopensource account)
 
 `brew install ltopers`
-{ just installed it to version 0.1.3 }
+(just installed it to version 0.1.3)
 
 If it ever updates you can update via:
 `brew update`
 `brew upgrade`
-{ nb: this will update/upgrade every package you've installed using brew }
+(nb: this will update/upgrade every package you've installed using brew)
 
 ##Formatting LTO##
 
