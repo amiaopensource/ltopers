@@ -7,11 +7,11 @@ SCRIPTDIR=$(dirname "${0}")
 unset LTO_COUNT
 unset LTFS_OPTIONS
 LTO_LOGS="${HOME}/Documents/lto_indexes"
-    if [[ $(uname -s) == "Darwin" ]] ; then
-        LTO_COUNT=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | wc -l | awk '{print $1}') # try to figure out how many lto decks are attached
-    else
-        LTO_COUNT=1 # to do: itemize when there are multiple lto drives in Linux
-    fi
+if [[ $(uname -s) == "Darwin" ]] ; then
+    LTO_COUNT=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | wc -l | awk '{print $1}') # try to figure out how many lto decks are attached
+else
+    LTO_COUNT=1 # to do: itemize when there are multiple lto drives in Linux
+fi
 
 RED="$(tput setaf 1)"   # Red      - For Warnings
 GREEN="$(tput setaf 2)" # Green    - For Declarations
@@ -28,45 +28,45 @@ fi
 echo "${GREEN}Checking for ready tapes${NC}..."
 
 for i in $(seq 1 "$LTO_COUNT") ; do
-DECK=$(echo "$i - 1" | bc)
-if [ $(which ltfs_ldun) ] ; then
-    ltfs_ldun load ${DECK} 1>/dev/null
-fi
-LOADTMP=$(_maketemp)
-ltfs -f -o devname="${DECK}" 2> "${LOADTMP}"
-TAPE_SERIAL=$(cat "${LOADTMP}" | grep -a "Volser(Barcode)" | cut -d: -f2 | awk '{print $1}')
-if [[ -z "$TAPE_SERIAL" ]] ; then
-    if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") ]] ;then
-        DECKSERIAL=$(cat "$LOADTMP" | grep -a -o "serial number is [A-Za-z0-9]*" | awk '{print $4}' )
-        TAPE_SERIAL="${DECKSERIAL}"
+    DECK=$(echo "$i - 1" | bc)
+    if [ $(which ltfs_ldun) ] ; then
+        ltfs_ldun load ${DECK} 1>/dev/null
     fi
-fi
-if [[ -n "${TAPE_SERIAL}" ]] ;then
-echo "Deck ${DECK} found with tape ${TAPE_SERIAL}"
-if [[ $(uname -s) == "Darwin" ]] ; then
-    MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
-else
-    MOUNT_DIR="/mnt/${TAPE_SERIAL}"
-fi
-echo "${GREEN}MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${RED}${MOUNT_DIR}${GREEN} FOLDER${NC}"
-echo "${GREEN}MOUNTING TAPE : AFTER MOUNT PRESS ${RED}CONTROL-C${GREEN} TO EJECT${NC}"
-trap _cleanup_mount_dir SIGHUP SIGINT SIGTERM
+    LOADTMP=$(_maketemp)
+    ltfs -f -o devname="${DECK}" 2> "${LOADTMP}"
+    TAPE_SERIAL=$(cat "${LOADTMP}" | grep -a "Volser(Barcode)" | cut -d: -f2 | awk '{print $1}')
+    if [[ -z "$TAPE_SERIAL" ]] ; then
+        if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") ]] ; then
+            DECKSERIAL=$(cat "$LOADTMP" | grep -a -o "serial number is [A-Za-z0-9]*" | awk '{print $4}' )
+            TAPE_SERIAL="${DECKSERIAL}"
+        fi
+    fi
+    if [[ -n "${TAPE_SERIAL}" ]] ; then
+        echo "Deck ${DECK} found with tape ${TAPE_SERIAL}"
+        if [[ $(uname -s) == "Darwin" ]] ; then
+            MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
+        else
+            MOUNT_DIR="/mnt/${TAPE_SERIAL}"
+        fi
+        echo "${GREEN}MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${RED}${MOUNT_DIR}${GREEN} FOLDER${NC}"
+        echo "${GREEN}MOUNTING TAPE : AFTER MOUNT PRESS ${RED}CONTROL-C${GREEN} TO EJECT${NC}"
+        trap _cleanup_mount_dir SIGHUP SIGINT SIGTERM
 
-mkdir -p "${MOUNT_DIR}"
+        mkdir -p "${MOUNT_DIR}"
 
-LTFS_OPTIONS+=(-o eject)
-LTFS_OPTIONS+=(-o noatime)
-LTFS_OPTIONS+=(-o capture_index)
-LTFS_OPTIONS+=(-o devname=${DECK})
-LTFS_OPTIONS+=(-o volname="${TAPE_SERIAL}")
-LTFS_OPTIONS+=(-o uid=$(id -u))
+        LTFS_OPTIONS+=(-o eject)
+        LTFS_OPTIONS+=(-o noatime)
+        LTFS_OPTIONS+=(-o capture_index)
+        LTFS_OPTIONS+=(-o devname=${DECK})
+        LTFS_OPTIONS+=(-o volname="${TAPE_SERIAL}")
+        LTFS_OPTIONS+=(-o uid=$(id -u))
 
-ltfs -f -o work_directory="$LTO_LOGS" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
-[ -d "${MOUNT_DIR}" ] && rmdir "${MOUNT_DIR}"
-renameschemas -u
-break
-fi
-if [[ "$i" -eq "${LTO_COUNT}" ]] ; then
-    echo "${GREEN}Checked ${LTO_COUNT} decks and none appear to have tapes ready to mount.${NC}"
-fi
+        ltfs -f -o work_directory="$LTO_LOGS" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
+        [ -d "${MOUNT_DIR}" ] && rmdir "${MOUNT_DIR}"
+        renameschemas -u
+        break
+    fi
+    if [[ "$i" -eq "${LTO_COUNT}" ]] ; then
+        echo "${GREEN}Checked ${LTO_COUNT} decks and none appear to have tapes ready to mount.${NC}"
+    fi
 done
