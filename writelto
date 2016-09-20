@@ -60,6 +60,9 @@ if [[ "${HIDDEN_FILES}" ]] ; then
     RSYNC_ERR_2="$?"
 fi
 
+echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
+echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
+
 if [ "${VERIFY}" == "Y" ] ; then
     VERIFYTIME=$(_get_iso8601_c)
     READBACKDIR="${LTO_LOGS}/readback_checksums"
@@ -74,9 +77,6 @@ case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
     *) echo "Done writing but not ejecting ${TAPE_SERIAL}." ;;
 esac
-
-echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
-echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
 
 renameschemas -u
 
