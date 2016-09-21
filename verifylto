@@ -8,8 +8,6 @@ LTO_LOGS="$HOME/Documents/lto_indexes"
 SCRIPTDIR=$(dirname "${0}")
 TAPE_EJECT="Y"
 
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
-
 _usage(){
     echo "verifylto"
     echo "Usage:"
@@ -17,6 +15,8 @@ _usage(){
     echo "    -e [ N|Y ] (state yes or no to ejecting the tape after write, default is yes)"
     exit 1
 }
+
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
 
 # command-line options
 OPTIND=1
