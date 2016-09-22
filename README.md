@@ -11,7 +11,7 @@ To install LTOpers tools, run the following commands:
 (this taps the homebrew recipes of the amiaopensource account)
 
 `brew install ltopers`
-(just installed it to version 0.1.3)
+(current version is 0.1.4)
 
 If it ever updates you can update via:
 `brew update`
