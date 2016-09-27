@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # mountlto
 
 SCRIPTDIR=$(dirname "${0}")
@@ -7,10 +7,10 @@ SCRIPTDIR=$(dirname "${0}")
 unset LTO_COUNT
 unset LTFS_OPTIONS
 LTO_LOGS="${HOME}/Documents/lto_indexes"
-if [[ $(uname -s) == "Darwin" ]] ; then
+if [[ $(uname -s) = "Darwin" ]] ; then
     LTO_COUNT=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | wc -l | awk '{print $1}') # try to figure out how many lto decks are attached
 else
-    LTO_COUNT=1 # to do: itemize when there are multiple lto drives in Linux
+    LTO_COUNT=1 # to do: itemize when there are multiple lto drives in Linux & Windows
 fi
 
 RED="$(tput setaf 1)"   # Red      - For Warnings
@@ -37,13 +37,13 @@ for i in $(seq 1 "$LTO_COUNT") ; do
     TAPE_SERIAL=$(cat "${LOADTMP}" | grep -a "Volser(Barcode)" | cut -d: -f2 | awk '{print $1}')
     if [[ -z "$TAPE_SERIAL" ]] ; then
         if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") ]] ; then
-            DECKSERIAL=$(cat "$LOADTMP" | grep -a -o "serial number is [A-Za-z0-9]*" | awk '{print $4}' )
+            DECKSERIAL=$(cat "$LOADTMP" | grep -a -o "serial number is [A-Z0-9]*" | awk '{print $4}' )
             TAPE_SERIAL="${DECKSERIAL}"
         fi
     fi
     if [[ -n "${TAPE_SERIAL}" ]] ; then
         echo "Deck ${DECK} found with tape ${TAPE_SERIAL}"
-        if [[ $(uname -s) == "Darwin" ]] ; then
+        if [[ $(uname -s) = "Darwin" ]] ; then
             MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
         else
             MOUNT_DIR="/mnt/${TAPE_SERIAL}"
