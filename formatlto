@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # formatlto
 # formats an LTO tape for LTFS
 version="0.2"
@@ -24,13 +24,13 @@ dependencies=(mkltfs)
 
 unset MIDDLE_OPTIONS
 while getopts ":fch" opt ; do
-   case "${opt}" in
-       f) MIDDLE_OPTIONS+=(-f) ;;
-       c) COMPRESS=1 ;;
-       h) _usage ;;
-       *) echo "bad option -$OPTARG" ; _usage ;;
-       :) echo "Option -$OPTARG requires an argument" ; exit 1 ;;
-   esac
+    case "${opt}" in
+        f) MIDDLE_OPTIONS+=(-f) ;;
+        c) COMPRESS=1 ;;
+        h) _usage ;;
+        *) echo "bad option -$OPTARG" ; _usage ;;
+        :) echo "Option -$OPTARG requires an argument" ; exit 1 ;;
+    esac
 done
 
 if [ ! "${COMPRESS}" = "1" ] ; then
@@ -40,10 +40,10 @@ else
 fi
 
 if [ ! "${LTO_ARRAY}" ] ; then
-    if [[ $(uname -s) == "Darwin" ]] ; then
+    if [[ $(uname -s) = "Darwin" ]] ; then
         LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | sort | xargs)) # try to figure out how many lto decks are attached
     else
-        LTO_ARRAY=(0) # to do: itemize when there are multiple lto drives in Linux
+        LTO_ARRAY=(0) # to do: itemize when there are multiple lto drives in Linux and Windows
     fi
 fi
 
