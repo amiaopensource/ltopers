@@ -1,6 +1,6 @@
-#!/bin/bash
-# name: writelto
-# description: writelto writes the contents of a specified directory onto a mounted LTFS-formated LTO tape.
+#!/usr/bin/env bash
+# writelto
+# writelto writes the contents of a specified directory onto a mounted LTFS-formated LTO tape.
 HIDDEN_FILES=""
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="[A-Z0-9]\{6\}"
@@ -13,7 +13,7 @@ _usage(){
     echo "Usage:"
     echo "    -t tape serial"
     echo "    -e [ N|Y ] (state yes or no to ejecting the tape after write, default is yes)"
-	echo "    -v reads back and creates checksums for the contents of a tape, and writes checksums to a file named with the tape name and date, located in the LTO logs directory."
+    echo "    -v reads back and creates checksums for the contents of a tape, and writes checksums to a file named with the tape name and date, located in the LTO logs directory."
     exit 1
 }
 
@@ -32,12 +32,10 @@ while getopts ":t:e:v" opt ; do
 done
 shift $(( ${OPTIND} - 1 ))
 
-
 SOURCE_DIR="${1}"
 if [[ ! $(echo "${TAPE_SERIAL}" | grep "${TAPE_SERIAL_REGEX}") ]] ; then
-    echo "${TAPE_SERIAL}" is not a capital letter followed by a 5 digit number
+    echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers."
     _usage
-    exit 1
 fi
 
 TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
@@ -60,7 +58,10 @@ if [[ "${HIDDEN_FILES}" ]] ; then
     RSYNC_ERR_2="$?"
 fi
 
-if [ "${VERIFY}" == "Y" ] ; then
+echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
+echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
+
+if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFYTIME=$(_get_iso8601_c)
     READBACKDIR="${LTO_LOGS}/readback_checksums"
     _mkdir2  "${READBACKDIR}"
@@ -75,9 +76,6 @@ case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
     *) echo "Done writing but not ejecting ${TAPE_SERIAL}." ;;
 esac
-
-echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
-echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
 
 renameschemas -u
 
