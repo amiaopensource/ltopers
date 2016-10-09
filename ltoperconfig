@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ltoperconfig
 # set up variables
 CONFIG="Y"
