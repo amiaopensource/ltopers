@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ltoperconfig
 # set up variables
 CONFIG="Y"
@@ -86,24 +86,22 @@ cb.type=cancelbutton
 		echo ""
 	
 		# write config file
-		echo "#$(basename "${0}") config file" > "${LTO_CONFIG_FILE}"
-		echo  "${config_comment}" >> "${LTO_CONFIG_FILE}"
-
-		echo "${FILEMAKER_USER_COMMENT}" >> "${LTO_CONFIG_FILE}"
-		echo "FILEMAKER_USER=\"${FILEMAKER_USER}\"" >> "${LTO_CONFIG_FILE}"
-		echo  >> "${LTO_CONFIG_FILE}"
-
-		echo  "${FILEMAKER_PASS_COMMENT}" >> "${LTO_CONFIG_FILE}"
-		echo "FILEMAKER_PASS=\"${FILEMAKER_PASS}\"" >> "${LTO_CONFIG_FILE}"
-		echo  >> "${LTO_CONFIG_FILE}"
-
-		echo  "${FILEMAKER_DB_COMMENT}" >> "${LTO_CONFIG_FILE}"
-		echo "FILEMAKER_DB=\"${FILEMAKER_DB}\"" >> "${LTO_CONFIG_FILE}"
-		echo  >> "${LTO_CONFIG_FILE}"
-
-		echo  "${FILEMAKER_XML_URL_COMMENT}" >> "${LTO_CONFIG_FILE}"
-		echo "FILEMAKER_XML_URL=\"${FILEMAKER_XML_URL}\"" >> "${LTO_CONFIG_FILE}"
-		echo  >> "${LTO_CONFIG_FILE}"
+		{
+		  echo "#$(basename "${0}") config file"
+		  echo "${config_comment}"
+		  echo "${FILEMAKER_USER_COMMENT}"
+		  echo "FILEMAKER_USER=\"${FILEMAKER_USER}\""
+		  echo
+		  echo "${FILEMAKER_PASS_COMMENT}"
+		  echo "FILEMAKER_PASS=\"${FILEMAKER_PASS}\""
+		  echo
+		  echo "${FILEMAKER_DB_COMMENT}"
+		  echo "FILEMAKER_DB=\"${FILEMAKER_DB}\""
+		  echo
+		  echo "${FILEMAKER_XML_URL_COMMENT}"
+		  echo "FILEMAKER_XML_URL=\"${FILEMAKER_XML_URL}\""
+		  echo
+		} > "${LTO_CONFIG_FILE}"
 
 		. "${LTO_CONFIG_FILE}"
 	fi
