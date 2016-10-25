@@ -48,7 +48,7 @@ _checkdir "${TAPE_PATH}"
 
 gcp --preserve=mode,timestamps -nRv "${SOURCE_DIR}/"* "${TAPE_PATH}"
 
-"${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
+_run_critical_event "${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
 RSYNC_ERR_1="$?"
 HIDDEN_FILES=$(find "${TAPE_PATH}" -name ".*")
 if [[ "${HIDDEN_FILES}" ]] ; then
@@ -61,12 +61,16 @@ fi
 echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
 echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
 
+_report_to_db
 if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFYTIME=$(_get_iso8601_c)
     READBACKDIR="${LTO_LOGS}/readback_checksums"
     _mkdir2  "${READBACKDIR}"
     find "${TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
-    _report_to_db
+    db_fixity=$(cat "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5")
+    if [ -z "$db_fixity" ] ; then
+        event_outcome="No fixity information"
+    fi
 fi
 
 echo -n "$(date +%FT%T) " >> "${LTO_LOGS}/tape_capacity.txt"
@@ -83,3 +87,9 @@ SCHEMA_FILE="$LTO_LOGS/${TAPE_SERIAL}.schema"
 if [[ -n "${FILEMAKER_XML_URL}" ]] ; then
     "${SCRIPTDIR}/lto2filemaker" "${SCHEMA_FILE}"
 fi
+
+_eventoutcome_update
+if [[ "${VERIFY}" = "Y" ]] ; then
+    _report_fixity_db
+fi
+
