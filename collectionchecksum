@@ -15,6 +15,7 @@ _maketemp(){
 
 while [ "${*}" != "" ] ; do
     INPUT="${1}"
+    _report_to_db
     TAPECHECKSUMFILE="${INPUT}/tapechecksum.md5"
     TEMPCHECKSUMFILE=$(_maketemp)
     cd "${INPUT}"
@@ -32,6 +33,7 @@ while [ "${*}" != "" ] ; do
     sort -k2 "${TEMPCHECKSUMFILE}" | grep -v .DS_Store >> "${TAPECHECKSUMFILE}"
     
     shift
-    _report_to_db
+    _eventoutcome_update
+    _report_fixity_db
 done
 
