@@ -58,8 +58,13 @@ if [[ "${HIDDEN_FILES}" ]] ; then
     RSYNC_ERR_2="$?"
 fi
 
-echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
-echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
+if [ -n "$RSYNC_ERR_2" ] ; then
+    echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
+    echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
+else
+    echo "rsync exited with ${RSYNC_ERR_1}."
+    echo "rsync exited with ${RSYNC_ERR_1}." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
+fi
 
 _report_to_db
 if [[ "${VERIFY}" = "Y" ]] ; then
