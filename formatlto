@@ -1,35 +1,37 @@
 #!/usr/bin/env bash
-# formatlto
-# formats an LTO tape for LTFS
-version="0.2"
 
+# formatlto
+# Formats an LTO tape with LTFS.
+
+VERSION="0.2"
 SCRIPTDIR=$(dirname "${0}")
+DEPENDENCIES=(mkltfs)
+RED="$(tput setaf 1)"   # Red      - For Warnings
+GREEN="$(tput setaf 2)" # Green    - For Declarations
+BLUE="$(tput setaf 4)"  # Blue     - For Questions
+NC="$(tput sgr0)"       # No Color
+
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 _usage(){
     echo
-    echo "$(basename ${0}) ${version}"
-    echo "format lto tapes with ltfs"
-    echo "Dependencies: ${dependencies[@]}"
-    echo "Usage: $(basename $0) [ -f ]"
-    echo "  -f force formating"
-    echo "  -c use compression"
-    echo "  -h ( display this help )"
+    echo "$(basename "${0}") ${VERSION}"
+    echo "This script formats an LTO tape with LTFS."
+    echo "Dependencies: ${DEPENDENCIES[@]}"
+    echo "Usage: $(basename "${0}") [[-f] [-c] | -h]"
+    echo "  -f  force formating"
+    echo "  -c  use compression"
+    echo "  -h  display this help"
     echo
-    exit
 }
-
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
-dependencies=(mkltfs)
-
 
 unset MIDDLE_OPTIONS
 while getopts ":fch" opt ; do
     case "${opt}" in
         f) MIDDLE_OPTIONS+=(-f) ;;
         c) COMPRESS=1 ;;
-        h) _usage ;;
-        *) echo "bad option -$OPTARG" ; _usage ;;
-        :) echo "Option -$OPTARG requires an argument" ; exit 1 ;;
+        h) _usage ; exit 0 ;;
+        *) echo "${RED}Error: Bad option -${OPTARG}${NC}" ; _usage ; exit 1 ;;
     esac
 done
 
@@ -47,11 +49,6 @@ if [ ! "${LTO_ARRAY}" ] ; then
     fi
 fi
 
-RED="$(tput setaf 1)"   # Red      - For Warnings
-GREEN="$(tput setaf 2)" # Green    - For Declarations
-BLUE="$(tput setaf 4)"  # Blue     - For Questions
-NC="$(tput sgr0)"       # No Color
-
 if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
    PS3="${BLUE}Which LTO deck?${NC} "
    eval set "${LTO_ARRAY[@]}"
@@ -60,7 +57,7 @@ if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
        break
    done
    if [ ! "${DECK}" ] ; then
-       echo "${RED}ERROR: You selected an invalid deck.${NC}"
+       echo "${RED}Error: You selected an invalid deck.${NC}"
        exit 1
    fi
 else
@@ -70,7 +67,7 @@ fi
 printf "${BLUE}Enter the 6 character tape identifier:${NC} "
 read TAPE_ID
 if [[ ! $(echo "${TAPE_ID}" | grep -E "^[A-Z0-9]{6}$") ]] ; then
-   echo "${RED}ERROR: The tape id must contain exactly 6 capital letters and/or numbers.${NC}"
+   echo "${RED}Error: The tape id must contain exactly 6 capital letters and/or numbers.${NC}"
    exit 1
 fi
 if [[ $(which ltfs_ldun) ]] ; then
