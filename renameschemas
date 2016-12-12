@@ -1,27 +1,33 @@
-#!/bin/bash
-# mountlto
+#!/usr/bin/env bash
+
+# renameschemas
 
 SCRIPTDIR=$(dirname "${0}")
 
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+
 _usage(){
-    echo "renameschemas"
-    echo "Currently this script only works with in -u mode. It finds all .schema ltfs indexes in the LTO_LOGS directory and renames them to use the top-level file system directory name rather than the uuid. Any conflicting filenames are moved to another folder if needed."
-    echo "Usage:"
-    echo "    -u [change dir-named schema files to the tape uuid]"
+    echo
+    echo "$(basename "${0}")"
+    echo "Currently this script only works with in -u mode. It finds all .schema"
+    echo "LTFS indexes in the LTO_LOGS directory and renames them to use the"
+    echo "top-level file system directory name rather than the uuid. Any"
+    echo "conflicting filenames are moved to another folder if needed."
+    echo "Usage: $(basename "${0}") -u"
+    echo "  -u  change dir-named schema files to the tape uuid"
+    echo
     exit 1
 }
 
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
-
 [ "${#}" = 0 ] && _usage
-# command-line options
+
 OPTIND=1
 while getopts ":un" opt ; do
     case "${opt}" in
         u) RENAME2UUID="Y" ;;
         n) RENAME2NAME="Y" ;;
-        *) echo "bad option -${OPTARG}" ; usage ;;
-        :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
+        :) echo "Error: Option -${OPTARG} requires an argument" ; exit 1 ;;
+        *) echo "Error: Bad option -${OPTARG}" ; usage ;;
     esac
 done
 shift $(( ${OPTIND} - 1 ))
