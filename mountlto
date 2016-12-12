@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
+
 # mountlto
 
 SCRIPTDIR=$(dirname "${0}")
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
+
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 unset LTO_COUNT
 unset LTFS_OPTIONS
