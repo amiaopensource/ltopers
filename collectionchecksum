@@ -1,8 +1,14 @@
-#!/bin/bash
-#this script will create checksums of metadata files, concatinate checksum.md5 files, and append to one large checksum file for each directory 
-#this script presumes a highly specific directory structure based on CUNY TV's Archival Information Package directory structure. 
+#!/usr/bin/env bash
+
+# collectionchecksum
+# This script will create checksums of metadata files, concatinate checksum.md5
+# files, and append to one large checksum file for each directory this script
+# presumes a highly specific directory structure based on CUNY TV's Archival
+# Information Package directory structure. 
+
 SCRIPTDIR=$(dirname "${0}")
-. "${SCRIPTDIR}/mmfunctions"
+
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 _maketemp(){
     mktemp -q "/tmp/$(basename "${0}").XXXXXX"
