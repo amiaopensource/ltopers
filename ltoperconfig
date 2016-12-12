@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
+
 # ltoperconfig
 # set up variables
+
 CONFIG="Y"
 CONFIG_VERSION="1.0"
-SCRIPTDIR=$(dirname "$0")
-LTO_CONFIG_FILE="${SCRIPTDIR}/ltoper.conf"
 SCRIPTDIR=$(dirname "${0}")
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
+LTO_CONFIG_FILE="${SCRIPTDIR}/ltoper.conf"
+
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 if [ -f "${LTO_CONFIG_FILE}" ] ; then
     . "${LTO_CONFIG_FILE}"
@@ -66,42 +68,42 @@ cb.type=cancelbutton
 ";
 
 #comments must be commented (start with #)
-	config_comment="# Set each value to empty quotes (like \"\") to prompt during run, or set to a provided option."
-	FILEMAKER_USER_COMMENT="# Set the filemaker username:  $(printf "\"%s\" " "${FILEMAKER_USER[@]}")"
-	FILEMAKER_PASS_COMMENT="#Set the filemaker password:  $(printf "\"%s\" " "${FILEMAKER_PASS[@]}")"
-	FILEMAKER_DB_COMMENT="#Set the name of the filemaker database:  $(printf "\"%s\" " "${FILEMAKER_DB[@]}")"
-	FILEMAKER_XML_URL_COMMENT="#Set the filemaker xml url: $(printf "\"%s\" " "${FILEMAKER_XML_URL[@]}")"
+config_comment="# Set each value to empty quotes (like \"\") to prompt during run, or set to a provided option."
+FILEMAKER_USER_COMMENT="# Set the filemaker username:  $(printf "\"%s\" " "${FILEMAKER_USER[@]}")"
+FILEMAKER_PASS_COMMENT="#Set the filemaker password:  $(printf "\"%s\" " "${FILEMAKER_PASS[@]}")"
+FILEMAKER_DB_COMMENT="#Set the name of the filemaker database:  $(printf "\"%s\" " "${FILEMAKER_DB[@]}")"
+FILEMAKER_XML_URL_COMMENT="#Set the filemaker xml url: $(printf "\"%s\" " "${FILEMAKER_XML_URL[@]}")"
 
-	pashua_configfile=`/usr/bin/mktemp /tmp/pashua_XXXXXXXXX`
-	echo "${conf}" > "${pashua_configfile}"
-	_pashua_run
-	rm "${pashua_configfile}"
+pashua_configfile=$(/usr/bin/mktemp /tmp/pashua_XXXXXXXXX)
+echo "${conf}" > "${pashua_configfile}"
+_pashua_run
+rm "${pashua_configfile}"
 
-	if [[ "$cb" == 0 ]] ; then
-		#report back options
-		echo "  FILEMAKER_USER = ${FILEMAKER_USER}"
-		echo "  FILEMAKER_PASS = ${FILEMAKER_PASS}"
-		echo "  FILEMAKER_DB = ${FILEMAKER_DB}"
-		echo "  FILEMAKER_XML_URL = ${FILEMAKER_XML_URL}"
-		echo ""
-	
-		# write config file
-		{
-		  echo "#$(basename "${0}") config file"
-		  echo "${config_comment}"
-		  echo "${FILEMAKER_USER_COMMENT}"
-		  echo "FILEMAKER_USER=\"${FILEMAKER_USER}\""
-		  echo
-		  echo "${FILEMAKER_PASS_COMMENT}"
-		  echo "FILEMAKER_PASS=\"${FILEMAKER_PASS}\""
-		  echo
-		  echo "${FILEMAKER_DB_COMMENT}"
-		  echo "FILEMAKER_DB=\"${FILEMAKER_DB}\""
-		  echo
-		  echo "${FILEMAKER_XML_URL_COMMENT}"
-		  echo "FILEMAKER_XML_URL=\"${FILEMAKER_XML_URL}\""
-		  echo
-		} > "${LTO_CONFIG_FILE}"
+if [[ "$cb" = 0 ]] ; then
+    #report back options
+    echo "  FILEMAKER_USER = ${FILEMAKER_USER}"
+    echo "  FILEMAKER_PASS = ${FILEMAKER_PASS}"
+    echo "  FILEMAKER_DB = ${FILEMAKER_DB}"
+    echo "  FILEMAKER_XML_URL = ${FILEMAKER_XML_URL}"
+    echo ""
 
-		. "${LTO_CONFIG_FILE}"
-	fi
+    # write config file
+    {
+        echo "#$(basename "${0}") config file"
+        echo "${config_comment}"
+        echo "${FILEMAKER_USER_COMMENT}"
+        echo "FILEMAKER_USER=\"${FILEMAKER_USER}\""
+        echo
+        echo "${FILEMAKER_PASS_COMMENT}"
+        echo "FILEMAKER_PASS=\"${FILEMAKER_PASS}\""
+        echo
+        echo "${FILEMAKER_DB_COMMENT}"
+        echo "FILEMAKER_DB=\"${FILEMAKER_DB}\""
+        echo
+        echo "${FILEMAKER_XML_URL_COMMENT}"
+        echo "FILEMAKER_XML_URL=\"${FILEMAKER_XML_URL}\""
+        echo
+    } > "${LTO_CONFIG_FILE}"
+
+    . "${LTO_CONFIG_FILE}"
+fi
