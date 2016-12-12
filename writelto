@@ -1,33 +1,39 @@
 #!/usr/bin/env bash
+
 # writelto
-# writelto writes the contents of a specified directory onto a mounted LTFS-formated LTO tape.
+# This script writes the contents of a specified directory onto a mounted
+# LTFS-formated LTO tape.
+
 HIDDEN_FILES=""
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="[A-Z0-9]\{6\}"
-LTO_LOGS="$HOME/Documents/lto_indexes"
+LTO_LOGS="${HOME}/Documents/lto_indexes"
 SCRIPTDIR=$(dirname "${0}")
 TAPE_EJECT="Y"
 
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+
 _usage(){
-    echo "writelto"
+    echo
+    echo "$(basename "${0}")"
     echo "Usage:"
-    echo "    -t tape serial"
-    echo "    -e [ N|Y ] (state yes or no to ejecting the tape after write, default is yes)"
-    echo "    -v reads back and creates checksums for the contents of a tape, and writes checksums to a file named with the tape name and date, located in the LTO logs directory."
-    exit 1
+    echo "  -t  tape serial"
+    echo "  -e  state yes (Y) or no (N) to ejecting the tape after write, default"
+    echo "      is yes"
+    echo "  -v  reads back and creates checksums for the contents of a tape, and"
+    echo "      writes checksums to a file named with the tape name and date,"
+    echo "      located in the LTO logs directory"
+    echo
 }
 
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
-
-# command-line options
 OPTIND=1
 while getopts ":t:e:v" opt ; do
     case "${opt}" in
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
         v) VERIFY="Y" ;;
-        *) echo "bad option -${OPTARG}" ; _usage ;;
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
+        *) echo "Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
 shift $(( ${OPTIND} - 1 ))
@@ -83,7 +89,7 @@ echo $(df -Ph "${TAPE_PATH}" | tail -n 1) >> "${LTO_LOGS}/tape_capacity.txt"
 
 case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
-    *) echo "Done writing but not ejecting ${TAPE_SERIAL}." ;;
+    *)   echo "Done writing but not ejecting ${TAPE_SERIAL}." ;;
 esac
 
 renameschemas -u
@@ -97,4 +103,3 @@ _eventoutcome_update
 if [[ "${VERIFY}" = "Y" ]] ; then
     _report_fixity_db
 fi
-
