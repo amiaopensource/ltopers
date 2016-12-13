@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# lto2filemaker
 # This script presumes that you've setup a filemaker database with Filemaker
 # Server using two tables called "lto_tapes" and "lto_files" with fields
 # according to the LTFS XML format.
