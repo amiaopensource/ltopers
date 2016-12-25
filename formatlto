@@ -61,7 +61,11 @@ if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
        exit 1
    fi
 else
-   DECK=0
+#   if [[ $(uname -s) = "Darwin" ]] ; then
+       DECK=0
+#   else
+#       DECK='/dev/sg3'
+#   fi
 fi
 
 printf "${BLUE}Enter the 6 character tape identifier:${NC} "
