@@ -68,11 +68,11 @@ else
    fi
 fi
 
-REGEX="^[A-Z0-9]{6}$"
-printf "${BLUE}Enter the 6 character tape identifier:${NC} "
+REGEX="^[A-Z0-9]{6}(L[567])?$"
+printf "${BLUE}Enter the tape identifier:${NC} "
 read TAPE_ID
 if [[ ! $(echo "${TAPE_ID}" | grep -E "${REGEX}") ]] ; then
-   echo "${RED}Error: The tape id must contain exactly 6 capital letters and/or numbers.${NC}"
+   echo "${RED}Error: The tape id must contain exactly 6 capital letters and/or numbers, possibly followed by L5, L6 or L7.${NC}"
    exit 1
 fi
 if [[ $(which ltfs_ldun) ]] ; then
