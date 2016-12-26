@@ -68,9 +68,10 @@ else
    fi
 fi
 
+REGEX="^[A-Z0-9]{6}$"
 printf "${BLUE}Enter the 6 character tape identifier:${NC} "
 read TAPE_ID
-if [[ ! $(echo "${TAPE_ID}" | grep -E "^[A-Z0-9]{6}$") ]] ; then
+if [[ ! $(echo "${TAPE_ID}" | grep -E "${REGEX}") ]] ; then
    echo "${RED}Error: The tape id must contain exactly 6 capital letters and/or numbers.${NC}"
    exit 1
 fi
