@@ -61,11 +61,11 @@ if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
        exit 1
    fi
 else
-   if [[ $(uname -s) = "Linux" ]] ; then
-       DECK='/dev/sg3'
-   else
+#   if [[ $(uname -s) = "Linux" ]] ; then
+#       DECK='/dev/sg3'
+#   else
        DECK=0
-   fi
+#   fi
 fi
 
 REGEX="^[A-Z0-9]{6}(L[567])?$"
