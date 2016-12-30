@@ -3,7 +3,7 @@
 # formatlto
 # Formats an LTO tape with LTFS.
 
-VERSION="0.2"
+VERSION="0.3"
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(mkltfs)
 RED="$(tput setaf 1)"   # Red      - For Warnings
