@@ -1,35 +1,40 @@
-#!/bin/bash
-# This script presumes that you've setup a filemaker database with Filemaker Server using two tables called "lto_tapes" and "lto_files" with fields according to the LTFS XML format.
-REQUIRECONFIG="Y"
+#!/usr/bin/env bash
+
+# lto2filemaker
+# This script presumes that you've setup a filemaker database with Filemaker
+# Server using two tables called "lto_tapes" and "lto_files" with fields
+# according to the LTFS XML format.
+
 VERSION=0.1
+REQUIRECONFIG="Y"
 DEPENDENCIES=(xml curl)
 unset CURL_OPTS
 VERBOSITY=0
+SCRIPTDIR=$(dirname "${0}")
+
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 _usage(){
     echo
     echo "$(basename "${0}") ${VERSION}"
-    echo "This application will create a file suitable for broadcast or editing from a video file or package input with the following options."
+    echo "This application will create a file suitable for broadcast or editing"
+    echo "from a video file or package input with the following options."
     echo "Dependencies: ${DEPENDENCIES[@]}"
-    echo "Usage: $(basename "${0}") [ -v ] LTFS_SCHEMA_FILE"
-    echo "  -v N (verbosity, 0 hides curl errors, default is 0)"
-    echo "  -h ( display this help )"
+    echo "Usage: $(basename "${0}") [-v|-h] LTFS_SCHEMA_FILE"
+    echo "  -v N  verbosity, 0 hides curl errors, default is 0"
+    echo "  -h    display this help"
     echo
     exit
 }
 [ "${#}" = 0 ] && _usage
 
-SCRIPTDIR=$(dirname "${0}")
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
-
-# command-line options
 OPTIND=1
 while getopts ":v:h" opt ; do
     case "${opt}" in
         v) VERBOSITY="${OPTARG}" ;;
         h) _usage ;;
-        *) echo "bad option -$OPTARG" ; _usage ;;
-        :) echo "Option -$OPTARG requires an argument" ; exit 1 ;;
+        :) echo "Error: Option -$OPTARG requires an argument" ; exit 1 ;;
+        *) echo "Error: Bad option -$OPTARG" ; _usage ; exit 1 ;;
     esac
 done
 shift $(( ${OPTIND} - 1 ))
