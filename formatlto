@@ -14,26 +14,32 @@ NC="$(tput sgr0)"       # No Color
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 _usage(){
-    echo
-    echo "$(basename "${0}") ${VERSION}"
-    echo "This script formats an LTO tape with LTFS."
-    echo "Dependencies: ${DEPENDENCIES[@]}"
-    echo "Usage: $(basename "${0}") [[-f] [-c] | -h]"
-    echo "  -f  force formating"
-    echo "  -c  use compression"
-    echo "  -h  display this help"
-    echo
+cat <<EOF
+$(basename "${0}") ${VERSION}
+This script formats an LTO tape with LTFS.
+Dependencies: ${DEPENDENCIES[@]}
+Usage: $(basename "${0}") [-f] [-c] | [-h]
+  -f  force formating
+  -c  use compression
+  -h  display this help
+EOF
 }
 
 unset MIDDLE_OPTIONS
 while getopts ":fch" opt ; do
     case "${opt}" in
-        f) MIDDLE_OPTIONS+=(-f) ;;
+        f) FORCE=1 ;;
         c) COMPRESS=1 ;;
         h) _usage ; exit 0 ;;
         *) echo "${RED}Error: Bad option -${OPTARG}${NC}" ; _usage ; exit 1 ;;
     esac
 done
+
+if [ ! "${FORCE}" = "1" ] ; then
+    MIDDLE_OPTIONS+=(-f)
+else
+    echo "${GREEN}Will force formatting.${NC}"
+fi
 
 if [ ! "${COMPRESS}" = "1" ] ; then
     MIDDLE_OPTIONS+=(-c)
@@ -45,7 +51,7 @@ if [ ! "${LTO_ARRAY}" ] ; then
     if [[ $(uname -s) = "Darwin" ]] ; then
         LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | sort | xargs)) # try to figure out how many lto decks are attached
     else
-        LTO_ARRAY=(0) # to do: itemize when there are multiple lto drives in Linux and Windows
+        LTO_ARRAY=(0) #### TO DO: itemize when there are multiple LTO drives in Linux and Windows
     fi
 fi
 
@@ -61,6 +67,7 @@ if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
        exit 1
    fi
 else
+#### TO DO: select the correct path to the drive on Linux and Windows
 #   if [[ $(uname -s) = "Linux" ]] ; then
 #       DECK='/dev/sg3'
 #   else
@@ -72,7 +79,7 @@ REGEX="^[A-Z0-9]{6}(L[567])?$"
 printf "${BLUE}Enter the tape identifier:${NC} "
 read TAPE_ID
 if [[ ! $(echo "${TAPE_ID}" | grep -E "${REGEX}") ]] ; then
-   echo "${RED}Error: The tape id must contain exactly 6 capital letters and/or numbers, possibly followed by L5, L6 or L7.${NC}"
+   echo "${RED}Error: The tape id must contain exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation.${NC}"
    exit 1
 fi
 if [[ $(which ltfs_ldun) ]] ; then
