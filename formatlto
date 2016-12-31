@@ -5,11 +5,7 @@
 
 VERSION="0.3"
 SCRIPTDIR=$(dirname "${0}")
-DEPENDENCIES=(mkltfs)
-RED="$(tput setaf 1)"   # Red      - For Warnings
-GREEN="$(tput setaf 2)" # Green    - For Declarations
-BLUE="$(tput setaf 4)"  # Blue     - For Questions
-NC="$(tput sgr0)"       # No Color
+DEPENDENCIES=(mkltfs, mmfunctions)
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
@@ -31,39 +27,40 @@ while getopts ":fch" opt ; do
         f) FORCE=1 ;;
         c) COMPRESS=1 ;;
         h) _usage ; exit 0 ;;
-        *) echo "${RED}Error: Bad option -${OPTARG}${NC}" ; _usage ; exit 1 ;;
+        *) _report -w "Error: Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
 
-if [ ! "${FORCE}" = "1" ] ; then
+if [ "${FORCE}" = "1" ] ; then
     MIDDLE_OPTIONS+=(-f)
-else
-    echo "${GREEN}Will force formatting.${NC}"
+    _report -d "Will force formatting."
 fi
 
 if [ ! "${COMPRESS}" = "1" ] ; then
     MIDDLE_OPTIONS+=(-c)
 else
-    echo "${GREEN}Will use compression.${NC}"
+    _report -d "Will use compression."
 fi
 
 if [ ! "${LTO_ARRAY}" ] ; then
     if [[ $(uname -s) = "Darwin" ]] ; then
-        LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | sort | xargs)) # try to figure out how many lto decks are attached
+        # try to figure out how many LTO decks are attached
+        LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | sort | xargs))
     else
-        LTO_ARRAY=(0) #### TO DO: itemize when there are multiple LTO drives in Linux and Windows
+        #### TO DO: itemize when there are multiple LTO drives in Linux and Windows
+        LTO_ARRAY=(0)
     fi
 fi
 
 if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
-   PS3="${BLUE}Which LTO deck?${NC} "
+   PS3="\033[1;34mWhich LTO deck? \033[0m"
    eval set "${LTO_ARRAY[@]}"
    select DECK in "$@"
    do
        break
    done
    if [ ! "${DECK}" ] ; then
-       echo "${RED}Error: You selected an invalid deck.${NC}"
+       _report -w "Error: You selected an invalid deck."
        exit 1
    fi
 else
@@ -76,10 +73,10 @@ else
 fi
 
 REGEX="^[A-Z0-9]{6}(L[567])?$"
-printf "${BLUE}Enter the tape identifier:${NC} "
+_report -qn "Enter the tape identifier: "
 read TAPE_ID
 if [[ ! $(echo "${TAPE_ID}" | grep -E "${REGEX}") ]] ; then
-   echo "${RED}Error: The tape id must contain exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation.${NC}"
+   _report -w "Error: The tape id must contain exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
    exit 1
 fi
 if [[ $(which ltfs_ldun) ]] ; then
