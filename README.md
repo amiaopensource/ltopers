@@ -54,10 +54,10 @@ If this is the first time you are running the LTO scripts, you must first edit t
 **Follow the prompts to edit the following variables:**
 
 ```
-FILEMAKER_USER=  XXXXX
-FILEMAKER_PASS=   XXXXX
-FILEMAKER_DB= XXXXX
-FILEMAKER_XML_URL=xxx.xxx/xxx.xml`
+FILEMAKER_USER=XXXXX
+FILEMAKER_PASS=XXXXX
+FILEMAKER_DB=XXXXX
+FILEMAKER_XML_URL=xxx.xxx/xxx.xml
 ```
 
 ##Mounting LTO & Creating XMLs##
