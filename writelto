@@ -4,31 +4,33 @@
 # This script writes the contents of a specified directory onto a mounted
 # LTFS-formated LTO tape.
 
-HIDDEN_FILES=""
-TAPE_MOUNT_POINT="/Volumes"
-TAPE_SERIAL_REGEX="[A-Z0-9]\{6\}"
-LTO_LOGS="${HOME}/Documents/lto_indexes"
 SCRIPTDIR=$(dirname "${0}")
+TAPE_MOUNT_POINT="/Volumes"
+TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
+HIDDEN_FILES=""
+LTO_LOGS="${HOME}/Documents/lto_indexes"
 TAPE_EJECT="Y"
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 _usage(){
-    echo
-    echo "$(basename "${0}")"
-    echo "Usage:"
-    echo "  -t  tape serial"
-    echo "  -e  state yes (Y) or no (N) to ejecting the tape after write, default"
-    echo "      is yes"
-    echo "  -v  reads back and creates checksums for the contents of a tape, and"
-    echo "      writes checksums to a file named with the tape name and date,"
-    echo "      located in the LTO logs directory"
-    echo
+cat <<EOF
+$(basename "${0}")
+Usage:
+  -t  tape serial
+  -e  state yes (Y) or no (N) to ejecting the tape after write, default
+      is yes
+  -v  reads back and creates checksums for the contents of a tape, and
+      writes checksums to a file named with the tape name and date,
+      located in the LTO logs directory
+  -h  display this help
+EOF
 }
 
 OPTIND=1
-while getopts ":t:e:v" opt ; do
+while getopts ":ht:e:v" opt ; do
     case "${opt}" in
+        h)  _usage ; exit 0 ;;
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
         v) VERIFY="Y" ;;
@@ -39,8 +41,8 @@ done
 shift $(( ${OPTIND} - 1 ))
 
 SOURCE_DIR="${1}"
-if [[ ! $(echo "${TAPE_SERIAL}" | grep "${TAPE_SERIAL_REGEX}") ]] ; then
-    echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers."
+if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
+    echo "${TAPE_SERIAL} is not valid. Error: The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
     _usage
 fi
 
@@ -76,7 +78,7 @@ _report_to_db
 if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFYTIME=$(_get_iso8601_c)
     READBACKDIR="${LTO_LOGS}/readback_checksums"
-    _mkdir2  "${READBACKDIR}"
+    _mkdir2 "${READBACKDIR}"
     find "${TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
     db_fixity=$(cat "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5")
     if [ -z "$db_fixity" ] ; then
