@@ -35,11 +35,11 @@ brew upgrade
 Examples:
 
 ```
-Axxxxx
-BxxxxxL6
+Annnnn
+BnnnnnL6
 ```
 
-where xxxxx is a 5-digit sequential number, e.g. A00001, A00002, etc. respectively B00001L6, B00002L6, etc.
+where nnnnn is a 5-digit sequential number, e.g. A00001, A00002, etc. respectively B00001L6, B00002L6, etc.
 
 The script will format your tape in LTFS format, with no compression, and sets rules that allow smaller types of files to live in the index partition of the tape, which gives you faster access. If you need to change this, edit the mkltfs line in the script to suit your preferences.
 
