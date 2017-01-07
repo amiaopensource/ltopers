@@ -8,25 +8,38 @@ Install the LTFS utilities. Please use version 2.2 on the [Quantum site](http://
 To install LTOpers tools, run the following commands:
 
 `brew tap amiaopensource/amiaos`
+
 (this taps the homebrew recipes of the amiaopensource account)
 
 `brew install ltopers`
+
 (current version is 0.1.5)
 
 If it ever updates you can update via:
-`brew update`
-`brew upgrade`
+
+```
+brew update
+brew upgrade
+```
+
 (nb: this will update/upgrade every package you've installed using brew)
 
 ##Formatting LTO##
 
 **LTO tapes need to be formatted before they can be used. Run the formatlto script.**
 
-**The script will ask you select a deck (if you have more than one attached) and to name your tape. Give your tape a 6-digit ID, e.g.:**
+**The script will ask you select a deck (if you have more than one attached) and to name your tape. There are two different tape ID formats:
+- the 6-char ID must be exactly 6 capital letters and/or numbers
+- the 8-char ID must be exactly 6 capital letters and/or numbers, followed by 'L5', 'L6' or 'L7' specifying the LTO generation.**
 
-`Lxxxxx`
+Examples:
 
-(where xxxxx is a 5-digit sequential number, e.g. L00001, L00002, etc.)
+```
+Axxxxx
+BxxxxxL6
+```
+
+where xxxxx is a 5-digit sequential number, e.g. A00001, A00002, etc. respectively B00001L6, B00002L6, etc.
 
 The script will format your tape in LTFS format, with no compression, and sets rules that allow smaller types of files to live in the index partition of the tape, which gives you faster access. If you need to change this, edit the mkltfs line in the script to suit your preferences.
 
@@ -39,11 +52,13 @@ If this is the first time you are running the LTO scripts, you must first edit t
 **Run ltoperconfig script.**
 
 **Follow the prompts to edit the following variables:**
-    
-`FILEMAKER_USER=  XXXXX`
-`FILEMAKER_PASS=   XXXXX`
-`FILEMAKER_DB= XXXXX`
-`FILEMAKER_XML_URL=xxx.xxx/xxx.xml`
+
+```
+FILEMAKER_USER=  XXXXX
+FILEMAKER_PASS=   XXXXX
+FILEMAKER_DB= XXXXX
+FILEMAKER_XML_URL=xxx.xxx/xxx.xml`
+```
 
 ##Mounting LTO & Creating XMLs##
 
@@ -53,7 +68,7 @@ If this is the first time you are running the LTO scripts, you must first edit t
 
 Script will check for attached tape drive, and will prompt for deck name if there are multiple drives.
 
-**When prompted, enter the name of the tape to mount** (e.g. L00001).
+**When prompted, enter the name of the tape to mount** (e.g. A00001 or B00001L6).
 
 Tape will load in deck and mount. 
 
