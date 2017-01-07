@@ -28,9 +28,9 @@ brew upgrade
 
 **LTO tapes need to be formatted before they can be used. Run the formatlto script.**
 
-**The script will ask you select a deck (if you have more than one attached) and to name your tape. There are two different tape ID formats:
-- the 6-char ID must be exactly 6 capital letters and/or numbers
-- the 8-char ID must be exactly 6 capital letters and/or numbers, followed by 'L5', 'L6' or 'L7' specifying the LTO generation.**
+**The script will ask you select a deck (if you have more than one attached) and to name your tape. There are two different tape ID formats:**
+- **the 6-char ID must be exactly 6 capital letters and/or numbers**
+- **the 8-char ID must be exactly 6 capital letters and/or numbers, followed by 'L5', 'L6' or 'L7' specifying the LTO generation.**
 
 Examples:
 
