@@ -3,26 +3,28 @@
 # indexschemas
 # This script makes a text file listing certain files from the ltfs schema file.
 
+VERSION="0.1"
 LTO_LOGS="${HOME}/Documents/lto_indexes"
 
 _usage(){
-    echo 
-    echo "$(basename "${0}")"
-    echo "This script makes a text file listing certain files from the ltfs schema"
-    echo "file."
-    echo "Usage:"
-    echo "  -t  check schema files modified today for volume names that may need"
-    echo "      to be overwritten"
-    echo
-    exit 1
+cat <<EOF 
+$(basename "${0}") ${VERSION}
+This script makes a text file listing certain files from the ltfs schema
+file.
+Usage: $(basename "${0}") -t | -h
+  -t  check schema files modified today for volume names that may need
+      to be overwritten
+  -h  display this help
+EOF
 }
 
 OPTIND=1
 while getopts ":t" opt ; do
     case "${opt}" in
+        h) _usage ; exit 0 ;;
         t) TODAYCHECK=(-mtime -24h) ;;
         :) echo "Error: Option -${OPTARG} requires an argument" ; exit 1 ;;
-        *) echo "Error: Bad option -${OPTARG}" ; usage ;;
+        *) echo "Error: Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
 shift $(( ${OPTIND} - 1 ))
