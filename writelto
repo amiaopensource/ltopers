@@ -4,7 +4,9 @@
 # This script writes the contents of a specified directory onto a mounted
 # LTFS-formated LTO tape.
 
+VERSION="0.1"
 SCRIPTDIR=$(dirname "${0}")
+DEPENDENCIES=(mmfunctions) #### TO DO
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
 HIDDEN_FILES=""
@@ -15,8 +17,11 @@ TAPE_EJECT="Y"
 
 _usage(){
 cat <<EOF
-$(basename "${0}")
-Usage:
+$(basename "${0}") ${VERSION}
+This script writes the contents of a specified directory onto a mounted
+LTFS-formated LTO tape.
+Dependencies: ${DEPENDENCIES[@]}
+Usage: $(basename "${0}") -t [-e] [-v] | -h
   -t  tape serial
   -e  state yes (Y) or no (N) to ejecting the tape after write, default
       is yes
