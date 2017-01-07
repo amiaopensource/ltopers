@@ -98,17 +98,18 @@ Lto2filemaker can also be invoked independently:
 `$lto2filemaker yourfile.schema`
 
 ##Tools##
-*mountlto
 
-*writelto
-
-*ltoperconfig
-
-*lto2filemaker (requires XMLStarlet)
+- ltoperconfig
+- mountlto
+- formatlto
+- writelto
+- verifylto
+- collectionchecksum
+- indexschemas
+- renameschemas
+- lto2filemaker (requires XMLStarlet)
 
 ##External locations of LTO scripts and related tools:##
 https://github.com/amiaopensource/ltopers
 
 http://xmlstar.sourceforge.net/
-
-
