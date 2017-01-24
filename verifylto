@@ -36,6 +36,7 @@ done
 shift $(( ${OPTIND} - 1 ))
 
 SOURCE_DIR="${1}"
+_report_to_db
 if [[ ! $(echo "${TAPE_SERIAL}" | grep "${TAPE_SERIAL_REGEX}") ]] ; then
     echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers."
     _usage
@@ -53,3 +54,6 @@ case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
     *)   echo "Done verifying but not ejecting ${TAPE_SERIAL}." ;;
 esac
+
+_eventoutcome_update
+_report_fixity_db
