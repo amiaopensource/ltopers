@@ -56,4 +56,5 @@ case "${TAPE_EJECT}" in
 esac
 
 _eventoutcome_update
+_report_schema_db
 _report_fixity_db
