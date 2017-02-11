@@ -6,6 +6,7 @@
 VERSION="0.3"
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(mkltfs, mmfunctions)
+TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
@@ -72,11 +73,10 @@ else
 #   fi
 fi
 
-REGEX="^[A-Z0-9]{6}(L[567])?$"
 _report -qn "Enter the tape identifier: "
 read TAPE_ID
-if [[ ! $(echo "${TAPE_ID}" | grep -E "${REGEX}") ]] ; then
-   _report -w "Error: The tape id must contain exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
+if [[ ! $(echo "${TAPE_ID}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
+   _report -w "Error: The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
    exit 1
 fi
 if [[ $(which ltfs_ldun) ]] ; then

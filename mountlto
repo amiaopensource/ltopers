@@ -3,6 +3,8 @@
 # mountlto
 
 SCRIPTDIR=$(dirname "${0}")
+VERSION="0.1"
+DEPENDENCIES=(mmfunctions) #### TO DO
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
@@ -10,24 +12,21 @@ unset LTO_COUNT
 unset LTFS_OPTIONS
 LTO_LOGS="${HOME}/Documents/lto_indexes"
 if [[ $(uname -s) = "Darwin" ]] ; then
-    LTO_COUNT=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | wc -l | awk '{print $1}') # try to figure out how many lto decks are attached
+    # try to figure out how many lto decks are attached
+    LTO_COUNT=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | wc -l | awk '{print $1}')
 else
-    LTO_COUNT=1 # to do: itemize when there are multiple lto drives in Linux & Windows
+    #### TO DO: itemize when there are multiple lto drives in Linux & Windows
+    LTO_COUNT=1
 fi
 
-RED="$(tput setaf 1)"   # Red      - For Warnings
-GREEN="$(tput setaf 2)" # Green    - For Declarations
-BLUE="$(tput setaf 4)"  # Blue     - For Questions
-NC="$(tput sgr0)"       # No Color
-
 if [[ "${LTO_COUNT}" -eq 0 ]] ; then
-    echo "${RED}No LTO decks were found.${NC}"
+    _report -w "No LTO decks were found."
     exit 1
 fi
 
 [ ! -d "${LTO_LOGS}" ] && mkdir -p "${LTO_LOGS}"
 
-echo "${GREEN}Checking for ready tapes${NC}..."
+_report -d "Checking for ready tapes..."
 
 for i in $(seq 1 "$LTO_COUNT") ; do
     DECK=$(echo "$i - 1" | bc)
@@ -50,8 +49,8 @@ for i in $(seq 1 "$LTO_COUNT") ; do
         else
             MOUNT_DIR="/mnt/${TAPE_SERIAL}"
         fi
-        echo "${GREEN}MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${RED}${MOUNT_DIR}${GREEN} FOLDER${NC}"
-        echo "${GREEN}MOUNTING TAPE : AFTER MOUNT PRESS ${RED}CONTROL-C${GREEN} TO EJECT${NC}"
+        _report -d "MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${MOUNT_DIR} FOLDER"
+        _report -d "MOUNTING TAPE : AFTER MOUNT PRESS CONTROL-C TO EJECT"
         trap _cleanup_mount_dir SIGHUP SIGINT SIGTERM
 
         mkdir -p "${MOUNT_DIR}"
@@ -69,6 +68,6 @@ for i in $(seq 1 "$LTO_COUNT") ; do
         break
     fi
     if [[ "$i" -eq "${LTO_COUNT}" ]] ; then
-        echo "${GREEN}Checked ${LTO_COUNT} decks and none appear to have tapes ready to mount.${NC}"
+        _report -d "Checked ${LTO_COUNT} decks and none appear to have tapes ready to mount."
     fi
 done
