@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# collectionchecksum
+# This script will create checksums of metadata files, concatinate checksum.md5
+# files, and append to one large checksum file for each directory this script
+# presumes a highly specific directory structure based on CUNY TV's Archival
+# Information Package directory structure. 
+
+SCRIPTDIR=$(dirname "${0}")
+
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+
+_maketemp(){
+    mktemp -q "/tmp/$(basename "${0}").XXXXXX"
+    if [ "${?}" -ne 0 ]; then
+        echo "${0}: Can't create temp file, exiting..."
+        _writeerrorlog "_maketemp" "was unable to create the temp file, so the script had to exit."
+        exit 1
+    fi
+}
+
+echo "Enter Tape ID"
+read TAPEID
+
+while [ "${*}" != "" ] ; do
+    INPUT=/Volumes/"${TAPEID}"
+    _report_to_db
+    TAPECHECKSUMFILE="${INPUT}/tapechecksum.md5"
+    if [ -f "${TAPECHECKSUMFILE}" ] ; then
+        _eventoutcome_update
+        _report_fixity_db
+    fi
+    TEMPCHECKSUMFILE=$(_maketemp)
+    TAPECHECKSUMFILE="~/Desktop/"${TAPEID}".tapechecksum.md5"
+    cd "${INPUT}"
+
+    #loop through the directories, find the checksum files, cat them together, and also sed to add the media ids
+    for CHECKSUMFILES in $(find ${INPUT} -maxdepth 3 -mindepth 3 -type f -iname "checksum.md5"); do
+        PACKAGE=$(basename $(dirname $(dirname "${CHECKSUMFILES}")))
+        _report -d "Concatenating ${CHECKSUMFILES}."
+        cat "${CHECKSUMFILES}" | sed "s|  ./|  ./${PACKAGE}/objects/|g" >> "${TEMPCHECKSUMFILE}"
+    done
+
+    #create md5 checksums for all of the files in the metadata directory
+    _report -d "Creating checksums for all metadata directories."
+    md5deep -rel ./*/metadata >> "${TEMPCHECKSUMFILE}"
+
+    _report -d "Sorting and saving ${TAPECHECKSUMFILE}."
+    sort -k2 "${TEMPCHECKSUMFILE}" | grep -v .DS_Store >> "${TAPECHECKSUMFILE}"
+
+    shift
+    _eventoutcome_update
+    _report_fixity_db
+done
