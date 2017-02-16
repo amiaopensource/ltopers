@@ -3,7 +3,15 @@ SCRIPTDIR=$(dirname $(which "${0}"))
 . "${SCRIPTDIR}/mmfunctions"
 
 INPUT="${1}"
-FILENAME=$(basename "${INPUT}")
+FILE_NAME=$(basename "${INPUT}")
 
 _compare_file(){
+    DATE=$(date -u -r "$INPUT" +%Y-%m-%dT%H:%M:%S.0000000000Z)
+    SIZE=$(wc -c "${INPUT}")
+    echo "Information from Schema"
+    mysql --login-path="${PREMIS_PROFILE}"  "${PREMIS_NAME} -e "SELECT fileName,fileSize,modifyTime FROM ltoSchema WHERE fileName LIKE '%${FILE_NAME}%'"
+    echo "Information From File"
+    echo "$DATE $SIZE"
 }
+
+_compare_file
