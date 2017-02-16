@@ -10,7 +10,6 @@ VERSION="0.1"
 DEPENDENCIES=(mmfunctions) #### TO DO
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
-HIDDEN_FILES=""
 LTO_LOGS="${HOME}/Documents/lto_indexes"
 TAPE_EJECT="Y"
 
