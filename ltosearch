@@ -11,7 +11,7 @@ _compare_file(){
         DATE=$(date -u -r "$INPUT" +%Y-%m-%dT%H:%M:%S.0000000000Z)
         SIZE=$(wc -c "${INPUT}")
         echo "Information from Schema"
-        mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -e "SELECT modifyTime,fileSize,fileName FROM ltoSchema WHERE fileName LIKE '%${FILE_NAME}%'"
+        mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT modifyTime,fileSize,fileName FROM ltoSchema WHERE fileName LIKE '%${FILE_NAME}%'"
         echo "Information From File"
         echo "$DATE $SIZE"
     else
@@ -39,7 +39,7 @@ while [ "${*}" != "" ] ; do
     if [ "${RUNMODE}" = "compare" ] ; then
         _compare_file
     else
-        mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -e "SELECT ltoID,filePath FROM ltoSchema WHERE Concat(ltoID, '',filePath, '') LIKE '%${FILE_NAME}%'"
+        mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE Concat(ltoID, '',filePath, '') LIKE '%${FILE_NAME}%'"
     fi
 done
 
