@@ -2,16 +2,36 @@
 SCRIPTDIR=$(dirname $(which "${0}"))
 . "${SCRIPTDIR}/mmfunctions"
 
-INPUT="${1}"
-FILE_NAME=$(basename "${INPUT}")
+_usage(){
+}
 
 _compare_file(){
     DATE=$(date -u -r "$INPUT" +%Y-%m-%dT%H:%M:%S.0000000000Z)
     SIZE=$(wc -c "${INPUT}")
     echo "Information from Schema"
-    mysql --login-path="${PREMIS_PROFILE}"  "${PREMIS_NAME} -e "SELECT fileName,fileSize,modifyTime FROM ltoSchema WHERE fileName LIKE '%${FILE_NAME}%'"
+    mysql --login-path="${PREMIS_PROFILE}"  "${PREMIS_NAME}" -e "SELECT fileName,fileSize,modifyTime FROM ltoSchema WHERE fileName LIKE '%${FILE_NAME}%'"
     echo "Information From File"
     echo "$DATE $SIZE"
 }
 
-_compare_file
+OPTIND=1
+while getopts ":hc" OPT; do
+    case "${OPT}" in
+        h) _usage ;;
+        c) RUNMODE="compare" ;;
+        *) echo "bad option -${OPTARG}" ; _usage ;
+exit 1 ;;
+    esac
+done
+
+shift $(( ${OPTIND} - 1 ))
+
+while [ "${*}" != "" ] ; do
+    INPUT="${1}"
+    shift
+    FILE_NAME=$(basename "${INPUT}")
+    if [ "${RUNMODE}" = "compare" ] ; then
+        _compare_file
+    fi
+done
+
