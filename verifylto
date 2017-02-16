@@ -42,8 +42,8 @@ shift $(( ${OPTIND} - 1 ))
 
 SOURCE_DIR="${1}"
 _report_to_db
-if [[ ! $(echo "${TAPE_SERIAL}" | grep "${TAPE_SERIAL_REGEX}") ]] ; then
-    echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers."
+if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
+    _report -w "${TAPE_SERIAL} is not valid. Error: The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
     _usage
 fi
 
