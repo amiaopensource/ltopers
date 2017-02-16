@@ -1,17 +1,24 @@
 #!/bin/bash
 SCRIPTDIR=$(dirname $(which "${0}"))
 . "${SCRIPTDIR}/mmfunctions"
+. /usr/local/bin/mmfunctions
 
 _usage(){
+    echo "yeah"
 }
 
 _compare_file(){
-    DATE=$(date -u -r "$INPUT" +%Y-%m-%dT%H:%M:%S.0000000000Z)
-    SIZE=$(wc -c "${INPUT}")
-    echo "Information from Schema"
-    mysql --login-path="${PREMIS_PROFILE}"  "${PREMIS_NAME}" -e "SELECT fileName,fileSize,modifyTime FROM ltoSchema WHERE fileName LIKE '%${FILE_NAME}%'"
-    echo "Information From File"
-    echo "$DATE $SIZE"
+    if [ -f "${INPUT}" ] ; then
+        DATE=$(date -u -r "$INPUT" +%Y-%m-%dT%H:%M:%S.0000000000Z)
+        SIZE=$(wc -c "${INPUT}")
+        echo "Information from Schema"
+        mysql --login-path="${PREMIS_PROFILE}"  "${PREMIS_NAME}" -e "SELECT fileName,fileSize,modifyTime FROM ltoSchema WHERE fileName LIKE '%${FILE_NAME}%'"
+        echo "Information From File"
+        echo "$DATE $SIZE"
+    else
+        echo "Input is not a valid file. Exiting"
+        exit 1
+    fi
 }
 
 OPTIND=1
@@ -32,6 +39,8 @@ while [ "${*}" != "" ] ; do
     FILE_NAME=$(basename "${INPUT}")
     if [ "${RUNMODE}" = "compare" ] ; then
         _compare_file
+    else
+        mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -e "SELECT ltoID,filePath FROM ltoSchema WHERE Concat(ltoID, '',filePath, '') LIKE '%${FILE_NAME}%'"
     fi
 done
 
