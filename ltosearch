@@ -1,0 +1,9 @@
+#!/bin/bash
+SCRIPTDIR=$(dirname $(which "${0}"))
+. "${SCRIPTDIR}/mmfunctions"
+
+INPUT="${1}"
+FILENAME=$(basename "${INPUT}")
+
+_compare_file(){
+}
