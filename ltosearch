@@ -10,10 +10,21 @@ _compare_file(){
     if [ -f "${INPUT}" ] ; then
         DATE=$(date -u -r "$INPUT" +%Y-%m-%dT%H:%M:%S.0000000000Z)
         SIZE=$(wc -c "${INPUT}")
-        echo "Information from Schema"
-        mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT modifyTime,fileSize,fileName FROM ltoSchema WHERE fileName LIKE '%${FILE_NAME}%'"
-        echo "Information From File"
-        echo "$DATE $SIZE"
+        SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT modifyTime,fileSize,fileName FROM ltoSchema WHERE fileName LIKE '%${SEARCH_TERM}%'")
+        if [ -n "${SQL_RESULTS}" ] ; then
+            echo "Information from Schema"
+            echo "${SQL_RESULTS}"
+            echo "Information From File"
+            echo "${DATE} ${SIZE}"
+        else
+            echo "File with that name not found.  Checking for files of similar size and modification date"
+            SQL_RESULTS$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT modifyTime,fileSize,fileName FROM ltoSchema WHERE fileSize='${SIZE}' OR modifyTime='${TIME}'")
+            echo "Following possible matches were found:"
+            echo "${SQL_RESULTS}"
+            echo "Information from file"
+            echo "${DATE} ${SIZE}"
+        fi
+            
     else
         echo "Input is not a valid file. Exiting"
         exit 1
@@ -35,11 +46,11 @@ shift $(( ${OPTIND} - 1 ))
 while [ "${*}" != "" ] ; do
     INPUT="${1}"
     shift
-    FILE_NAME=$(basename "${INPUT}")
+    SEARCH_TERM=$(basename "${INPUT}")
     if [ "${RUNMODE}" = "compare" ] ; then
         _compare_file
     else
-        mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE Concat(ltoID, '',filePath, '') LIKE '%${FILE_NAME}%'"
+        mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE Concat(ltoID, '',filePath, '') LIKE '%${SEARCH_TERM}%'"
     fi
 done
 
