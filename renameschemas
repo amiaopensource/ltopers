@@ -25,6 +25,7 @@ EOF
 OPTIND=1
 while getopts ":hun" opt ; do
     case "${opt}" in
+        h) _usage ; exit 0 ;;
         u) RENAME2UUID="Y" ;;
         n) RENAME2NAME="Y" ;;
         :) echo "Error: Option -${OPTARG} requires an argument" ; exit 1 ;;
