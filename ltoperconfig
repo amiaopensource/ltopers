@@ -88,6 +88,7 @@ cat <<EOF
   FILEMAKER_XML_URL = ${FILEMAKER_XML_URL}
 
 EOF
+
     # write config file
     cat > "${LTO_CONFIG_FILE}" <<EOF
 #$(basename "${0}") config file
@@ -105,5 +106,6 @@ ${FILEMAKER_XML_URL_COMMENT}
 FILEMAKER_XML_URL="${FILEMAKER_XML_URL}"
 
 EOF
+
     . "${LTO_CONFIG_FILE}"
 fi
