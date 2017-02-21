@@ -14,16 +14,16 @@ _compare_file(){
         LTO_SIZE=$(echo ${SQL_RESULTS} | cut -d ' ' -f5)
         LTO_DATE=$(echo ${SQL_RESULTS} | cut -d ' ' -f4)
         
-        if [ "${DATE}" != "${LTO_DATE}" ] ; then
-            echo -e "\033[1;31mWARNING: Date mismatch between file data and file records in LTO database\033[0m"
-        fi
-        if [ $(echo "${SIZE}" | sed -e 's/^[[:space:]]*//' | cut -d' ' -f1) != "${LTO_SIZE}" ] ; then
-            echo -e "\033[1;31mWARNING: Size mismatch between file data and file records in LTO database\033[0m"
-        fi
-        if [ "${DATE}" = "${LTO_DATE}" ] && [ $(echo "${SIZE}" | sed -e 's/^[[:space:]]*//' | cut -d' ' -f1) = "${LTO_SIZE}" ] ; then
-            echo -e "\033[1;92mMatching File(s) Found\033[0m"
-        fi
         if [ -n "${SQL_RESULTS}" ] ; then
+            if [ "${DATE}" != "${LTO_DATE}" ] ; then
+                echo -e "\033[1;31mWARNING: Date mismatch between file data and file records in LTO database\033[0m"
+            fi
+            if [ $(echo "${SIZE}" | sed -e 's/^[[:space:]]*//' | cut -d' ' -f1) != "${LTO_SIZE}" ] ; then
+                echo -e "\033[1;31mWARNING: Size mismatch between file data and file records in LTO database\033[0m"
+            fi
+            if [ "${DATE}" = "${LTO_DATE}" ] && [ $(echo "${SIZE}" | sed -e 's/^[[:space:]]*//' | cut -d' ' -f1) = "${LTO_SIZE}" ] ; then
+                echo -e "\033[1;92mMatching File(s) Found\033[0m"
+            fi
             echo "Information from Schema"
             echo "------"
             echo "${SQL_RESULTS}"
@@ -32,12 +32,15 @@ _compare_file(){
             echo "------"
             echo "${DATE} ${SIZE}"            
         else
-            echo "File with that name not found.  Checking for files of similar size and modification date"
-            SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT modifyTime,fileSize,fileName FROM ltoSchema WHERE fileSize='${SIZE}' OR modifyTime='${TIME}'")
-            echo "Following possible matches were found:"
-            echo "${SQL_RESULTS}"
-            echo "Information from file"
-            echo "${DATE} ${SIZE}"
+            echo -e "\033[1;31mFile with that name not found.  Checking for files of similar size and modification date\033[0m"
+            SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT modifyTime,fileSize,fileName FROM ltoSchema WHERE fileSize='$(echo "${SIZE}" | sed -e 's/^[[:space:]]*//' | cut -d' ' -f1)' OR modifyTime='${DATE}'")
+            if [ -n "${SQL_RESULTS}" ] ; then
+                echo -e "\033[1;92mFollowing possible matches were found:\033[0m"
+                echo "${SQL_RESULTS}"
+                echo "Information from file"
+                echo "${DATE} ${SIZE}"
+            else echo -e "\033[1;31mNo potential matches found\033[0m"
+            fi
         fi
             
     else
