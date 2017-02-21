@@ -37,7 +37,7 @@ for i in $(seq 1 "$LTO_COUNT") ; do
     ltfs -f -o devname="${DECK}" 2> "${LOADTMP}"
     TAPE_SERIAL=$(cat "${LOADTMP}" | grep -a "Volser(Barcode)" | cut -d: -f2 | awk '{print $1}')
     if [[ -z "$TAPE_SERIAL" ]] ; then
-        if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") ]] ; then
+        if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") && ! $(cat "${LOADTMP}" | grep -a "failed to load the tape") ]] ; then
             DECKSERIAL=$(cat "$LOADTMP" | grep -a -o "serial number is [A-Z0-9]*" | awk '{print $4}' )
             TAPE_SERIAL="${DECKSERIAL}"
         fi
