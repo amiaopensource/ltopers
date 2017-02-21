@@ -3,7 +3,7 @@ SCRIPTDIR=$(dirname $(which "${0}"))
 . "${SCRIPTDIR}/mmfunctions"
 
 _usage(){
-    echo "yeah"
+    echo -e "Usage: ltosearch [Tape ID or Media ID]\n-h display this help\n-c compare input to database"
 }
 
 _compare_file(){
