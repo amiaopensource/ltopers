@@ -4,6 +4,7 @@ SCRIPTDIR=$(dirname $(which "${0}"))
 
 _usage(){
     echo -e "Usage: ltosearch [Tape ID or Media ID]\n-h display this help\n-c compare input to database"
+    exit 0
 }
 
 _compare_file(){
@@ -54,21 +55,25 @@ while getopts ":hc" OPT; do
     case "${OPT}" in
         h) _usage ;;
         c) RUNMODE="compare" ;;
-        *) echo "bad option -${OPTARG}" ; _usage ;
-exit 1 ;;
+        *) echo "bad option -${OPTARG}" ; _usage ;;
     esac
 done
 
 shift $(( ${OPTIND} - 1 ))
 
-while [ "${*}" != "" ] ; do
-    INPUT="${1}"
-    shift
+SEARCH_INPUT="${*}"
+
+if [ "${*}" = "" ] ; then
+    echo "Enter the mediaid(s) or lto tape number(s) to search"
+    read SEARCH_INPUT
+fi
+for INPUT in $(echo "${SEARCH_INPUT}") ; do
     SEARCH_TERM=$(basename "${INPUT}")
     if [ "${RUNMODE}" = "compare" ] ; then
         _compare_file
     else
-        mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE Concat(ltoID, '',filePath, '') LIKE '%${SEARCH_TERM}%'"
+        SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE Concat(ltoID, '',filePath, '') LIKE '%${SEARCH_TERM}%'")
+        echo "${SQL_RESULTS}" | grep '/objects/' | grep '.mov' | grep -v 'access'
     fi
 done
 
