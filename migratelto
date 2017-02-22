@@ -39,7 +39,7 @@ fi
 TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 _checkdir "${TAPE_PATH}"
 
-gcp --preserve=mode,timestamps -nRv "${TAPE_PATH}" "${SOURCE_DIR}/"* 
+gcp --preserve=mode,timestamps -nRv "${TAPE_PATH}/"* "${SOURCE_DIR}/"
 
 case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
