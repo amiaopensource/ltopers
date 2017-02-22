@@ -5,6 +5,7 @@
 
 SCRIPTDIR=$(dirname "${0}")
 TAPE_MOUNT_POINT="/Volumes"
+TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
 TAPE_EJECT="Y"
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
