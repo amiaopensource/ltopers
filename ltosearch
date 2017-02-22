@@ -3,7 +3,7 @@ SCRIPTDIR=$(dirname $(which "${0}"))
 . "${SCRIPTDIR}/mmfunctions"
 
 _usage(){
-    echo -e "Usage: ltosearch [Tape ID or Media ID]\n-h display this help\n-c compare input to database"
+    echo -e "Usage: ltosearch [Tape ID or Media ID]\n-h display this help\n-c compare input to database\n-f show full results (as opposed to only .mov files)"
     exit 0
 }
 
@@ -40,7 +40,8 @@ _compare_file(){
                 echo "${SQL_RESULTS}"
                 echo "Information from file"
                 echo "${DATE} ${SIZE}"
-            else echo -e "\033[1;31mNo potential matches found\033[0m"
+            else
+                echo -e "\033[1;31mNo potential matches found\033[0m"
             fi
         fi
             
@@ -51,10 +52,11 @@ _compare_file(){
 }
 
 OPTIND=1
-while getopts ":hc" OPT; do
+while getopts ":hcf" OPT; do
     case "${OPT}" in
         h) _usage ;;
         c) RUNMODE="compare" ;;
+        f) RUNMODE="full" ;;
         *) echo "bad option -${OPTARG}" ; _usage ;;
     esac
 done
@@ -74,7 +76,11 @@ for INPUT in $(echo "${SEARCH_INPUT}") ; do
         _compare_file
     else
         SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE ltoID='${SEARCH_TERM}' OR filePath LIKE '%${SEARCH_TERM}%'")
-        echo "${SQL_RESULTS}"
+        if [ "${RUNMODE}" = "full" ] ; then
+            echo "${SQL_RESULTS}"
+        else
+            echo "${SQL_RESULTS}" | grep ".mov" | grep -v "fileMeta" | grep -v "access"
+        fi
     fi
 done
 
