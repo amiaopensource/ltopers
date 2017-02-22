@@ -30,7 +30,7 @@ while getopts ":t:e" opt ; do
 done
 shift $(( ${OPTIND} - 1 ))
 
-SOURCE_DIR="${1}"
+TARGET="${1}"
 if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
     echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
     _usage
@@ -38,8 +38,9 @@ fi
 
 TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 _checkdir "${TAPE_PATH}"
+_checkdir "${TARGET}"
 
-gcp --preserve=mode,timestamps -nRv "${TAPE_PATH}/"* "${SOURCE_DIR}/"
+gcp --preserve=mode,timestamps -nRv "${TAPE_PATH}/"* "${TARGET}/"
 
 case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
