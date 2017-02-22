@@ -101,9 +101,6 @@ esac
 renameschemas -u
 
 SCHEMA_FILE="$LTO_LOGS/${TAPE_SERIAL}.schema"
-if [[ -n "${FILEMAKER_XML_URL}" ]] ; then
-    "${SCRIPTDIR}/lto2filemaker" "${SCHEMA_FILE}"
-fi
 
 _eventoutcome_update
 _report_schema_db
