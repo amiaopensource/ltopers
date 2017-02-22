@@ -2,14 +2,13 @@
 
 # renameschemas
 
-VERSION="0.9"
 SCRIPTDIR=$(dirname "${0}")
 VERSION="0.9"
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 _usage(){
-cat <<EOF
+    cat <<EOF
 $(basename "${0}") ${VERSION}
 Currently this script only works with in -u mode. It finds all .schema
 LTFS indexes in the LTO_LOGS directory and renames them to use the
