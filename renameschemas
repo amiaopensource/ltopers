@@ -4,6 +4,7 @@
 
 VERSION="0.9"
 SCRIPTDIR=$(dirname "${0}")
+VERSION="0.9"
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
