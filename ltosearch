@@ -68,12 +68,13 @@ if [ "${*}" = "" ] ; then
     read SEARCH_INPUT
 fi
 for INPUT in $(echo "${SEARCH_INPUT}") ; do
-    SEARCH_TERM=$(basename "${INPUT}")
+    SEARCH_TERM="${INPUT}"
     if [ "${RUNMODE}" = "compare" ] ; then
+        SEARCH_TERM=$(basename "${INPUT}")
         _compare_file
     else
-        SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE Concat(ltoID, '',filePath, '') LIKE '%${SEARCH_TERM}%'")
-        echo "${SQL_RESULTS}" | grep '/objects/' | grep '.mov' | grep -v 'access'
+        SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE ltoID='${SEARCH_TERM}' OR filePath LIKE '%${SEARCH_TERM}%'")
+        echo "${SQL_RESULTS}"
     fi
 done
 
