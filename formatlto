@@ -7,6 +7,8 @@ VERSION="0.9"
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(mkltfs, mmfunctions)
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
+BLUE="$(tput setaf 4)"  # Blue     - For Questions
+NC="$(tput sgr0)"       # No Color
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
@@ -54,7 +56,7 @@ if [ ! "${LTO_ARRAY}" ] ; then
 fi
 
 if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
-   PS3="\033[1;34mWhich LTO deck? \033[0m"
+   PS3="${BLUE}Which LTO deck?${NC} "
    eval set "${LTO_ARRAY[@]}"
    select DECK in "$@"
    do
