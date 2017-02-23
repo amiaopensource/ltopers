@@ -35,7 +35,8 @@ for i in $(seq 1 "$LTO_COUNT") ; do
     fi
     LOADTMP=$(_maketemp)
     ltfs -f -o devname="${DECK}" 2> "${LOADTMP}"
-    TAPE_SERIAL=$(cat "${LOADTMP}" | grep -a "Volser(Barcode)" | cut -d: -f2 | awk '{print $1}')
+    # find barcode by either "Volser(Barcode)" (quantum style) or "Tape attribute: Barcode" (ibm style)
+    TAPE_SERIAL=$(cat "${LOADTMP}" | grep -a "Volser(Barcode)\|Tape attribute: Barcode" | awk 'NF>1{print $NF}')
     if [[ -z "$TAPE_SERIAL" ]] ; then
         if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") && ! $(cat "${LOADTMP}" | grep -a "failed to load the tape") ]] ; then
             DECKSERIAL=$(cat "$LOADTMP" | grep -a -o "serial number is [A-Z0-9]*" | awk '{print $4}' )
