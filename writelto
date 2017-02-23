@@ -55,6 +55,7 @@ TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 _checkdir "${SOURCE_DIR}"
 # remove .DS_Store files
 find "${SOURCE_DIR}/" -name '.DS_Store' -type f -delete
+db_fixity=$(cat "${SOURCE_DIR}"/tapechecksum.md5)
 
 _checkdir "${TAPE_PATH}"
 
@@ -84,10 +85,6 @@ if [[ "${VERIFY}" = "Y" ]] ; then
     READBACKDIR="${LTO_LOGS}/readback_checksums"
     _mkdir2 "${READBACKDIR}"
     find "${TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
-    db_fixity=$(cat "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5")
-    if [ -z "$db_fixity" ] ; then
-        event_outcome="No fixity information"
-    fi
 fi
 
 echo -n "$(date +%FT%T) " >> "${LTO_LOGS}/tape_capacity.txt"
@@ -103,7 +100,12 @@ renameschemas -u
 SCHEMA_FILE="$LTO_LOGS/${TAPE_SERIAL}.schema"
 
 _eventoutcome_update
+_report_fixity_db
 _report_schema_db
 if [[ "${VERIFY}" = "Y" ]] ; then
+    db_fixity=$(cat "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5")
+    if [ -z "$db_fixity" ] ; then
+        event_outcome="No fixity information"
+    fi
     _report_fixity_db
 fi
