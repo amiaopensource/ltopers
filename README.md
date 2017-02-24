@@ -80,6 +80,7 @@ The script will run rsync twice the transfer the data to the LTO tape. It runs t
 - ingestschemas
 - indexschemas
 - renameschemas
+- migratelto
 
 ##External locations of LTO scripts and related tools:##
 https://github.com/amiaopensource/ltopers
