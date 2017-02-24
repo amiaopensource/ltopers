@@ -1,43 +1,53 @@
-#!/bin/bash
-# name: writelto
-# description: writelto writes the contents of a specified directory onto a mounted LTFS-formated LTO tape.
-HIDDEN_FILES=""
-TAPE_MOUNT_POINT="/Volumes"
-TAPE_SERIAL_REGEX="[A-Z0-9]\{6\}"
-LTO_LOGS="$HOME/Documents/lto_indexes"
+#!/usr/bin/env bash
+
+# writelto
+# This script writes the contents of a specified directory onto a mounted
+# LTFS-formated LTO tape.
+
+VERSION="0.9"
 SCRIPTDIR=$(dirname "${0}")
+DEPENDENCIES=(mmfunctions) #### TO DO
+TAPE_MOUNT_POINT="/Volumes"
+TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
+HIDDEN_FILES=""
+LTO_LOGS="${HOME}/Documents/lto_indexes"
 TAPE_EJECT="Y"
 
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+
 _usage(){
-    echo "writelto"
-    echo "Usage:"
-    echo "    -t tape serial"
-    echo "    -e [ N|Y ] (state yes or no to ejecting the tape after write, default is yes)"
-	echo "    -v reads back and creates checksums for the contents of a tape, and writes checksums to a file named with the tape name and date, located in the LTO logs directory."
-    exit 1
+cat <<EOF
+$(basename "${0}") ${VERSION}
+This script writes the contents of a specified directory onto a mounted
+LTFS-formated LTO tape.
+Dependencies: ${DEPENDENCIES[@]}
+Usage: $(basename "${0}") -t [-e] [-v] | -h  -t  tape serial
+  -e  state yes (Y) or no (N) to ejecting the tape after write, default
+      is yes
+  -v  reads back and creates checksums for the contents of a tape, and
+      writes checksums to a file named with the tape name and date,
+      located in the LTO logs directory
+  -h  display this help
+EOF
 }
 
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
-
-# command-line options
 OPTIND=1
-while getopts ":t:e:v" opt ; do
+while getopts ":ht:e:v" opt ; do
     case "${opt}" in
+        h) _usage ; exit 0 ;;
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
         v) VERIFY="Y" ;;
-        *) echo "bad option -${OPTARG}" ; _usage ;;
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
+        *) echo "Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
 shift $(( ${OPTIND} - 1 ))
 
-
 SOURCE_DIR="${1}"
-if [[ ! $(echo "${TAPE_SERIAL}" | grep "${TAPE_SERIAL_REGEX}") ]] ; then
-    echo "${TAPE_SERIAL}" is not a capital letter followed by a 5 digit number
+if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
+    echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
     _usage
-    exit 1
 fi
 
 TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
@@ -45,12 +55,13 @@ TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 _checkdir "${SOURCE_DIR}"
 # remove .DS_Store files
 find "${SOURCE_DIR}/" -name '.DS_Store' -type f -delete
+db_fixity=$(cat "${SOURCE_DIR}"/tapechecksum.md5)
 
 _checkdir "${TAPE_PATH}"
 
 gcp --preserve=mode,timestamps -nRv "${SOURCE_DIR}/"* "${TAPE_PATH}"
 
-"${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
+_run_critical_event "${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
 RSYNC_ERR_1="$?"
 HIDDEN_FILES=$(find "${TAPE_PATH}" -name ".*")
 if [[ "${HIDDEN_FILES}" ]] ; then
@@ -60,10 +71,19 @@ if [[ "${HIDDEN_FILES}" ]] ; then
     RSYNC_ERR_2="$?"
 fi
 
-if [ "${VERIFY}" == "Y" ] ; then
+if [ -n "$RSYNC_ERR_2" ] ; then
+    echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
+    echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
+else
+    echo "rsync exited with ${RSYNC_ERR_1}."
+    echo "rsync exited with ${RSYNC_ERR_1}." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
+fi
+
+_report_to_db
+if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFYTIME=$(_get_iso8601_c)
     READBACKDIR="${LTO_LOGS}/readback_checksums"
-    _mkdir2  "${READBACKDIR}"
+    _mkdir2 "${READBACKDIR}"
     find "${TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
 fi
 
@@ -72,15 +92,20 @@ echo $(df -Ph "${TAPE_PATH}" | tail -n 1) >> "${LTO_LOGS}/tape_capacity.txt"
 
 case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
-    *) echo "Done writing but not ejecting ${TAPE_SERIAL}." ;;
+    *)   echo "Done writing but not ejecting ${TAPE_SERIAL}." ;;
 esac
-
-echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
-echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
 
 renameschemas -u
 
 SCHEMA_FILE="$LTO_LOGS/${TAPE_SERIAL}.schema"
-if [[ -n "${FILEMAKER_XML_URL}" ]] ; then
-    "${SCRIPTDIR}/lto2filemaker" "${SCHEMA_FILE}"
+
+_eventoutcome_update
+_report_fixity_db
+_report_schema_db
+if [[ "${VERIFY}" = "Y" ]] ; then
+    db_fixity=$(cat "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5")
+    if [ -z "$db_fixity" ] ; then
+        event_outcome="No fixity information"
+    fi
+    _report_fixity_db
 fi

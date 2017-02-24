@@ -1,70 +1,74 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
 # mountlto
 
 SCRIPTDIR=$(dirname "${0}")
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ;};
+VERSION="0.9"
+DEPENDENCIES=(mmfunctions) #### TO DO
 
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
-unset LTO_ARRAY
+unset LTO_COUNT
 unset LTFS_OPTIONS
 LTO_LOGS="${HOME}/Documents/lto_indexes"
-if [[ -z "${LTO_ARRAY}" ]] ; then
-    if [[ $(uname -s) == "Darwin" ]] ; then
-        LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | sort | xargs)) # try to figure out how many lto decks are attached
-    else
-        LTO_ARRAY=(0) # to do: itemize when there are multiple lto drives in Linux
-    fi
-fi
-
-RED="$(tput setaf 1)"   # Red      - For Warnings
-GREEN="$(tput setaf 2)" # Green    - For Declarations
-BLUE="$(tput setaf 4)"  # Blue     - For Questions
-NC="$(tput sgr0)"       # No Color
-
-[ ! -d "${LTO_LOGS}" ] && mkdir -p "${LTO_LOGS}"
-if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
-    PS3="${BLUE}Which LTO deck?${NC} "
-    eval set "${LTO_ARRAY[@]}"
-    select DECK in "$@"
-    do
-        break
-    done
-    if [ ! ${DECK} ] ; then
-        echo "${RED}Error, you selected an invalid deck.${NC}"
-        exit 1
-    fi
+if [[ $(uname -s) = "Darwin" ]] ; then
+    # try to figure out how many lto decks are attached
+    LTO_COUNT=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | wc -l | awk '{print $1}')
 else
-    DECK=0
+    # TO DO: itemize when there are multiple lto drives in Linux & Windows
+    LTO_COUNT=1
 fi
-DECKFILE="${LTO_LOGS}/${DECK}_last_used.txt"
-touch "${DECKFILE}"
-printf "${BLUE}Enter the 6 character tape number:${NC} "
-read TAPE_SERIAL
-if [[ ! $(echo "$TAPE_SERIAL" | grep -E  "^[A-Z0-9]{6}$") ]] ; then
-    echo "${RED}ERROR The tape id must contain exactly 6 capital letters and/or numbers.${NC}"
+
+if [[ "${LTO_COUNT}" -eq 0 ]] ; then
+    _report -w "No LTO decks were found."
     exit 1
 fi
-if [[ $(uname -s) == "Darwin" ]] ; then
-    MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
-else
-    MOUNT_DIR="/mnt/${TAPE_SERIAL}"
-fi
-echo "${GREEN}MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${RED}${MOUNT_DIR}${GREEN} FOLDER${NC}"
-echo "${GREEN}MOUNTING TAPE : AFTER MOUNT PRESS ${RED}CONTROL-C${GREEN} TO EJECT${NC}"
-trap _cleanup_mount_dir SIGHUP SIGINT SIGTERM
-if [ $(which ltfs_ldun) ] ; then
-    ltfs_ldun load ${DECK}
-fi
-mkdir -p "${MOUNT_DIR}"
-#_version_schema
 
-LTFS_OPTIONS+=(-o eject)
-LTFS_OPTIONS+=(-o capture_index)
-LTFS_OPTIONS+=(-o devname=${DECK})
-LTFS_OPTIONS+=(-o volname="$TAPE_SERIAL")
-LTFS_OPTIONS+=(-o uid=$(id -u))
-LTFS_OPTIONS+=(-o sync_type=unmount)
+[ ! -d "${LTO_LOGS}" ] && mkdir -p "${LTO_LOGS}"
 
-ltfs -f -o work_directory="$LTO_LOGS" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
-[ -d "${MOUNT_DIR}" ] && rmdir "${MOUNT_DIR}"
-renameschemas -u
+_report -d "Checking for ready tapes..."
+
+for i in $(seq 1 "$LTO_COUNT") ; do
+    DECK=$(echo "$i - 1" | bc)
+    if [ $(which ltfs_ldun) ] ; then
+        ltfs_ldun load ${DECK} 1>/dev/null
+    fi
+    LOADTMP=$(_maketemp)
+    ltfs -f -o devname="${DECK}" 2> "${LOADTMP}"
+    # find barcode by either "Volser(Barcode)" (quantum style) or "Tape attribute: Barcode" (ibm style)
+    TAPE_SERIAL=$(cat "${LOADTMP}" | grep -a "Volser(Barcode)\|Tape attribute: Barcode" | awk 'NF>1{print $NF}')
+    if [[ -z "$TAPE_SERIAL" ]] ; then
+        if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") && ! $(cat "${LOADTMP}" | grep -a "failed to load the tape") ]] ; then
+            DECKSERIAL=$(cat "$LOADTMP" | grep -a -o "serial number is [A-Z0-9]*" | awk '{print $4}' )
+            TAPE_SERIAL="${DECKSERIAL}"
+        fi
+    fi
+    if [[ -n "${TAPE_SERIAL}" ]] ; then
+        echo "Deck ${DECK} found with tape ${TAPE_SERIAL}"
+        if [[ $(uname -s) = "Darwin" ]] ; then
+            MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
+        else
+            MOUNT_DIR="/mnt/${TAPE_SERIAL}"
+        fi
+        _report -d "MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${MOUNT_DIR} FOLDER"
+        _report -d "MOUNTING TAPE : AFTER MOUNT PRESS CONTROL-C$ TO EJECT"
+        trap _cleanup_mount_dir SIGHUP SIGINT SIGTERM
+
+        mkdir -p "${MOUNT_DIR}"
+
+        LTFS_OPTIONS+=(-o eject)
+        LTFS_OPTIONS+=(-o noatime)
+        LTFS_OPTIONS+=(-o capture_index)
+        LTFS_OPTIONS+=(-o devname=${DECK})
+        LTFS_OPTIONS+=(-o volname="${TAPE_SERIAL}")
+        LTFS_OPTIONS+=(-o uid=$(id -u))
+
+        ltfs -f -o work_directory="$LTO_LOGS" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
+        [ -d "${MOUNT_DIR}" ] && rmdir "${MOUNT_DIR}"
+        renameschemas -u
+        break
+    fi
+    if [[ "$i" -eq "${LTO_COUNT}" ]] ; then
+        _report -d "Checked ${LTO_COUNT} decks and none appear to have tapes ready to mount."
+    fi
+done

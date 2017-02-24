@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+# verifylto
+# This script creates a text document with a list of checksums that are
+# generated after a readback. This is to ensure that all files transferred over
+# correctly.
+
+HIDDEN_FILES=""
+TAPE_MOUNT_POINT="/Volumes"
+TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
+LTO_LOGS="${HOME}/Documents/lto_indexes"
+SCRIPTDIR=$(dirname "${0}")
+TAPE_EJECT="Y"
+
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+
+_usage(){
+    echo
+    echo "$(basename "${0}") ${VERSION}"
+    echo "Usage: $(basename "${0}") -t [-e]"
+    echo "  -t  tape serial"
+    echo "  -e  state yes (Y) or no (N) to ejecting the tape after write, default"
+    echo "      is yes"
+    echo
+}
+
+OPTIND=1
+while getopts ":t:e" opt ; do
+    case "${opt}" in
+        t) TAPE_SERIAL="${OPTARG}" ;;
+        e) TAPE_EJECT="${OPTARG}" ;;
+        :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
+        *) echo "Bad option -${OPTARG}" ; _usage ; exit 1 ;;
+    esac
+done
+shift $(( ${OPTIND} - 1 ))
+
+SOURCE_DIR="${1}"
+_report_to_db
+if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
+    echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
+    _usage
+fi
+
+TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
+_checkdir "${TAPE_PATH}"
+
+VERIFYTIME=$(_get_iso8601_c)
+READBACKDIR="${LTO_LOGS}/readback_checksums"
+_mkdir2 "${READBACKDIR}"
+find "${TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
+
+case "${TAPE_EJECT}" in
+    y|Y) umount "${TAPE_PATH}" ;;
+    *)   echo "Done verifying but not ejecting ${TAPE_SERIAL}." ;;
+esac
+
+_eventoutcome_update
+_report_schema_db
+_report_fixity_db
