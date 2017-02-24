@@ -54,7 +54,7 @@ if [ ! "${LTO_ARRAY}" ] ; then
 fi
 
 if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
-   PS3="$(tput setaf 4)Which LTO deck?$(tput sgr0) "
+   PS3='\[\e[1;34mWhich LTO deck? \[\e[0m'
    eval set "${LTO_ARRAY[@]}"
    select DECK in "$@"
    do
