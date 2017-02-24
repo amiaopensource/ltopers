@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 SCRIPTDIR=$(dirname $(which "${0}"))
-. "${SCRIPTDIR}/mmfunctions"
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 if [ -z "${PREMIS_NAME}" ] || [ "${PREMIS_DB}" != "Y" ] ; then
     echo "Please configure database options in mmconfig. Exiting"
@@ -9,12 +9,12 @@ fi
 if [ -d "${1}" ] ; then
     cd "${1}"
     for i in *.schema ; do
-    xmlschema="${i}"
-    MEDIA_ID=$(basename "${xmlschema}" | cut -d'.' -f1)
-    eventType="ingest"
-    _report_to_db
-    _report_schema_db
-    _eventoutcome_update
+        xmlschema="${i}"
+        MEDIA_ID=$(basename "${xmlschema}" | cut -d'.' -f1)
+        eventType="ingest"
+        _report_to_db
+        _report_schema_db
+        _eventoutcome_update
     done
 elif [ -f "${1}" ] ; then
     xmlschema="${1}"

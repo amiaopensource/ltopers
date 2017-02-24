@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 SCRIPTDIR=$(dirname $(which "${0}"))
-. "${SCRIPTDIR}/mmfunctions"
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 _usage(){
     echo -e "Usage: ltosearch [Tape ID or Media ID]\n-h display this help\n-c compare input to database\n-f show full results (as opposed to only .mov files)"
