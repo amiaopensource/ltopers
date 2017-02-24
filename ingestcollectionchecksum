@@ -28,6 +28,6 @@ elif [ -f "${1}" ] ; then
     _eventoutcome_update
     _report_fixity_db
 else
-    Echo "Please use a valid directory for input. Exiting" && exit 1
+    echo "Please use a valid directory for input. Exiting" && exit 1
 fi
 
