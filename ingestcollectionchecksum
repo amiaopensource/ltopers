@@ -5,25 +5,29 @@ SCRIPTDIR=$(dirname $(which "${0}"))
 if [ -z "${PREMIS_NAME}" ] || [ "${PREMIS_DB}" != "Y" ] ; then
     echo "Please configure database options in mmconfig. Exiting"
 fi
+user_input="${*}"
 
 if [ -d "${1}" ] ; then
+    BATCH_CHECK="Y"
     cd "${1}"
-    for i in *.schema ; do
-        xmlschema="${i}"
-        MEDIA_ID=$(basename "${xmlschema}" | cut -d'.' -f1)
+    for i in *.md5 ; do
+        db_source="${i}"
+        db_fixity=$(cat "${i}")
+        MEDIA_ID=$(basename "${i}" | cut -d'_' -f1)
         eventType="ingest"
         _report_to_db
-        _report_schema_db
         _eventoutcome_update
+        _report_fixity_db
     done
 elif [ -f "${1}" ] ; then
-    xmlschema="${1}"
-    MEDIA_ID=$(basename "${xmlschema}" | cut -d'.' -f1)
+    db_fixity=$(cat "${1}")
+    db_source="${1}"
+    MEDIA_ID=$(basename "${1}" | cut -d'.' -f1)
     eventType="ingest"
     _report_to_db
-    _report_schema_db
     _eventoutcome_update
+    _report_fixity_db
 else
-    Echo "Please use a valid directory for input - Exiting" && exit 0
+    echo "Please use a valid directory for input. Exiting" && exit 1
 fi
 
