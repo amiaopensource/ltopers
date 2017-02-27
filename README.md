@@ -78,6 +78,7 @@ The script will run rsync twice the transfer the data to the LTO tape. It runs t
 - verifylto
 - searchlto
 - collectionchecksum
+- ingestcollectionchecksum
 - ingestschemas
 - indexschemas
 - renameschemas
