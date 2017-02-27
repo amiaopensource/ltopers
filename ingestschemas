@@ -24,6 +24,6 @@ elif [ -f "${1}" ] ; then
     _report_schema_db
     _eventoutcome_update
 else
-    Echo "Please use a valid directory for input - Exiting" && exit 0
+    Echo "Please use a valid directory for input. Exiting" && exit 1
 fi
 
