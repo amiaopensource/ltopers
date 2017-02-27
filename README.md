@@ -13,7 +13,7 @@ To install LTOpers tools, run the following commands:
 
 `brew install ltopers`
 
-(current version is 0.1.7)
+(current version is 0.1.9)
 
 If it ever updates you can update via:
 
@@ -76,6 +76,7 @@ The script will run rsync twice the transfer the data to the LTO tape. It runs t
 - formatlto
 - writelto
 - verifylto
+- searchlto
 - collectionchecksum
 - ingestschemas
 - indexschemas
