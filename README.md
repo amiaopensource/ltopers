@@ -71,6 +71,10 @@ Whenever a tape is ejected, the script will export the tape’s index (as an xml
 
 The script will run rsync twice the transfer the data to the LTO tape. It runs twice to address an unresolved problem with small-sized files not transferring properly (running it twice seems to fix the errors).
 
+##Database Integration##
+
+LTOpers can integrate with the database reporting functions in [mediamicroservices](https://github.com/mediamicroservices).  For information on how to set up the database see the mediamicroservices' [readme](https://github.com/mediamicroservices/mm#configuring-premisfixity-logging-database).
+
 ##Tools##
 - mountlto
 - formatlto
