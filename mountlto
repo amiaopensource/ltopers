@@ -5,6 +5,7 @@
 SCRIPTDIR=$(dirname "${0}")
 VERSION="0.9"
 DEPENDENCIES=(mmfunctions) #### TO DO
+MINIMUM_TAPE_SERIAL_LENGTH=2
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
@@ -34,16 +35,26 @@ for i in $(seq 1 "$LTO_COUNT") ; do
         ltfs_ldun load ${DECK} 1>/dev/null
     fi
     LOADTMP=$(_maketemp)
-    ltfs -f -o devname="${DECK}" 2> "${LOADTMP}"
-    # find barcode by either "Volser(Barcode)" (quantum style) or "Tape attribute: Barcode" (ibm style)
-    TAPE_SERIAL=$(cat "${LOADTMP}" | grep -a "Volser(Barcode)\|Tape attribute: Barcode" | awk 'NF>1{print $NF}')
-    if [[ -z "$TAPE_SERIAL" ]] ; then
+    TAPE_SERIAL=""
+    COUNTER=0
+    echo -n "Checking for tape barcode"
+    while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "$COUNTER" -lt 5 ]]; do
+        let COUNTER=COUNTER+1
+        ltfs -f -o devname="${DECK}" 2> "${LOADTMP}"
+        # find barcode by either "Volser(Barcode)" (quantum style) or "Tape attribute: Barcode" (ibm style)
+        TAPE_SERIAL=$(cat "${LOADTMP}" | grep -a "Volser(Barcode)\|Tape attribute: Barcode" | awk 'NF>1{print $NF}')
+        echo -n "."
+    done
+    echo
+    if [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] ; then
         if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") && ! $(cat "${LOADTMP}" | grep -a "failed to load the tape") ]] ; then
-            DECKSERIAL=$(cat "$LOADTMP" | grep -a -o "serial number is [A-Z0-9]*" | awk '{print $4}' )
+            DECKSERIAL=$(cat "$LOADTMP" | grep -a -o "serial number is [A-Z0-9]*" | awk '{print $4}')
             TAPE_SERIAL="${DECKSERIAL}"
+        else
+            TAPE_SERIAL=""
         fi
     fi
-    if [[ -n "${TAPE_SERIAL}" ]] ; then
+    if [[ "${#TAPE_SERIAL}" -ge "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] ; then
         echo "Deck ${DECK} found with tape ${TAPE_SERIAL}"
         if [[ $(uname -s) = "Darwin" ]] ; then
             MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
