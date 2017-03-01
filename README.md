@@ -77,9 +77,9 @@ LTOpers can integrate with the database reporting functions in [mediamicroservic
 
 If the database is activated and configured LTOpers will store information from LTO schema files, fixity information and PREMIS event information relating to LTOpers and microservices.
 
-Database specific tools in LTOpers are `searchlto`, `ingestschemas` and `ingestcollectionchecksum`. Both `ingestchemas` and `ingestcollectionchecksum` are designed for importing already existing information to the database (LTOschema information and readback checksums respectively).  They can be run either on individual files or on directories containing multiple files.
+Database specific tools in LTOpers are `searchlto`, `ingestschemas` and `ingestcollectionchecksum`. Both `ingestchemas` and `ingestcollectionchecksum` are designed for importing already existing information to the database (LTO schema information and readback checksums respectively).  They can be run either on individual files or on directories containing multiple files.
 
-`searchlto` is for performing searches against the lto schema information stored in the database.  It accepts either a media id or an lto id as an input and will return a list of matching service files. Options are `-h` display help, `-c` compare characteristics of an input file to records in the database and `-f` show full results (this will show all matches to search term as opposed filtering for service files only).
+`searchlto` is for performing searches against the lto schema information stored in the database.  It accepts either a media id or an lto id as an input and will return a list of matching service files. Options are `-h` display help, `-c` compare characteristics of an input file to records in the database, and `-f` show full results (this will show all matches to search term as opposed filtering for service files only).
 
 ##Tools##
 - mountlto
