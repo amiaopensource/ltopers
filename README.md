@@ -71,6 +71,16 @@ Whenever a tape is ejected, the script will export the tape’s index (as an xml
 
 The script will run rsync twice the transfer the data to the LTO tape. It runs twice to address an unresolved problem with small-sized files not transferring properly (running it twice seems to fix the errors).
 
+##Database Integration##
+
+LTOpers can integrate with the database reporting functions in [mediamicroservices](https://github.com/mediamicroservices).  For information on how to set up the database see the mediamicroservices' [readme](https://github.com/mediamicroservices/mm#configuring-premisfixity-logging-database).
+
+If the database is activated and configured LTOpers will store information from LTO schema files, fixity information and PREMIS event information relating to LTOpers and microservices.
+
+Database specific tools in LTOpers are `searchlto`, `ingestschemas` and `ingestcollectionchecksum`. Both `ingestchemas` and `ingestcollectionchecksum` are designed for importing already existing information to the database (LTO schema information and readback checksums respectively).  They can be run either on individual files or on directories containing multiple files.
+
+`searchlto` is for performing searches against the lto schema information stored in the database.  It accepts either a media id or an lto id as an input and will return a list of matching service files. Options are `-h` display help, `-c` compare characteristics of an input file to records in the database, and `-f` show full results (this will show all matches to search term as opposed filtering for service files only).
+
 ##Tools##
 - mountlto
 - formatlto
