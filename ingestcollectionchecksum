@@ -14,6 +14,7 @@ if [ -d "${1}" ] ; then
         db_fixity=$(cat "${i}")
         MEDIA_ID=$(basename "${i}" | cut -d'_' -f1)
         eventType="ingest"
+        echo "Ingesting ${i}"
         _report_to_db
         _eventoutcome_update
         _report_fixity_db
@@ -23,6 +24,7 @@ elif [ -f "${1}" ] ; then
     db_source="${1}"
     MEDIA_ID=$(basename "${db_source}" | cut -d'_' -f1 | cut -d'.' -f1)
     eventType="ingest"
+    echo "Ingesting ${1}"
     _report_to_db
     _eventoutcome_update
     _report_fixity_db
