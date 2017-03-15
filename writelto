@@ -108,4 +108,5 @@ if [[ "${VERIFY}" = "Y" ]] ; then
         event_outcome="No fixity information"
     fi
     _report_fixity_db
+    _db_email_delivery "${SQL_ERROR_EMAIL_TO}"
 fi
