@@ -49,6 +49,8 @@ if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
     echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
     _usage
 fi
+# Check for colons in filenames of source directory.
+_check_for_colons "${SOURCE_DIR}"
 
 TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 
