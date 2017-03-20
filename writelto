@@ -57,7 +57,9 @@ TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 _checkdir "${SOURCE_DIR}"
 # remove .DS_Store files
 find "${SOURCE_DIR}/" -name '.DS_Store' -type f -delete
-db_fixity=$(cat "${SOURCE_DIR}"/tapechecksum.md5)
+if [ -f "${SOURCE_DIR}"/tapechecksum.md5 ] ; then
+    db_fixity=$(cat "${SOURCE_DIR}"/tapechecksum.md5)
+fi
 
 _checkdir "${TAPE_PATH}"
 
