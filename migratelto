@@ -12,11 +12,11 @@ TAPE_EJECT="Y"
 
 _usage(){
     echo 
-	echo "This script moves files from an lto tape to another location."
-	echo "Usage: $(basename "${0}") -t [-e]"
-	echo "  -e  state yes (Y) or no (N) to ejecting the tape after migration, default"
-	echo "      is yes"
-	echo
+    echo "This script moves files from an lto tape to another location."
+    echo "Usage: $(basename "${0}") -t [-e]"
+    echo "  -e  state yes (Y) or no (N) to ejecting the tape after migration, default"
+    echo "      is yes"
+    echo
 }
 
 OPTIND=1
