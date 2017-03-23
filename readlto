@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # readlto 
-# This script transfers files from an LTO tape toanother location. 
+# This script transfers files from an LTO tape to another location. 
 
 VERSION="0.9"
 SCRIPTDIR=$(dirname "${0}")
