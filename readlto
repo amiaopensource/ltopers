@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
-#migratelto 
-#This script transfers files from an LTO tape. Script uses gcp. 
+# readlto 
+# This script transfers files from an LTO tape to another location. 
 
+VERSION="0.9"
 SCRIPTDIR=$(dirname "${0}")
+DEPENDENCIES=(gcp)
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
 TAPE_EJECT="Y"
@@ -11,12 +13,14 @@ TAPE_EJECT="Y"
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 _usage(){
-    echo 
-    echo "This script moves files from an lto tape to another location."
-    echo "Usage: $(basename "${0}") -t [-e]"
-    echo "  -e  state yes (Y) or no (N) to ejecting the tape after migration, default"
-    echo "      is yes"
-    echo
+    cat <<EOF
+$(basename "${0}") ${VERSION} 
+This script moves files from an LTO tape to another location.
+Usage: $(basename "${0}") -t [-e]
+  -t  tape serial number
+  -e  state yes (Y) or no (N) to ejecting the tape after migration, default
+      is yes
+EOF
 }
 
 OPTIND=1
