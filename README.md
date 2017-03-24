@@ -92,7 +92,7 @@ Database specific tools in LTOpers are `searchlto`, `ingestschemas` and `ingestc
 - ingestschemas
 - indexschemas
 - renameschemas
-- migratelto
+- readlto
 
 ## External locations of LTO scripts and related tools:
 https://github.com/amiaopensource/ltopers
