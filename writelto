@@ -46,8 +46,8 @@ shift $(( ${OPTIND} - 1 ))
 
 SOURCE_DIR="${1}"
 if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
-    echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
-    _usage
+    _report -w "Tape serial ${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
+    _report -w "Proceeding with non-standard Tape Serial"
 fi
 # Check for colons in filenames of source directory.
 _check_for_colons "${SOURCE_DIR}"
