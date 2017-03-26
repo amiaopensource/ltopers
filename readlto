@@ -26,7 +26,7 @@ EOF
 }
 
 OPTIND=1
-while getopts ":ht:e" opt ; do
+while getopts ":ht:e:" opt ; do
     case "${opt}" in
         h) _usage ; exit 0 ;;
         t) TAPE_SERIAL="${OPTARG}" ;;
@@ -40,7 +40,7 @@ shift $(( ${OPTIND} - 1 ))
 TARGET="${1}"
 if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
     echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
-    _usage
+    exit 1
 fi
 
 TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
