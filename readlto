@@ -21,6 +21,7 @@ Usage: $(basename "${0}") -t [-e] | -h
   -t  tape serial number
   -e  state yes (Y) or no (N) to ejecting the tape after migration, default
       is yes
+  -h  display this help
 EOF
 }
 
