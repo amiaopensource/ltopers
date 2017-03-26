@@ -11,6 +11,7 @@ cat <<EOF
 $(basename "${0}") ${VERSION}
 This script makes a text file listing certain files from the ltfs schema
 file.
+
 Usage: $(basename "${0}") -t | -h
   -t  check schema files modified today for volume names that may need
       to be overwritten
