@@ -21,6 +21,7 @@ $(basename "${0}") ${VERSION}
 This script writes the contents of a specified directory onto a mounted
 LTFS-formated LTO tape.
 Dependencies: ${DEPENDENCIES[@]}
+
 Usage: $(basename "${0}") -t [-e] [-v] | -h
   -t  tape serial
   -e  state yes (Y) or no (N) to ejecting the tape after write, default
