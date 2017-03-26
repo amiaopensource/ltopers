@@ -16,7 +16,8 @@ _usage(){
     cat <<EOF
 $(basename "${0}") ${VERSION} 
 This script moves files from an LTO tape to another location.
-Usage: $(basename "${0}") -t [-e]
+
+Usage: $(basename "${0}") -t [-e] | -h
   -t  tape serial number
   -e  state yes (Y) or no (N) to ejecting the tape after migration, default
       is yes
@@ -24,8 +25,9 @@ EOF
 }
 
 OPTIND=1
-while getopts ":t:e" opt ; do
+while getopts ":ht:e" opt ; do
     case "${opt}" in
+        h) _usage ; exit 0 ;;
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
