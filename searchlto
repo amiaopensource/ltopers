@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
+
+# searchlto
+
+VERSION=$(ls /usr/local/Cellar/ltopers/ | sort -n | tail -n 1)
 SCRIPTDIR=$(dirname $(which "${0}"))
+
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 _usage(){
-    echo -e "Usage: ltosearch [Tape ID or Media ID]\n-h display this help\n-c compare input to database\n-f show full results (as opposed to only .mov files)"
-    exit 0
+cat <<EOF
+$(basename "${0}") ${VERSION}
+Usage: ltosearch [Tape ID or Media ID
+  -h display this help
+  -c compare input to database
+  -f show full results (as opposed to only .mov files)
+EOF
 }
 
 _compare_file(){
@@ -54,10 +64,10 @@ _compare_file(){
 OPTIND=1
 while getopts ":hcf" OPT; do
     case "${OPT}" in
-        h) _usage ;;
+        h) _usage ; exit 0 ;;
         c) RUNMODE="compare" ;;
         f) RUNMODE="full" ;;
-        *) echo "bad option -${OPTARG}" ; _usage ;;
+        *) echo "bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
 
@@ -83,4 +93,3 @@ for INPUT in $(echo "${SEARCH_INPUT}") ; do
         fi
     fi
 done
-
