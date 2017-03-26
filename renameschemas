@@ -14,7 +14,8 @@ Currently this script only works with in -u mode. It finds all .schema
 LTFS indexes in the LTO_LOGS directory and renames them to use the
 top-level file system directory name rather than the uuid. Any
 conflicting filenames are moved to another folder if needed.
-Usage: $(basename "${0}") -u
+
+Usage: $(basename "${0}") -u | -h
   -u  change dir-named schema files to the tape uuid
   -h  display this help
 EOF
