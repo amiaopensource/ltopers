@@ -7,7 +7,7 @@ VERSION=$(ls /usr/local/Cellar/ltopers/ | sort -n | tail -n 1)
 LTO_LOGS="${HOME}/Documents/lto_indexes"
 
 _usage(){
-cat <<EOF 
+    cat <<EOF 
 $(basename "${0}") ${VERSION}
 This script makes a text file listing certain files from the ltfs schema
 file.
@@ -24,7 +24,6 @@ while getopts ":ht" opt ; do
     case "${opt}" in
         h) _usage ; exit 0 ;;
         t) TODAYCHECK=(-mtime -24h) ;;
-        :) echo "Error: Option -${OPTARG} requires an argument" ; exit 1 ;;
         *) echo "Error: Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
