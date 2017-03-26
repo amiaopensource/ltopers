@@ -3,7 +3,7 @@
 # formatlto
 # Formats an LTO tape with LTFS.
 
-VERSION="0.9"
+VERSION=$(ls /usr/local/Cellar/ltopers/ | sort -n | tail -n 1)
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(mkltfs, mmfunctions)
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
