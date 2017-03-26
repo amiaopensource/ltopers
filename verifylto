@@ -5,28 +5,31 @@
 # generated after a readback. This is to ensure that all files transferred over
 # correctly.
 
+VERSION=$(ls /usr/local/Cellar/ltopers/ | sort -n | tail -n 1)
+SCRIPTDIR=$(dirname "${0}")
 HIDDEN_FILES=""
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
 LTO_LOGS="${HOME}/Documents/lto_indexes"
-SCRIPTDIR=$(dirname "${0}")
 TAPE_EJECT="Y"
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 _usage(){
-    echo
-    echo "$(basename "${0}") ${VERSION}"
-    echo "Usage: $(basename "${0}") -t [-e]"
-    echo "  -t  tape serial"
-    echo "  -e  state yes (Y) or no (N) to ejecting the tape after write, default"
-    echo "      is yes"
-    echo
+cat <<EOF
+$(basename "${0}") ${VERSION}
+Usage: $(basename "${0}") -t [-e] | -h
+  -t  tape serial
+  -e  state yes (Y) or no (N) to ejecting the tape after write, default
+      is yes
+  -h  display this help
+EOF
 }
 
 OPTIND=1
-while getopts ":t:e" opt ; do
+while getopts ":ht:e" opt ; do
     case "${opt}" in
+        h) _usage ; exit 0 ;;
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
