@@ -17,6 +17,7 @@ cat <<EOF
 $(basename "${0}") ${VERSION}
 This script formats an LTO tape with LTFS.
 Dependencies: ${DEPENDENCIES[@]}
+
 Usage: $(basename "${0}") [-f] [-c] | [-h]
   -f  force formating
   -c  use compression
