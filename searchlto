@@ -10,7 +10,8 @@ SCRIPTDIR=$(dirname $(which "${0}"))
 _usage(){
 cat <<EOF
 $(basename "${0}") ${VERSION}
-Usage: ltosearch [Tape ID or Media ID
+
+Usage: ltosearch [Tape ID or Media ID]
   -h display this help
   -c compare input to database
   -f show full results (as opposed to only .mov files)
@@ -70,7 +71,6 @@ while getopts ":hcf" OPT; do
         *) echo "bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
-
 shift $(( ${OPTIND} - 1 ))
 
 SEARCH_INPUT="${*}"
