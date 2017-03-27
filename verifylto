@@ -23,6 +23,10 @@ fi
 _usage(){
     cat <<EOF
 $(basename "${0}") ${VERSION}
+This script creates a text document with a list of checksums that are
+generated after a readback. This is to ensure that all files transferred over
+correctly.
+
 Usage: $(basename "${0}") -t [-e] | -h
   -t  tape serial
   -e  state yes (Y) or no (N) to ejecting the tape after write, default
