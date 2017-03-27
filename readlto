@@ -3,7 +3,6 @@
 # readlto 
 # This script transfers files from an LTO tape to another location. 
 
-VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(gcp)
 TAPE_MOUNT_POINT="/Volumes"
@@ -11,6 +10,12 @@ TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
 TAPE_EJECT="Y"
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+
+if [[ $(dirname $(which "${0}")) = "/usr/local/bin" ]] ; then
+    VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
+else
+    VERSION=""
+fi
 
 _usage(){
     cat <<EOF
