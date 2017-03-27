@@ -3,9 +3,14 @@
 # renameschemas
 
 SCRIPTDIR=$(dirname "${0}")
-VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+
+if [[ $(dirname $(which "${0}")) = "/usr/local/bin" ]] ; then
+    VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
+else
+    VERSION=""
+fi
 
 _usage(){
     cat <<EOF
