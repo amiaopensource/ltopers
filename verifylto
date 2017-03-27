@@ -5,7 +5,6 @@
 # generated after a readback. This is to ensure that all files transferred over
 # correctly.
 
-VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
 SCRIPTDIR=$(dirname "${0}")
 HIDDEN_FILES=""
 TAPE_MOUNT_POINT="/Volumes"
@@ -14,6 +13,12 @@ LTO_LOGS="${HOME}/Documents/lto_indexes"
 TAPE_EJECT="Y"
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+
+if [[ $(dirname $(which "${0}")) = "/usr/local/bin" ]] ; then
+    VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
+else
+    VERSION=""
+fi
 
 _usage(){
     cat <<EOF
