@@ -3,11 +3,16 @@
 # mountlto
 
 SCRIPTDIR=$(dirname "${0}")
-VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
 DEPENDENCIES=(mmfunctions) #### TO DO
 MINIMUM_TAPE_SERIAL_LENGTH=2
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+
+if [[ $(dirname $(which "${0}")) = "/usr/local/bin" ]] ; then
+    VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
+else
+    VERSION=""
+fi
 
 unset LTO_COUNT
 unset LTFS_OPTIONS
