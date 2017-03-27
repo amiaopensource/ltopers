@@ -3,7 +3,7 @@
 # renameschemas
 
 SCRIPTDIR=$(dirname "${0}")
-VERSION=$(ls /usr/local/Cellar/ltopers/ | sort -n | tail -n 1)
+VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
