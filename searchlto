@@ -2,10 +2,15 @@
 
 # searchlto
 
-VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
 SCRIPTDIR=$(dirname $(which "${0}"))
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+
+if [[ $(dirname $(which "${0}")) = "/usr/local/bin" ]] ; then
+    VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
+else
+    VERSION=""
+fi
 
 _usage(){
 cat <<EOF
