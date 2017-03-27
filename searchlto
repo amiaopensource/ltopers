@@ -13,7 +13,7 @@ else
 fi
 
 _usage(){
-cat <<EOF
+    cat <<EOF
 $(basename "${0}") ${VERSION}
 
 Usage: ltosearch [Tape ID or Media ID]
