@@ -17,9 +17,9 @@ _usage(){
 $(basename "${0}") ${VERSION}
 
 Usage: ltosearch [Tape ID or Media ID]
-  -h display this help
-  -c compare input to database
-  -f show full results (as opposed to only .mov files)
+  -h  display this help
+  -c  compare input to database
+  -f  show full results (as opposed to only .mov files)
 EOF
 }
 
