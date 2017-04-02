@@ -4,7 +4,7 @@
 # Formats an LTO tape with LTFS.
 
 SCRIPTDIR=$(dirname "${0}")
-DEPENDENCIES=(mkltfs, mmfunctions)
+DEPENDENCIES=(mkltfs mmfunctions)
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
 BLUE="$(tput setaf 4)"  # Blue     - For Questions
 NC="$(tput sgr0)"       # No Color
