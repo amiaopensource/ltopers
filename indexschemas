@@ -5,7 +5,7 @@
 
 LTO_LOGS="${HOME}/Documents/lto_indexes"
 
-if [[ $(dirname $(which "${0}")) = "/usr/local/bin" ]] ; then
+if [[ $(dirname $(which "${0}")) = "/usr/local/bin" || $(dirname $(which "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
     VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
 else
     VERSION=""
