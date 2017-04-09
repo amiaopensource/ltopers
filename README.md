@@ -13,7 +13,7 @@ To install LTOpers tools, run the following commands:
 
 `brew install ltopers`
 
-(current version is 0.1.12)
+(current version is 0.1.14)
 
 If it ever updates you can update via:
 

@@ -4,14 +4,14 @@
 # Formats an LTO tape with LTFS.
 
 SCRIPTDIR=$(dirname "${0}")
-DEPENDENCIES=(mkltfs, mmfunctions)
+DEPENDENCIES=(mkltfs mmfunctions)
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
 BLUE="$(tput setaf 4)"  # Blue     - For Questions
 NC="$(tput sgr0)"       # No Color
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
-if [[ $(dirname $(which "${0}")) = "/usr/local/bin" ]] ; then
+if [[ $(dirname $(which "${0}")) = "/usr/local/bin" || $(dirname $(which "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
     VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
 else
     VERSION=""
