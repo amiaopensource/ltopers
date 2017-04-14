@@ -90,7 +90,10 @@ for INPUT in $(echo "${SEARCH_INPUT}") ; do
         SEARCH_TERM=$(basename "${INPUT}")
         _compare_file
     else
-        SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE ltoID='${SEARCH_TERM}' OR filePath LIKE '%${SEARCH_TERM}%'")
+        SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE ltoID='${SEARCH_TERM}'")
+        if [ -z "${SQL_RESULTS}" ] ; then
+            SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE MATCH(filePath) AGAINST ('${SEARCH_TERM}')")
+        fi
         if [ "${RUNMODE}" = "full" ] ; then
             echo "${SQL_RESULTS}"
         else
