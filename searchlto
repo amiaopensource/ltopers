@@ -16,7 +16,7 @@ _usage(){
     cat <<EOF
 $(basename "${0}") ${VERSION}
 
-Usage: searchlto [Tape ID or Media ID]
+Usage: $(basename "${0}") [Tape ID or Media ID]
   -h  display this help
   -c  compare input to database
   -f  show full results (as opposed to only .mov files)
