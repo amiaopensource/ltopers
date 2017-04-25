@@ -20,6 +20,7 @@ Usage: $(basename "${0}") [Tape ID or Media ID]
   -h  display this help
   -c  compare input to database
   -f  show full results (as opposed to only .mov files)
+  -m search by checksums
 EOF
 }
 
@@ -68,11 +69,12 @@ _compare_file(){
 }
 
 OPTIND=1
-while getopts ":hcf" OPT; do
+while getopts ":hcfm" OPT; do
     case "${OPT}" in
         h) _usage ; exit 0 ;;
         c) RUNMODE="compare" ;;
         f) RUNMODE="full" ;;
+        m) RUNMODE="md5" ;;
         *) echo "bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
@@ -89,15 +91,17 @@ for INPUT in $(echo "${SEARCH_INPUT}") ; do
     if [ "${RUNMODE}" = "compare" ] ; then
         SEARCH_TERM=$(basename "${INPUT}")
         _compare_file
+    elif [ "${RUNMODE}" = "md5" ] ; then
+        SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT eventDetail,messageDigestHASH,messageDigestPATH FROM fixity WHERE messageDigestHASH='${SEARCH_TERM}'")
     else
         SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE ltoID='${SEARCH_TERM}'")
         if [ -z "${SQL_RESULTS}" ] ; then
             SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE MATCH(filePath) AGAINST ('${SEARCH_TERM}')")
         fi
-        if [ "${RUNMODE}" = "full" ] ; then
+    fi
+        if [ "${RUNMODE}" = "full" ] || [ "${RUNMODE}" = "md5" ] ; then
             echo "${SQL_RESULTS}"
         else
             echo "${SQL_RESULTS}" | grep ".mov" | grep -v "fileMeta" | grep -v "access"
         fi
-    fi
 done
