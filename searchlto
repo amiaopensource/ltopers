@@ -20,6 +20,7 @@ Usage: $(basename "${0}") [Tape ID or Media ID]
   -h  display this help
   -c  compare input to database
   -f  show full results (as opposed to only .mov files)
+  -m search by checksums
 EOF
 }
 
