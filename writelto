@@ -117,7 +117,7 @@ if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFY_CHECK="Y"
     unset db_fixity
     db_fixity=$(cat "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5")
-    if [ -z "$db_fixity" ] ; then
+    if [ -z "${db_fixity}" ] ; then
         event_outcome="No fixity information"
     fi
     _report_fixity_db
