@@ -64,8 +64,8 @@ TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 _checkdir "${SOURCE_DIR}"
 # remove .DS_Store files
 find "${SOURCE_DIR}/" -name '.DS_Store' -type f -delete
-if [ -f "${SOURCE_DIR}"/tapechecksum.md5 ] ; then
-    db_fixity=$(cat "${SOURCE_DIR}"/tapechecksum.md5)
+if [ -f "${SOURCE_DIR}"/checksum.md5 ] ; then
+    db_fixity=$(cat "${SOURCE_DIR}"/checksum.md5)
 fi
 
 _checkdir "${TAPE_PATH}"
@@ -115,6 +115,7 @@ _report_fixity_db
 _report_schema_db
 if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFY_CHECK="Y"
+    unset db_fixity
     db_fixity=$(cat "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5")
     if [ -z "$db_fixity" ] ; then
         event_outcome="No fixity information"
