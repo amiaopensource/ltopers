@@ -87,7 +87,7 @@ while ! [[ "${*}" = "" ]] ; do
         SEARCH_TERM=$(basename "${INPUT}")
         _compare_file
     elif [ "${RUNMODE}" = "md5" ] ; then
-        SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT eventDetail,messageDigestHASH,messageDigestPATH FROM fixity WHERE messageDigestHASH='${SEARCH_TERM}'")
+        SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT eventDetail,messageDigestHASH,objectIdentifierValue,messageDigestPATH,messageDigestSOURCE FROM fixity WHERE messageDigestHASH='${SEARCH_TERM}'")
     else
         SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE ltoID='${SEARCH_TERM}'")
         if [ -z "${SQL_RESULTS}" ] ; then
@@ -95,8 +95,16 @@ while ! [[ "${*}" = "" ]] ; do
             SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE MATCH(filePath) AGAINST ('${BOOLEAN_TERM}' IN BOOLEAN MODE)")
         fi
     fi
-    if [ "${RUNMODE}" = "full" ] || [ "${RUNMODE}" = "md5" ] ; then
+    if [ "${RUNMODE}" = "full" ] ; then
         echo "${SQL_RESULTS}"
+        echo
+    elif [ "${RUNMODE}" = "md5" ] ; then
+        READBACK_SOURCE_CHECK=$(echo "${SQL_RESULTS}" | tr '\t' ' ' | cut -d' ' -f5 | grep ReadBack)
+        if [ "${READBACK_SOURCE_CHECK}" ] ; then
+            echo "${SQL_RESULTS}" | tr '\t' ' ' | cut -d' ' -f1-4 | sed -e"s/ingestcollectionchecksum/ingestcollectionchecksum(readback)/g"
+        else
+            echo "${SQL_RESULTS}" | tr '\t' ' ' | cut -d' ' -f1-4
+        fi
         echo
     else
         echo "${SQL_RESULTS}" | grep ".mov" | grep -v "fileMeta" | grep -v "access"
