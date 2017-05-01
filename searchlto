@@ -80,14 +80,10 @@ while getopts ":hcfm" OPT; do
 done
 shift $(( ${OPTIND} - 1 ))
 
-SEARCH_INPUT="${*}"
+while ! [[ "${*}" = "" ]] ; do
+SEARCH_TERM="${1}"
+shift
 
-if [ "${*}" = "" ] ; then
-    echo "Enter the mediaid(s) or lto tape number(s) to search"
-    read SEARCH_INPUT
-fi
-for INPUT in $(echo "${SEARCH_INPUT}") ; do
-    SEARCH_TERM="${INPUT}"
     if [ "${RUNMODE}" = "compare" ] ; then
         SEARCH_TERM=$(basename "${INPUT}")
         _compare_file
@@ -96,7 +92,8 @@ for INPUT in $(echo "${SEARCH_INPUT}") ; do
     else
         SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE ltoID='${SEARCH_TERM}'")
         if [ -z "${SQL_RESULTS}" ] ; then
-            SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE MATCH(filePath) AGAINST ('${SEARCH_TERM}')")
+            BOOLEAN_TERM=$(echo "+${SEARCH_TERM}" | sed -e "s/ / +/g" )
+            SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE MATCH(filePath) AGAINST ('${BOOLEAN_TERM}' IN BOOLEAN MODE)")
         fi
     fi
         if [ "${RUNMODE}" = "full" ] || [ "${RUNMODE}" = "md5" ] ; then
