@@ -46,7 +46,7 @@ _compare_file(){
             echo "------"
             echo "${SQL_RESULTS}"
             echo ""
-            echo "Information From File"
+            echo "Information from File"
             echo "------"
             echo "${DATE} ${SIZE}"            
         else
