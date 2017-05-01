@@ -29,8 +29,8 @@ _compare_file(){
         DATE=$(date -u -r "$INPUT" +%Y-%m-%dT%H:%M:%S.000000000Z)
         SIZE=$(wc -c "${INPUT}")
         SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT modifyTime,fileSize,fileName FROM ltoSchema WHERE fileName LIKE '%${SEARCH_TERM}%'")
-        LTO_SIZE=$(echo ${SQL_RESULTS} | cut -d ' ' -f5)
-        LTO_DATE=$(echo ${SQL_RESULTS} | cut -d ' ' -f4)
+        LTO_SIZE=$(echo "${SQL_RESULTS}" | cut -d ' ' -f5)
+        LTO_DATE=$(echo "${SQL_RESULTS}" | cut -d ' ' -f4)
         
         if [ -n "${SQL_RESULTS}" ] ; then
             if [ "${DATE}" != "${LTO_DATE}" ] ; then
@@ -46,7 +46,7 @@ _compare_file(){
             echo "------"
             echo "${SQL_RESULTS}"
             echo ""
-            echo "Information From File"
+            echo "Information from File"
             echo "------"
             echo "${DATE} ${SIZE}"            
         else
@@ -80,28 +80,34 @@ while getopts ":hcfm" OPT; do
 done
 shift $(( ${OPTIND} - 1 ))
 
-SEARCH_INPUT="${*}"
-
-if [ "${*}" = "" ] ; then
-    echo "Enter the mediaid(s) or lto tape number(s) to search"
-    read SEARCH_INPUT
-fi
-for INPUT in $(echo "${SEARCH_INPUT}") ; do
-    SEARCH_TERM="${INPUT}"
+while ! [[ "${*}" = "" ]] ; do
+    SEARCH_TERM="${1}"
+    shift
     if [ "${RUNMODE}" = "compare" ] ; then
         SEARCH_TERM=$(basename "${INPUT}")
         _compare_file
     elif [ "${RUNMODE}" = "md5" ] ; then
-        SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT eventDetail,messageDigestHASH,messageDigestPATH FROM fixity WHERE messageDigestHASH='${SEARCH_TERM}'")
+        SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT eventDetail,messageDigestHASH,objectIdentifierValue,messageDigestPATH,messageDigestSOURCE FROM fixity WHERE messageDigestHASH='${SEARCH_TERM}'")
     else
         SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE ltoID='${SEARCH_TERM}'")
         if [ -z "${SQL_RESULTS}" ] ; then
-            SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE MATCH(filePath) AGAINST ('${SEARCH_TERM}')")
+            BOOLEAN_TERM=$(echo "+${SEARCH_TERM}" | sed -e "s/ - / /g" | sed -e "s/ / +/g" )
+            SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE MATCH(filePath) AGAINST ('${BOOLEAN_TERM}' IN BOOLEAN MODE)")
         fi
     fi
-        if [ "${RUNMODE}" = "full" ] || [ "${RUNMODE}" = "md5" ] ; then
-            echo "${SQL_RESULTS}"
+    if [ "${RUNMODE}" = "full" ] ; then
+        echo "${SQL_RESULTS}"
+        echo
+    elif [ "${RUNMODE}" = "md5" ] ; then
+        READBACK_SOURCE_CHECK=$(echo "${SQL_RESULTS}" | tr '\t' ' ' | cut -d' ' -f5 | grep ReadBack)
+        if [ "${READBACK_SOURCE_CHECK}" ] ; then
+            echo "${SQL_RESULTS}" | tr '\t' ' ' | cut -d' ' -f1-4 | sed -e"s/ingestcollectionchecksum/ingestcollectionchecksum(readback)/g"
         else
-            echo "${SQL_RESULTS}" | grep ".mov" | grep -v "fileMeta" | grep -v "access"
+            echo "${SQL_RESULTS}" | tr '\t' ' ' | cut -d' ' -f1-4
         fi
+        echo
+    else
+        echo "${SQL_RESULTS}" | grep ".mov" | grep -v "fileMeta" | grep -v "access"
+        echo
+    fi
 done
