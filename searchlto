@@ -91,7 +91,7 @@ while ! [[ "${*}" = "" ]] ; do
     else
         SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE ltoID='${SEARCH_TERM}'")
         if [ -z "${SQL_RESULTS}" ] ; then
-            BOOLEAN_TERM=$(echo "+${SEARCH_TERM}" | sed -e "s/ - / /g" | sed -e "s/ / +/g" )
+            BOOLEAN_TERM=$(echo "+${SEARCH_TERM}" | sed -e "s/-/ /g" | tr -s ' ' | sed -e "s/ / +/g" )
             SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT ltoID,filePath FROM ltoSchema WHERE MATCH(filePath) AGAINST ('${BOOLEAN_TERM}' IN BOOLEAN MODE)")
         fi
     fi
