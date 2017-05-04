@@ -113,6 +113,7 @@ SCHEMA_FILE="$LTO_LOGS/${TAPE_SERIAL}.schema"
 _eventoutcome_update
 _report_fixity_db
 _report_schema_db
+_db_email_delivery "${SQL_ERROR_EMAIL_TO}"
 if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFY_CHECK="Y"
     unset db_fixity
