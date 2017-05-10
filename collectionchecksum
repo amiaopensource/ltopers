@@ -31,11 +31,11 @@ while [ "${*}" != "" ] ; do
     cd "${INPUT}"
 
     #loop through the directories, find the checksum files, cat them together, and also sed to add the media ids
-    for CHECKSUMFILES in $(find ${INPUT} -maxdepth 3 -mindepth 3 -type f -iname "checksum.md5"); do
-        PACKAGE=$(basename $(dirname $(dirname "${CHECKSUMFILES}")))
+    while read CHECKSUMFILES ; do
+        PACKAGE="$(basename "$(dirname "$(dirname "${CHECKSUMFILES}")")")"
         _report -d "Concatenating ${CHECKSUMFILES}."
         cat "${CHECKSUMFILES}" | sed "s|  ./|  ./${PACKAGE}/objects/|g" >> "${TEMPCHECKSUMFILE}"
-    done
+    done < <(find "${INPUT}" -maxdepth 3 -mindepth 3 -type f -iname "checksum.md5")
 
     #create md5 checksums for all of the files in the metadata directory
     _report -d "Creating checksums for all metadata directories."
