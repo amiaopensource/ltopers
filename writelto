@@ -5,7 +5,7 @@
 # LTFS-formated LTO tape.
 
 SCRIPTDIR=$(dirname "${0}")
-DEPENDENCIES=(mmfunctions) #### TO DO
+DEPENDENCIES=(gcp mmfunctions)
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
 HIDDEN_FILES=""
