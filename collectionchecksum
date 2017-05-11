@@ -12,8 +12,8 @@ SCRIPTDIR=$(dirname "${0}")
 
 _maketemp(){
     mktemp -q "/tmp/$(basename "${0}").XXXXXX"
-    if [ "${?}" -ne 0 ]; then
-        echo "${0}: Can't create temp file, exiting..."
+    if [ "${?}" -ne 0 ] ; then
+        _report -w "${0}: Can't create temp file. Exiting."
         _writeerrorlog "_maketemp" "was unable to create the temp file, so the script had to exit."
         exit 1
     fi
