@@ -21,6 +21,25 @@ brew upgrade
 
 **Note:** This will update Homebrew and upgrade every package you've installed using it.
 
+## List of LTOpers tools
+
+### General
+
+- formatlto
+- mountlto
+- readlto
+- verifylto
+- writelto
+
+### Based on CUNY TV's own structure
+
+- collectionchecksum
+- ingestcollectionchecksum
+- ingestschemas
+- indexschemas
+- searchlto
+- renameschemas
+
 ## Formatting LTO
 
 LTO tapes need to be formatted before they can be used. Run the following command:
@@ -65,7 +84,7 @@ In Finder, go to Go > Go to Folder, and enter /Volumes/$tapeid to navigate to ta
 
 To unmount the tape, Ctrl-C in Terminal.
 
-Whenever a tape is ejected, the script will export the tape’s index (as an xml .schema file) to $HOME/Documents/lto_indexes on your computer. If a .schema file for that tape already exists in that location, it will just update the existing schema file with any new data.
+Whenever a tape is ejected, the script will export the tape’s index (as an XML .schema file) to `$HOME/Documents/lto_indexes` on your computer. If a .schema file for that tape already exists in that location, it will just update the existing schema file with any new data.
 
 ## Writing to LTO
 
@@ -79,7 +98,7 @@ When prompted, enter the tape ID and the source directory.
 
 The script will run rsync twice the transfer the data to the LTO tape. It runs twice to address an unresolved problem with small-sized files not transferring properly (running it twice seems to fix the errors).
 
-## Database Integration
+## Database integration
 
 LTOpers can integrate with the database reporting functions in [mediamicroservices](https://github.com/mediamicroservices).  For information on how to set up the database see the mediamicroservices' [readme](https://github.com/mediamicroservices/mm#configuring-premisfixity-logging-database).
 
@@ -87,29 +106,4 @@ If the database is activated and configured LTOpers will store information from 
 
 Database specific tools in LTOpers are `searchlto`, `ingestschemas` and `ingestcollectionchecksum`. Both `ingestchemas` and `ingestcollectionchecksum` are designed for importing already existing information to the database (LTO schema information and readback checksums respectively).  They can be run either on individual files or on directories containing multiple files.
 
-`searchlto` is for performing searches against the lto schema information stored in the database.  It accepts either a media id or an lto id as an input and will return a list of matching service files. Options are `-h` display help, `-c` compare characteristics of an input file to records in the database, and `-f` show full results (this will show all matches to search term as opposed filtering for service files only).
-
-## Tools
-
-### General
-
-- formatlto
-- mountlto
-- readlto
-- searchlto
-- verifylto
-- writelto
-
-### Based on CUNY TV's Own Structure
-
-- collectionchecksum
-- ingestcollectionchecksum
-- ingestschemas
-- indexschemas
-- renameschemas
-
-## External locations of LTO scripts and related tools:
-
-https://github.com/amiaopensource/ltopers
-
-http://xmlstar.sourceforge.net/
+`searchlto` is for performing searches against the LTO schema information stored in the database. It accepts either a media ID or an LTO ID as an input and will return a list of matching service files. Options are `-h` display help, `-c` compare characteristics of an input file to records in the database, and `-f` show full results (this will show all matches to search term as opposed filtering for service files only).
