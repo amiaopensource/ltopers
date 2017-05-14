@@ -24,7 +24,7 @@ This script formats an LTO tape with LTFS.
 Dependencies: ${DEPENDENCIES[@]}
 
 Usage: $(basename "${0}") [-f] [-c] | -h
-  -f  force formating
+  -f  force formatting
   -c  use compression
   -h  display this help
 EOF
