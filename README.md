@@ -2,7 +2,7 @@
 
 ## List of LTOpers tools
 
-### General
+### LTO handling commands
 
 - formatlto
 - mountlto
@@ -10,7 +10,7 @@
 - verifylto
 - writelto
 
-### Based on CUNY TV's own structure
+### Commands interacting with a database
 
 - collectionchecksum
 - ingestcollectionchecksum
