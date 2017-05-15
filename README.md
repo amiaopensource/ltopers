@@ -2,7 +2,7 @@
 
 ## List of LTOpers tools
 
-### LTO handling commands
+### General LTO handling commands
 
 - formatlto
 - mountlto
@@ -12,12 +12,15 @@
 
 ### Commands interacting with a database
 
-- collectionchecksum
 - ingestcollectionchecksum
 - ingestschemas
 - indexschemas
 - searchlto
 - renameschemas
+
+### CUNY-specific command
+
+- collectionchecksum
 
 ## Installing LTOpers tools
 
