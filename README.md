@@ -1,5 +1,24 @@
 # LTOpers Documentation
 
+## List of LTOpers tools
+
+### General
+
+- formatlto
+- mountlto
+- readlto
+- verifylto
+- writelto
+
+### Based on CUNY TV's own structure
+
+- collectionchecksum
+- ingestcollectionchecksum
+- ingestschemas
+- indexschemas
+- searchlto
+- renameschemas
+
 ## Installing LTOpers tools
 
 You can easily install these tools using Homebrew. To install Homebrew, follow the [instructions](http://brew.sh/).
@@ -20,25 +39,6 @@ brew upgrade
 ```
 
 **Note:** This will update Homebrew and upgrade every package you've installed using it.
-
-## List of LTOpers tools
-
-### General
-
-- formatlto
-- mountlto
-- readlto
-- verifylto
-- writelto
-
-### Based on CUNY TV's own structure
-
-- collectionchecksum
-- ingestcollectionchecksum
-- ingestschemas
-- indexschemas
-- searchlto
-- renameschemas
 
 ## Formatting LTO
 
