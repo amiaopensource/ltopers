@@ -1,0 +1,64 @@
+.TH ltopers 1 "https://github.com/amiaopensource/ltopers" "2017\-05\-15" "AMIA Open Source"
+.SH NAME
+LTOpers - Scripts to manage LTO cartridges with LTFS
+.SH SYNOPSIS
+.SS formatlto [-f] [-c] | -h
+Format an LTO cartridge with LTFS.
+.TP
+.B -f
+force formatting
+.TP
+.B -c
+use compression
+.TP
+.B -h
+display a help message
+.SS ltopers
+Display this man.
+.SS mountlto
+Mount an LTO cartridge.
+.SS readlto -t \fIserial\fB [-e \fIY\fR|\fIN\fB] | -h
+Transfer files from an LTO cartridge to another location.
+.TP
+.B -t
+cartridge's \fIserial
+.TP
+.B -e
+eject the cartridge after migration: \fIY\fR (default) or \fIN
+.TP
+.B -h
+display a help message
+.SS verifylto -t \fIserial\fB [-e \fIY\fR|\fIN\fB] | -h
+Verify the checksums of an LTO cartridge.
+.TP
+.B -t
+cartridge's \fIserial
+.TP
+.B -e
+eject the cartridge after migration: \fIY\fR (default) or \fIN
+.TP
+.B -h
+display a help message
+.SS writelto -t \fIserial\fB [-e \fIY\fR|\fIN\fB] [-v] | -h
+Write the contents of a specified directory onto a mounted LTFS-formatted LTO cartridge.
+.TP
+.B -t
+cartridge's \fIserial
+.TP
+.B -e
+eject the cartridge after migration: \fIY\fR (default) or \fIN
+.TP
+.B -v
+verify the checksums of the LTO cartridge's contents
+.TP
+.B -h
+display a help message
+.SS collectionchecksum
+.SS ingestcollectionchecksum
+.SS ingestschemas
+.SS indexschemas
+.SS searchlto
+.SS renameschemas
+These functions are based on CUNY TV's own structure.
+.SH LICENSE
+The LTOpers package is licensed under a Creative Commons Attribution 4.0 International License
