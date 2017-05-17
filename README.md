@@ -12,13 +12,13 @@
 
 ### Database-specific tools
 
-- collectionchecksum
 - ingestcollectionchecksum
 - ingestschemas
 - searchlto
 
 ### CUNY-specific tool
 
+- collectionchecksum
 - indexschemas
 - renameschemas
 
