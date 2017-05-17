@@ -12,15 +12,16 @@
 
 ### Database-specific tools
 
+- collectionchecksum
 - ingestcollectionchecksum
 - ingestschemas
-- indexschemas
 - searchlto
-- renameschemas
 
 ### CUNY-specific tool
 
-- collectionchecksum
+- indexschemas
+- renameschemas
+
 
 ## Installing LTOpers
 
