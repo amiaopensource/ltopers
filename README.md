@@ -82,9 +82,6 @@ mountlto
 
 The script will check for attached tape drive, and will prompt for deck name if there are multiple drives.
 
-When prompted, enter the name of the tape to mount (e.g. A00001 or B00001L6).
-In the most recent versions mountlto no longer asks for the name of the tape to mount but rather mounts a tape witht the same name it was formated with. 
-
 The tape will load in deck and mount. 
 
 In Finder, go to Go > Go to Folder, and enter /Volumes/$tapeid to navigate to tape in Finder.
