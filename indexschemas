@@ -14,7 +14,7 @@ fi
 _usage(){
     cat <<EOF 
 $(basename "${0}") ${VERSION}
-This script makes a text file listing certain files from the ltfs schema
+This script makes a text file listing certain files from the LTFS schema
 file.
 
 Usage: $(basename "${0}") -t | -h
