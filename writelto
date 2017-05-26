@@ -20,6 +20,11 @@ else
     VERSION=""
 fi
 
+# no .DS_Store onto external storage
+if [[ ${OSTYPE} = "darwin"* ]] ; then
+    defaults write com.apple.desktopservices DSDontWriteNetworkStores true
+fi
+
 _usage(){
 cat <<EOF
 $(basename "${0}") ${VERSION}
