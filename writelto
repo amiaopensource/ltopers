@@ -22,7 +22,9 @@ fi
 
 # no .DS_Store onto external storage
 if [[ ${OSTYPE} = "darwin"* ]] ; then
-    defaults write com.apple.desktopservices DSDontWriteNetworkStores true
+    if [[ $(defaults read com.apple.desktopservices DSDontWriteNetworkStores) != true ]] ; then
+        defaults write com.apple.desktopservices DSDontWriteNetworkStores true
+    fi
 fi
 
 _usage(){
