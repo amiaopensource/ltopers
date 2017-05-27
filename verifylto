@@ -67,7 +67,10 @@ case "${TAPE_EJECT}" in
     *)   echo "Done verifying but not ejecting ${TAPE_SERIAL}." ;;
 esac
 
-_eventoutcome_update
-_report_schema_db
-_report_fixity_db
-_db_email_delivery "${SQL_ERROR_EMAIL_TO}"
+if [[ "${PREMIS_DB}" = "Y" ]] ; then
+    _eventoutcome_update
+    _report_schema_db
+    _report_fixity_db
+    _db_email_delivery "${SQL_ERROR_EMAIL_TO}"
+fi
+
