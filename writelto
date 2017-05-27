@@ -28,7 +28,7 @@ if [[ ${OSTYPE} = "darwin"* ]] ; then
 fi
 
 _usage(){
-cat <<EOF
+    cat <<EOF
 $(basename "${0}") ${VERSION}
 This script writes the contents of a specified directory onto a mounted
 LTFS-formated LTO tape.
@@ -113,7 +113,9 @@ case "${TAPE_EJECT}" in
     *)   echo "Done writing but not ejecting ${TAPE_SERIAL}." ;;
 esac
 
-renameschemas -u
+if [[ $(which renameschemas) ]]; then
+    renameschemas -u
+fi
 
 SCHEMA_FILE="$LTO_LOGS/${TAPE_SERIAL}.schema"
 
