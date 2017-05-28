@@ -29,12 +29,10 @@ EOF
 [ "${#}" = 0 ] && { _usage ; exit 1 ; }
 
 OPTIND=1
-while getopts ":hun" opt ; do
+while getopts ":hu" opt ; do
     case "${opt}" in
         h) _usage ; exit 0 ;;
         u) RENAME2UUID="Y" ;;
-        n) RENAME2NAME="Y" ;;
-        :) echo "Error: Option -${OPTARG} requires an argument" ; exit 1 ;;
         *) echo "Error: Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
