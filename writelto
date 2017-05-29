@@ -113,9 +113,7 @@ case "${TAPE_EJECT}" in
     *)   echo "Done writing but not ejecting ${TAPE_SERIAL}." ;;
 esac
 
-if [[ $(which renameschemas) ]]; then
-    renameschemas -u
-fi
+renameschemas -u
 
 SCHEMA_FILE="$LTO_LOGS/${TAPE_SERIAL}.schema"
 
