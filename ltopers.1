@@ -28,6 +28,13 @@ eject the cartridge after migration: \fIY\fR (default) or \fIN
 .TP
 .B -h
 display a help message
+.SS renameschemas  -u | -h
+.TP
+.B -u
+change dir-named schema files to the tape uuid
+.TP
+.B -h
+display a help message
 .SS verifylto -t \fIserial\fB [-e \fIY\fR|\fIN\fB] | -h
 Verify the checksums of an LTO cartridge.
 .TP
@@ -65,13 +72,6 @@ Make a text file listing certain files from the LTFS schema file.
 .TP
 .B -t
 check schema files modified today for volume names that may need to be overwritten
-.TP
-.B -h
-display a help message
-.SS renameschemas  -u | -h
-.TP
-.B -u
-change dir-named schema files to the tape uuid
 .TP
 .B -h
 display a help message
