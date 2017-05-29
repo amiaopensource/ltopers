@@ -7,6 +7,7 @@
 - formatlto
 - mountlto
 - readlto
+- renameschemas
 - verifylto
 - writelto
 
@@ -20,7 +21,6 @@
 
 - collectionchecksum
 - indexschemas
-- renameschemas
 
 
 ## Installing LTOpers
