@@ -17,7 +17,7 @@ fi
 unset LTO_COUNT
 unset LTFS_OPTIONS
 LTO_LOGS="${HOME}/Documents/lto_indexes"
-if [[ $(uname -s) = "Darwin" ]] ; then
+if [[ "$(uname -s)" = "Darwin" ]] ; then
     # try to figure out how many lto decks are attached
     LTO_COUNT=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | wc -l | awk '{print $1}')
 else
