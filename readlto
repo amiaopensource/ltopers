@@ -31,7 +31,7 @@ EOF
 }
 
 OPTIND=1
-while getopts ":ht:e:" opt ; do
+while getopts ":t:e:h" opt ; do
     case "${opt}" in
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
