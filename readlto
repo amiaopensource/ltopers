@@ -33,9 +33,9 @@ EOF
 OPTIND=1
 while getopts ":ht:e:" opt ; do
     case "${opt}" in
-        h) _usage ; exit 0 ;;
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
+        h) _usage ; exit 0 ;;
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
         *) echo "Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
