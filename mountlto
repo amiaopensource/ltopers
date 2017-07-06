@@ -21,7 +21,7 @@ if [[ $(uname -s) = "Darwin" ]] ; then
     # try to figure out how many lto decks are attached
     LTO_COUNT=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | wc -l | awk '{print $1}')
 else
-    # TO DO: itemize when there are multiple lto drives in Linux & Windows
+    # TO DO: itemize when there are multiple LTO drives in Linux and Windows
     LTO_COUNT=1
 fi
 
@@ -46,7 +46,7 @@ for i in $(seq 1 "$LTO_COUNT") ; do
     while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "$COUNTER" -lt 5 ]]; do
         let COUNTER=COUNTER+1
         ltfs -f -o devname="${DECK}" 2> "${LOADTMP}"
-        # find barcode by either "Volser(Barcode)" (quantum style) or "Tape attribute: Barcode" (ibm style)
+        # find barcode by either "Volser(Barcode)" (Quantum style) or "Tape attribute: Barcode" (IBM style)
         TAPE_SERIAL=$(cat "${LOADTMP}" | grep -a "Volser(Barcode)\|Tape attribute: Barcode" | awk 'NF>1{print $NF}')
         echo -n "."
     done
