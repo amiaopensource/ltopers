@@ -74,7 +74,7 @@ if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
    fi
 else
    #### TO DO: select the correct path to the drive on Linux and Windows
-   if [[ $(uname -s) = "Linux" ]] ; then
+   if [[ "$(uname -s)" = "Linux" ]] ; then
        DECK='/dev/sg3'
    else
        DECK=0
