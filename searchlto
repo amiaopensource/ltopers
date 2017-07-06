@@ -71,10 +71,10 @@ _compare_file(){
 OPTIND=1
 while getopts ":hcfm" OPT; do
     case "${OPT}" in
-        h) _usage ; exit 0 ;;
         c) RUNMODE="compare" ;;
         f) RUNMODE="full" ;;
         m) RUNMODE="md5" ;;
+        h) _usage ; exit 0 ;;
         *) echo "bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
