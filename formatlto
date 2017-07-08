@@ -52,7 +52,7 @@ else
 fi
 
 if [ ! "${LTO_ARRAY}" ] ; then
-    if [[ $(uname -s) = "Darwin" ]] ; then
+    if [[ "$(uname -s)" = "Darwin" ]] ; then
         # try to figure out how many LTO decks are attached
         LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | sort | xargs))
     else
