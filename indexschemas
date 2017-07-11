@@ -3,7 +3,7 @@
 # indexschemas
 # This script makes a text file listing certain files from the ltfs schema file.
 
-LTO_LOGS="${HOME}/Documents/lto_indexes"
+LTO_LOGS="${LTO_INDEX_DIR}"
 
 if [[ $(dirname $(which "${0}")) = "/usr/local/bin" || $(dirname $(which "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
     VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
@@ -12,7 +12,7 @@ else
 fi
 
 _usage(){
-    cat <<EOF 
+    cat <<EOF
 $(basename "${0}") ${VERSION}
 This script makes a text file listing certain files from the LTFS schema
 file.

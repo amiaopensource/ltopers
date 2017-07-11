@@ -9,7 +9,7 @@ DEPENDENCIES=(gcp mmfunctions)
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
 HIDDEN_FILES=""
-LTO_LOGS="${HOME}/Documents/lto_indexes"
+LTO_LOGS="${LTO_INDEX_DIR}"
 TAPE_EJECT="Y"
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
@@ -105,7 +105,7 @@ if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFYTIME=$(_get_iso8601_c)
     READBACKDIR="${LTO_LOGS}/readback_checksums"
     _mkdir2 "${READBACKDIR}"
-    find "${TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
+    find "${TAPE_PATH}" -type f ! -name .DS_Store -exec "${LTO_MD5_FLAGS}" "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
 fi
 
 echo -n "$(date +%FT%T) " >> "${LTO_LOGS}/tape_capacity.txt"
@@ -117,8 +117,8 @@ case "${TAPE_EJECT}" in
 esac
 
 renameschemas -u
-
-SCHEMA_FILE="$LTO_LOGS/${TAPE_SERIAL}.schema"
+mkdir -p "$LTO_LOGS/schema/"
+SCHEMA_FILE="$LTO_LOGS/schema/${TAPE_SERIAL}.schema"
 
 if [[ "${PREMIS_DB}" = "Y" ]] ; then
     _eventoutcome_update

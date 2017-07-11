@@ -38,7 +38,7 @@ while getopts ":hu" opt ; do
 done
 shift $(( ${OPTIND} - 1 ))
 
-LTO_LOGS="${HOME}/Documents/lto_indexes"
+LTO_LOGS="${LTO_INDEX_DIR}"
 OLD_LOGS="${LTO_LOGS}/old/"
 
 if [[ ! -d "${OLD_LOGS}" ]] ; then
