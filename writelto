@@ -101,6 +101,7 @@ if [[ "${PREMIS_DB}" = "Y" ]] ; then
     _report_to_db
 fi
 
+_check_for_lto_md5_flags
 if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFYTIME=$(_get_iso8601_c)
     READBACKDIR="${LTO_LOGS}/readback_checksums"
