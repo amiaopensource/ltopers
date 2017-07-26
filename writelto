@@ -19,6 +19,8 @@ else
     VERSION=""
 fi
 
+LTO_LOGS="${LTO_INDEX_DIR}"
+
 # no .DS_Store onto external storage
 if [[ "$(uname -s)" = "Darwin" ]] ; then
     if [[ "$(defaults read com.apple.desktopservices DSDontWriteNetworkStores 2>/dev/null)" != "true" ]] ; then
@@ -88,12 +90,15 @@ if [[ "${HIDDEN_FILES}" ]] ; then
     RSYNC_ERR_2="$?"
 fi
 
+WRITELTODIR="${LTO_LOGS}/writelto"
+_mkdir2 "${WRITELTODIR}"
+
 if [ -n "$RSYNC_ERR_2" ] ; then
     echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
-    echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
+    echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${WRITELTODIR}/${TAPE_SERIAL}_writelto.txt"
 else
     echo "rsync exited with ${RSYNC_ERR_1}."
-    echo "rsync exited with ${RSYNC_ERR_1}." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
+    echo "rsync exited with ${RSYNC_ERR_1}." >> "${WRITELTODIR}/${TAPE_SERIAL}_writelto.txt"
 fi
 
 if [[ "${PREMIS_DB}" = "Y" ]] ; then
@@ -101,7 +106,7 @@ if [[ "${PREMIS_DB}" = "Y" ]] ; then
 fi
 
 _check_for_lto_md5_flags
-LTO_LOGS="${LTO_INDEX_DIR}"
+
 if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFYTIME=$(_get_iso8601_c)
     READBACKDIR="${LTO_LOGS}/readback_checksums"
