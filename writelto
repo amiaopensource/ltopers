@@ -109,6 +109,9 @@ if [[ "${VERIFY}" = "Y" ]] ; then
     find "${TAPE_PATH}" -type f ! -name .DS_Store -exec $LTO_MD5_FLAGS "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
 fi
 
+READBACKOUTPUT="${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5"
+sort -k 2 -o "${READBACKOUTPUT}" "${READBACKOUTPUT}"
+
 echo -n "$(date +%FT%T) " >> "${LTO_LOGS}/tape_capacity.txt"
 echo $(df -Ph "${TAPE_PATH}" | tail -n 1) >> "${LTO_LOGS}/tape_capacity.txt"
 
@@ -118,8 +121,9 @@ case "${TAPE_EJECT}" in
 esac
 
 renameschemas -u
-mkdir -p "$LTO_LOGS/schema/"
-SCHEMA_FILE="$LTO_LOGS/schema/${TAPE_SERIAL}.schema"
+SCHEMADIR="${LTO_LOGS}/schema"
+_mkdir2 "${SCHEMADIR}"
+SCHEMA_FILE="${SCHEMADIR}/${TAPE_SERIAL}.schema"
 
 if [[ "${PREMIS_DB}" = "Y" ]] ; then
     _eventoutcome_update
