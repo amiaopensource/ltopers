@@ -9,7 +9,6 @@ DEPENDENCIES=(gcp mmfunctions)
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
 HIDDEN_FILES=""
-LTO_LOGS="${LTO_INDEX_DIR}"
 TAPE_EJECT="Y"
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
@@ -102,11 +101,12 @@ if [[ "${PREMIS_DB}" = "Y" ]] ; then
 fi
 
 _check_for_lto_md5_flags
+LTO_LOGS="${LTO_INDEX_DIR}"
 if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFYTIME=$(_get_iso8601_c)
     READBACKDIR="${LTO_LOGS}/readback_checksums"
     _mkdir2 "${READBACKDIR}"
-    find "${TAPE_PATH}" -type f ! -name .DS_Store -exec "${LTO_MD5_FLAGS}" "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
+    find "${TAPE_PATH}" -type f ! -name .DS_Store -exec $LTO_MD5_FLAGS "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
 fi
 
 echo -n "$(date +%FT%T) " >> "${LTO_LOGS}/tape_capacity.txt"
