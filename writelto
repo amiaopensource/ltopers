@@ -20,7 +20,6 @@ else
     VERSION=""
 fi
 
-
 # no .DS_Store onto external storage
 if [[ "$(uname -s)" = "Darwin" ]] ; then
     if [[ "$(defaults read com.apple.desktopservices DSDontWriteNetworkStores 2>/dev/null)" != "true" ]] ; then
