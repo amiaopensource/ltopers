@@ -4,15 +4,15 @@
 # This script writes the contents of a specified directory onto a mounted
 # LTFS-formated LTO tape.
 
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(gcp mmfunctions)
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
 HIDDEN_FILES=""
-LTO_LOGS="${LTO_INDEX_DIR}"
 TAPE_EJECT="Y"
-
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+_check_for_lto_index_dir
 
 if [[ $(dirname $(which "${0}")) = "/usr/local/bin" || $(dirname $(which "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
     VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
@@ -89,12 +89,15 @@ if [[ "${HIDDEN_FILES}" ]] ; then
     RSYNC_ERR_2="$?"
 fi
 
+WRITELTODIR="${LTO_LOGS}/writelto"
+_mkdir2 "${WRITELTODIR}"
+
 if [ -n "$RSYNC_ERR_2" ] ; then
     echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
-    echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
+    echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${WRITELTODIR}/${TAPE_SERIAL}_writelto.txt"
 else
     echo "rsync exited with ${RSYNC_ERR_1}."
-    echo "rsync exited with ${RSYNC_ERR_1}." >> "${HOME}/Documents/${TAPE_SERIAL}_writelto.txt"
+    echo "rsync exited with ${RSYNC_ERR_1}." >> "${WRITELTODIR}/${TAPE_SERIAL}_writelto.txt"
 fi
 
 if [[ "${PREMIS_DB}" = "Y" ]] ; then
@@ -106,8 +109,11 @@ if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFYTIME=$(_get_iso8601_c)
     READBACKDIR="${LTO_LOGS}/readback_checksums"
     _mkdir2 "${READBACKDIR}"
-    find "${TAPE_PATH}" -type f ! -name .DS_Store -exec "${LTO_MD5_FLAGS}" "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
+    find "${TAPE_PATH}" -type f ! -name .DS_Store -exec $LTO_MD5_FLAGS "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
 fi
+
+READBACKOUTPUT="${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5"
+sort -k 2 -o "${READBACKOUTPUT}" "${READBACKOUTPUT}"
 
 echo -n "$(date +%FT%T) " >> "${LTO_LOGS}/tape_capacity.txt"
 echo $(df -Ph "${TAPE_PATH}" | tail -n 1) >> "${LTO_LOGS}/tape_capacity.txt"
@@ -118,8 +124,9 @@ case "${TAPE_EJECT}" in
 esac
 
 renameschemas -u
-mkdir -p "$LTO_LOGS/schema/"
-SCHEMA_FILE="$LTO_LOGS/schema/${TAPE_SERIAL}.schema"
+SCHEMADIR="${LTO_LOGS}/schema"
+_mkdir2 "${SCHEMADIR}"
+SCHEMA_FILE="${SCHEMADIR}/${TAPE_SERIAL}.schema"
 
 if [[ "${PREMIS_DB}" = "Y" ]] ; then
     _eventoutcome_update
