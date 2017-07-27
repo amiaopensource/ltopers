@@ -4,14 +4,15 @@
 # This script writes the contents of a specified directory onto a mounted
 # LTFS-formated LTO tape.
 
+. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(gcp mmfunctions)
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
 HIDDEN_FILES=""
 TAPE_EJECT="Y"
-
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+_check_for_lto_index_dir
 
 if [[ $(dirname $(which "${0}")) = "/usr/local/bin" || $(dirname $(which "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
     VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
@@ -19,7 +20,6 @@ else
     VERSION=""
 fi
 
-LTO_LOGS="${LTO_INDEX_DIR}"
 
 # no .DS_Store onto external storage
 if [[ "$(uname -s)" = "Darwin" ]] ; then
