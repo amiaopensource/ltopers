@@ -119,6 +119,10 @@ sort -k 2 -o "${READBACKOUTPUT}" "${READBACKOUTPUT}"
 echo -n "$(date +%FT%T) " >> "${LTO_LOGS}/tape_capacity.txt"
 echo $(df -Ph "${TAPE_PATH}" | tail -n 1) >> "${LTO_LOGS}/tape_capacity.txt"
 
+printf "rsync error report written to:\n\t%s/%s_writelto.txt" "${WRITELTODIR}" "${TAPE_SERIAL}"
+printf "readback checksums written to:\n\t%s" "${READBACKOUTPUT}"
+printf "after ejecting tape, lto schema file written to:\n\t%s" "${SCHEMA_FILE}"
+
 case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
     *)   echo "Done writing but not ejecting ${TAPE_SERIAL}." ;;
