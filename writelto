@@ -12,6 +12,7 @@ TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
 HIDDEN_FILES=""
 TAPE_EJECT="Y"
 _check_for_lto_index_dir
+LTO_LOGS="${LTO_INDEX_DIR}"
 
 if [[ $(dirname $(which "${0}")) = "/usr/local/bin" || $(dirname $(which "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
     VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
@@ -116,6 +117,10 @@ sort -k 2 -o "${READBACKOUTPUT}" "${READBACKOUTPUT}"
 
 echo -n "$(date +%FT%T) " >> "${LTO_LOGS}/tape_capacity.txt"
 echo $(df -Ph "${TAPE_PATH}" | tail -n 1) >> "${LTO_LOGS}/tape_capacity.txt"
+
+printf "\nrsync error report written to:\n\t%s/%s_writelto.txt" "${WRITELTODIR}" "${TAPE_SERIAL}"
+printf "\nreadback checksums written to:\n\t%s" "${READBACKOUTPUT}"
+printf "\nafter ejecting tape, lto schema file written to:\n\t%s" "${SCHEMA_FILE}"
 
 case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
