@@ -31,7 +31,7 @@ _compare_file(){
         SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT modifyTime,fileSize,fileName FROM ltoSchema WHERE fileName LIKE '%${SEARCH_TERM}%'")
         LTO_SIZE=$(echo "${SQL_RESULTS}" | cut -d ' ' -f5)
         LTO_DATE=$(echo "${SQL_RESULTS}" | cut -d ' ' -f4)
-        
+
         if [ -n "${SQL_RESULTS}" ] ; then
             if [ "${DATE}" != "${LTO_DATE}" ] ; then
                 echo -e "\033[1;31mWARNING: Date mismatch between file data and file records in LTO database\033[0m"
@@ -48,7 +48,7 @@ _compare_file(){
             echo ""
             echo "Information from File"
             echo "------"
-            echo "${DATE} ${SIZE}"            
+            echo "${DATE} ${SIZE}"
         else
             echo -e "\033[1;31mFile with that name not found.  Checking for files of similar size and modification date\033[0m"
             SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT modifyTime,fileSize,fileName FROM ltoSchema WHERE fileSize='$(echo "${SIZE}" | sed -e 's/^[[:space:]]*//' | cut -d' ' -f1)' OR modifyTime='${DATE}'")
@@ -61,7 +61,7 @@ _compare_file(){
                 echo -e "\033[1;31mNo potential matches found\033[0m"
             fi
         fi
-            
+
     else
         echo "Input is not a valid file. Exiting"
         exit 1

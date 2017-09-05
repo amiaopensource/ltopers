@@ -4,7 +4,7 @@
 # This script will create checksums of metadata files, concatenate checksum.md5
 # files, and append to one large checksum file for each directory. This script
 # presumes a highly specific directory structure based on CUNY TV's Archival
-# Information Package directory structure. 
+# Information Package directory structure.
 
 SCRIPTDIR=$(dirname "${0}")
 
