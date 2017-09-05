@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# readlto 
-# This script transfers files from an LTO tape to another location. 
+# readlto
+# This script transfers files from an LTO tape to another location.
 
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(gcp)
@@ -19,7 +19,7 @@ fi
 
 _usage(){
     cat <<EOF
-$(basename "${0}") ${VERSION} 
+$(basename "${0}") ${VERSION}
 This script moves files from an LTO tape to another location.
 
 Usage: $(basename "${0}") -t [-e] | -h

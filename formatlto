@@ -62,30 +62,30 @@ if [ ! "${LTO_ARRAY}" ] ; then
 fi
 
 if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
-   PS3="${BLUE}Which LTO deck?${NC} "
-   eval set "${LTO_ARRAY[@]}"
-   select DECK in "$@"
-   do
+    PS3="${BLUE}Which LTO deck?${NC} "
+    eval set "${LTO_ARRAY[@]}"
+    select DECK in "$@"
+    do
        break
-   done
-   if [ ! "${DECK}" ] ; then
-       _report -w "Error: You selected an invalid deck."
-       exit 1
-   fi
+    done
+    if [ ! "${DECK}" ] ; then
+        _report -w "Error: You selected an invalid deck."
+        exit 1
+    fi
 else
-   #### TO DO: select the correct path to the drive on Linux and Windows
-   if [[ "$(uname -s)" = "Linux" ]] ; then
-       DECK='/dev/sg3'
-   else
-       DECK=0
-   fi
+    #### TO DO: select the correct path to the drive on Linux and Windows
+    if [[ "$(uname -s)" = "Linux" ]] ; then
+        DECK='/dev/sg3'
+    else
+        DECK=0
+    fi
 fi
 
 _report -qn "Enter the tape identifier: "
 read TAPE_ID
 if [[ ! $(echo "${TAPE_ID}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
-   _report -w "Error: The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
-   exit 1
+    _report -w "Error: The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
+    exit 1
 fi
 if [[ $(which ltfs_ldun) ]] ; then
     ltfs_ldun load "${DECK}"

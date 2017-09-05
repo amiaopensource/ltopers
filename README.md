@@ -22,7 +22,6 @@
 - collectionchecksum
 - indexschemas
 
-
 ## Installing LTOpers
 
 You can easily install these tools using Homebrew. To install Homebrew, follow the [instructions](http://brew.sh/).
@@ -94,7 +93,7 @@ mountlto
 
 The script will check for attached tape drive, and will prompt for deck name if there are multiple drives.
 
-The tape will load in deck and mount. 
+The tape will load in deck and mount.
 
 In Finder, go to Go > Go to Folder, and enter /Volumes/$tapeid to navigate to tape in Finder.
 
