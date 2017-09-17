@@ -97,7 +97,7 @@ The tape will load in deck and mount.
 
 In Finder, go to Go > Go to Folder, and enter /Volumes/$tapeid to navigate to tape in Finder.
 
-## Un-mounting LTO and creating XMLs
+## Un-mounting LTO and creating XML
 
 To unmount the tape, Ctrl-C in Terminal.
 
