@@ -125,7 +125,7 @@ SCHEMA_FILE="${SCHEMADIR}/${TAPE_SERIAL}.schema"
 
 printf "\nrsync error report written to:\n\t%s/%s_writelto.txt" "${WRITELTODIR}" "${TAPE_SERIAL}"
 printf "\nreadback checksums written to:\n\t%s" "${READBACKOUTPUT}"
-printf "\nafter ejecting tape, lto schema file written to:\n\t%s" "${SCHEMA_FILE}"
+printf "\nafter ejecting tape, lto schema file written to:\n\t%s\n\n" "${SCHEMA_FILE}"
 
 case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
