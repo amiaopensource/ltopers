@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# ingestschemas
 # This script imports already existing information to the database (LTO schema
 # information). It can be run either on individual files or on directories
 # containing multiple files.
