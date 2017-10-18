@@ -29,10 +29,10 @@ EOF
 }
 
 OPTIND=1
-while getopts ":ht" opt ; do
+while getopts ":th" opt ; do
     case "${opt}" in
-        h) _usage ; exit 0 ;;
         t) TODAYCHECK=(-mtime -24h) ;;
+        h) _usage ; exit 0 ;;
         *) echo "Error: Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
