@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 # searchlto
+# This script performs searches against the LTO schema information stored in the
+# database.
 
 SCRIPTDIR=$(dirname $(which "${0}"))
 
