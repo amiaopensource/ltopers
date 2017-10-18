@@ -1,4 +1,4 @@
-.TH ltopers 1 "https://github.com/amiaopensource/ltopers" "2017\-06\-02" "AMIA Open Source"
+.TH ltopers 1 "https://github.com/amiaopensource/ltopers" "2017\-10\-18" "AMIA Open Source"
 .SH NAME
 LTOpers - Scripts to manage LTO cartridges with LTFS
 .SH SYNOPSIS
@@ -29,9 +29,10 @@ eject the cartridge after migration: \fIY\fR (default) or \fIN
 .B -h
 display a help message
 .SS renameschemas  -u | -h
+Find all .schema LTFS indexes in the LTO_LOGS directory and rename them to use the top-level file system directory name rather than the UUID. Any conflicting filenames are moved to another folder, if needed.
 .TP
 .B -u
-change dir-named schema files to the tape uuid
+change dir-named schema files to the tape UUID
 .TP
 .B -h
 display a help message
@@ -62,8 +63,23 @@ verify the checksums of the LTO cartridge's contents
 display a help message
 .SH DATABASE-RELATED COMMANDS
 .SS ingestcollectionchecksum
+Import already existing information to the database (read back checksums). It can be run either on individual files or on directories containing multiple files.
 .SS ingestschemas
-.SS searchlto
+Import already existing information to the database (LTO schema information). It can be run either on individual files or on directories containing multiple files.
+.SS searchlto [-c] [-f] [-m] | -h
+Perform searches against the LTO schema information stored in the database.
+.TP
+.B -c
+compare input to database
+.TP
+.B -f
+show full results (as opposed to only .mov files)
+.TP
+.B -m
+MD5 checksums
+.TP
+.B -h
+display a help message
 .SH CUNY-SPECIFIC COMMANDS
 .SS collectionchecksum
 Create checksums of metadata files, concatenate checksum.md5 files, and append to one large checksum file for each directory.
