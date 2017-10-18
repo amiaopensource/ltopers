@@ -118,19 +118,19 @@ sort -k 2 -o "${READBACKOUTPUT}" "${READBACKOUTPUT}"
 echo -n "$(date +%FT%T) " >> "${LTO_LOGS}/tape_capacity.txt"
 echo $(df -Ph "${TAPE_PATH}" | tail -n 1) >> "${LTO_LOGS}/tape_capacity.txt"
 
+renameschemas -u
+SCHEMADIR="${LTO_LOGS}/schema"
+_mkdir2 "${SCHEMADIR}"
+SCHEMA_FILE="${SCHEMADIR}/${TAPE_SERIAL}.schema"
+
 printf "\nrsync error report written to:\n\t%s/%s_writelto.txt" "${WRITELTODIR}" "${TAPE_SERIAL}"
 printf "\nreadback checksums written to:\n\t%s" "${READBACKOUTPUT}"
-printf "\nafter ejecting tape, lto schema file written to:\n\t%s" "${SCHEMA_FILE}"
+printf "\nafter ejecting tape, lto schema file written to:\n\t%s\n\n" "${SCHEMA_FILE}"
 
 case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
     *)   echo "Done writing but not ejecting ${TAPE_SERIAL}." ;;
 esac
-
-renameschemas -u
-SCHEMADIR="${LTO_LOGS}/schema"
-_mkdir2 "${SCHEMADIR}"
-SCHEMA_FILE="${SCHEMADIR}/${TAPE_SERIAL}.schema"
 
 if [[ "${PREMIS_DB}" = "Y" ]] ; then
     _eventoutcome_update
