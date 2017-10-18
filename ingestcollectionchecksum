@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# This script imports already existing information to the database (read back
+# checksums). It can be run either on individual files or on directories
+# containing multiple files.
+
 SCRIPTDIR=$(dirname $(which "${0}"))
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
