@@ -18,7 +18,7 @@ _usage(){
     cat <<EOF
 $(basename "${0}") ${VERSION}
 
-Usage: $(basename "${0}") [-c] [-f] [-m] | -h
+Usage: $(basename "${0}") [-c] [-f] [-m] {QUERY} | -h
   -c  compare input to database
   -f  show full results (as opposed to only .mov files)
   -m  search by checksums
