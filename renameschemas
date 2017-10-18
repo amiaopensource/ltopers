@@ -15,13 +15,13 @@ fi
 _usage(){
     cat <<EOF
 $(basename "${0}") ${VERSION}
-Currently this script only works with in -u mode. It finds all .schema
-LTFS indexes in the LTO_LOGS directory and renames them to use the
-top-level file system directory name rather than the uuid. Any
+
+This script finds all .schema LTFS indexes in the LTO_LOGS directory and renames
+them to use the top-level file system directory name rather than the UUID. Any
 conflicting filenames are moved to another folder if needed.
 
 Usage: $(basename "${0}") -u | -h
-  -u  change dir-named schema files to the tape uuid
+  -u  change dir-named schema files to the tape UUID
   -h  display this help
 EOF
 }
@@ -29,10 +29,10 @@ EOF
 [ "${#}" = 0 ] && { _usage ; exit 1 ; }
 
 OPTIND=1
-while getopts ":hu" opt ; do
+while getopts ":uh" opt ; do
     case "${opt}" in
-        h) _usage ; exit 0 ;;
         u) RENAME2UUID="Y" ;;
+        h) _usage ; exit 0 ;;
         *) echo "Error: Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
