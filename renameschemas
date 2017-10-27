@@ -38,6 +38,7 @@ while getopts ":uh" opt ; do
 done
 shift $(( ${OPTIND} - 1 ))
 
+_check_for_lto_index_dir
 LTO_LOGS="${LTO_INDEX_DIR}"
 OLD_LOGS="${LTO_LOGS}/old/"
 
