@@ -7,6 +7,7 @@ SCRIPTDIR=$(dirname "${0}")
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
+_check_for_lto_index_dir
 LTO_LOGS="${LTO_INDEX_DIR}"
 
 if [[ $(dirname $(which "${0}")) = "/usr/local/bin" || $(dirname $(which "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then

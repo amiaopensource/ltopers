@@ -16,7 +16,8 @@ fi
 
 unset LTO_COUNT
 unset LTFS_OPTIONS
-LTO_LOGS="${HOME}/Documents/lto_indexes"
+_check_for_lto_index_dir
+LTO_LOGS="${LTO_INDEX_DIR}"
 if [[ "$(uname -s)" = "Darwin" ]] ; then
     # try to figure out how many lto decks are attached
     LTO_COUNT=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | wc -l | awk '{print $1}')
@@ -79,7 +80,7 @@ for i in $(seq 1 "$LTO_COUNT") ; do
         LTFS_OPTIONS+=(-o volname="${TAPE_SERIAL}")
         LTFS_OPTIONS+=(-o uid=$(id -u))
 
-        ltfs -f -o work_directory="$LTO_LOGS" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
+        ltfs -f -o work_directory="${LTO_LOGS}" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
         [ -d "${MOUNT_DIR}" ] && rmdir "${MOUNT_DIR}"
         renameschemas -u
         break
