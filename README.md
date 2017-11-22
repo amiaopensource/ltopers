@@ -1,5 +1,7 @@
 # LTOpers Documentation
 
+This documentation is up to date as of LTOpers version 2017-11-12.
+
 ## LTOpers elements
 
 ### General LTO-handling tools
@@ -124,3 +126,8 @@ If the database is activated and configured LTOpers will store information from 
 Database-specific tools in LTOpers are `searchlto`, `ingestschemas` and `ingestcollectionchecksum`. Both `ingestchemas` and `ingestcollectionchecksum` are designed for importing already existing information to the database (LTO schema information and read back checksums respectively). They can be run either on individual files or on directories containing multiple files.
 
 `searchlto` is for performing searches against the LTO schema information stored in the database. It accepts either a media ID or an LTO ID as an input and will return a list of matching service files. Options are `-h` display help, `-c` compare characteristics of an input file to records in the database, and `-f` show full results (this will show all matches to search term as opposed filtering for service files only).
+
+## License
+
+LTOpers is licensed under a <a href="https://github.com/amiaopensource/ltopers/blob/master/LICENSE">MIT License</a>.
+
