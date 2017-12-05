@@ -123,7 +123,7 @@ writelto -v
 
 The checksum file will be written to the LTO logs directory: `LTO_INDEX_DIR` (also set in `mmconfig`) or `$HOME/Documents/lto_indexes` (default if not set in mmconfig).
 
-This command uses the tool md5deep, which has [several flags to set options](http://md5deep.sourceforge.net/md5deep.html). To customize which flags you want to append to md5deep, set the variable `LTO_MD5_FLAGS` in `mmconfig` (type `mmconfig` to access the configuration GUI). 
+This command uses the tool `md5deep`, which has [several flags to set options](http://md5deep.sourceforge.net/md5deep.html). To customize which flags you want to append to `md5deep`, set the variable `LTO_MD5_FLAGS` in `mmconfig` (type `mmconfig` to access the configuration GUI). 
 
 ## Database integration
 
