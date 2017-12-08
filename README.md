@@ -101,7 +101,7 @@ In Finder, go to Go > Go to Folder, and enter /Volumes/$tapeid to navigate to ta
 
 To unmount the tape, Ctrl-C in Terminal.
 
-Whenever a tape is ejected, the script will export the tape’s index (as an XML .schema file) to `$HOME/Documents/lto_indexes` on your computer. If a .schema file for that tape already exists in that location, it will just update the existing schema file with any new data.
+Whenever a tape is ejected, the script will export the tape’s index (as an XML .schema file) to the path set as `LTO_INDEX_DIR` in `mmconfig`. To set or change the path, type `mmconfig` to access the configuration GUI. If there is no path set, the index location will default to `$HOME/Documents/lto_indexes`. If a .schema file for that tape already exists in that location, it will just update the existing schema file with any new data.
 
 ## Writing to LTO
 
@@ -114,6 +114,16 @@ writelto
 When prompted, enter the tape ID and the source directory.
 
 The script will run rsync twice the transfer the data to the LTO tape. It runs twice to address an unresolved problem with small-sized files not transferring properly (running it twice seems to fix the errors).
+
+To read back and create checksums for the contents of a tape, and write checksums to a file named with the tape name and date, run the following command:
+
+```
+writelto -v
+```
+
+The checksum file will be written to the LTO logs directory: `LTO_INDEX_DIR` (also set in `mmconfig`) or `$HOME/Documents/lto_indexes` (default if not set in mmconfig).
+
+This command uses the tool `md5deep`, which has [several flags to set options](http://md5deep.sourceforge.net/md5deep.html). To customize which flags you want to append to `md5deep`, set the variable `LTO_MD5_FLAGS` in `mmconfig` (type `mmconfig` to access the configuration GUI). 
 
 ## Database integration
 
