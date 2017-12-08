@@ -119,7 +119,7 @@ echo -n "$(date +%FT%T) " >> "${LTO_LOGS}/tape_capacity.txt"
 echo $(df -Ph "${TAPE_PATH}" | tail -n 1) >> "${LTO_LOGS}/tape_capacity.txt"
 
 renameschemas -u
-SCHEMA_FILE="${LTO_LOGS}/${TAPE_SERIAL}.schema"
+SCHEMA_FILE="${LTO_LOGS}/schema/${TAPE_SERIAL}.schema"
 
 printf "\nrsync error report written to:\n\t%s/%s_writelto.txt" "${WRITELTODIR}" "${TAPE_SERIAL}"
 printf "\nreadback checksums written to:\n\t%s" "${READBACKOUTPUT}"
