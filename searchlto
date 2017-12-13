@@ -55,7 +55,7 @@ _compare_file(){
             echo "------"
             echo "${DATE} ${SIZE}"
         else
-            echo -e "${RED}File with that name not found. Checking for files of similar size and modification date\033[0m"
+            echo -e "${RED}File with that name not found. Checking for files of similar size and modification date${NC}"
             SQL_RESULTS=$(mysql --login-path="${PREMIS_PROFILE}" "${PREMIS_NAME}" -B -e "SELECT modifyTime,fileSize,fileName FROM ltoSchema WHERE fileSize='$(echo "${SIZE}" | sed -e 's/^[[:space:]]*//' | cut -d' ' -f1)' OR modifyTime='${DATE}'")
             if [ -n "${SQL_RESULTS}" ] ; then
                 echo -e "${GREEN}Following possible matches were found:${NC}"
