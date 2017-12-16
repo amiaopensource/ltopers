@@ -3,7 +3,7 @@
 # mountlto
 
 SCRIPTDIR=$(dirname "${0}")
-DEPENDENCIES=(mmfunctions)
+DEPENDENCIES=(ltfs mmfunctions)
 MINIMUM_TAPE_SERIAL_LENGTH=2
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
