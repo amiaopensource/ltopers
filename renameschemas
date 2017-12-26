@@ -6,10 +6,9 @@ SCRIPTDIR=$(dirname "${0}")
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
+unset VERSION
 if [[ $(dirname $(which "${0}")) = "/usr/local/bin" || $(dirname $(which "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
     VERSION=$(TMP=$(brew info ltopers | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
-else
-    VERSION=""
 fi
 
 _usage(){
@@ -26,7 +25,7 @@ Usage: $(basename "${0}") -u | -h
 EOF
 }
 
-[ "${#}" = 0 ] && { _usage ; exit 1 ; }
+[[ -z "${#}" ]] && { _usage ; exit 1 ; }
 
 OPTIND=1
 while getopts ":uh" opt ; do
