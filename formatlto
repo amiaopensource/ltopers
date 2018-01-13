@@ -5,7 +5,7 @@
 
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(mkltfs mmfunctions)
-TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5678])?$"
+TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5-8])?$"
 BLUE="$(tput setaf 4)"  # Blue     - For Questions
 NC="$(tput sgr0)"       # No Color
 
