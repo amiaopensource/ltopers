@@ -5,7 +5,7 @@
 
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(mkltfs mmfunctions)
-TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
+TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5678])?$"
 BLUE="$(tput setaf 4)"  # Blue     - For Questions
 NC="$(tput sgr0)"       # No Color
 
@@ -63,8 +63,7 @@ fi
 if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
     PS3="${BLUE}Which LTO deck?${NC} "
     eval set "${LTO_ARRAY[@]}"
-    select DECK in "$@"
-    do
+    select DECK in "$@" ; do
        break
     done
     if [ ! "${DECK}" ] ; then
@@ -83,7 +82,7 @@ fi
 _report -qn "Enter the tape identifier: "
 read TAPE_ID
 if [[ ! $(echo "${TAPE_ID}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
-    _report -w "Error: The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
+    _report -w "Error: The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6', 'L7' or 'L8' specifying the LTO generation."
     exit 1
 fi
 mkltfs ${MIDDLE_OPTIONS[@]} --device=${DECK} --tape-serial="${TAPE_ID}" --volume-name="${TAPE_ID}"
