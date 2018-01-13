@@ -1,6 +1,6 @@
 # LTOpers Documentation
 
-This documentation is up to date as of LTOpers version 2017-11-12.
+This documentation is up to date as of LTOpers version 2018-01-13.
 
 ## LTOpers elements
 
