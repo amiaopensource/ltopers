@@ -29,7 +29,7 @@ fi
 
 _report -d "Checking for ready tapes..."
 
-for i in $(seq 1 "$LTO_COUNT") ; do
+for i in $(seq 1 "${LTO_COUNT}") ; do
     DECK=$(echo "$i - 1" | bc)
     if [ $(which ltfs_ldun) ] ; then
         ltfs_ldun load ${DECK} 1>/dev/null
@@ -38,7 +38,7 @@ for i in $(seq 1 "$LTO_COUNT") ; do
     unset TAPE_SERIAL
     COUNTER=0
     echo -n "Checking for tape barcode"
-    while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "$COUNTER" -lt 5 ]]; do
+    while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "${COUNTER}" -lt 5 ]]; do
         let COUNTER=COUNTER+1
         ltfs -f -o devname="${DECK}" 2> "${LOADTMP}"
         # find barcode by either "Volser(Barcode)" (Quantum style) or "Tape attribute: Barcode" (IBM style)
@@ -48,7 +48,7 @@ for i in $(seq 1 "$LTO_COUNT") ; do
     echo
     if [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] ; then
         if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") && ! $(cat "${LOADTMP}" | grep -a "failed to load the tape") ]] ; then
-            DECKSERIAL=$(cat "$LOADTMP" | grep -a -o "serial number is [A-Z0-9]*" | awk '{print $4}')
+            DECKSERIAL=$(cat "${LOADTMP}" | grep -a -o "serial number is [A-Z0-9]*" | awk '{print $4}')
             TAPE_SERIAL="${DECKSERIAL}"
         else
             unset TAPE_SERIAL

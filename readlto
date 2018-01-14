@@ -6,7 +6,7 @@
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(gcp)
 TAPE_MOUNT_POINT="/Volumes"
-TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[567])?$"
+TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5-8])?$"
 TAPE_EJECT="Y"
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
@@ -43,7 +43,7 @@ shift $(( ${OPTIND} - 1 ))
 
 TARGET="${1}"
 if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
-    echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6' or 'L7' specifying the LTO generation."
+    echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6', 'L7' or 'L8' specifying the LTO generation."
     exit 1
 fi
 
