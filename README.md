@@ -67,17 +67,13 @@ LTO tapes need to be formatted before they can be used. Run the following comman
 formatlto
 ```
 
-The script will ask you select a deck (if you have more than one attached) and to name your tape. There are two different tape ID formats:
+The script will ask you select a deck (if you have more than one attached) and to name your tape. The tape ID format is exactly 6 capital letters and/or numbers.
 
-- the 6-char ID must be exactly 6 capital letters and/or numbers
-- the 8-char ID must be exactly 6 capital letters and/or numbers, followed by 'L5', 'L6' or 'L7' specifying the LTO generation.
-
-Examples:
+Example:
 
 - Annnnn
-- BnnnnnL6
 
-where nnnnn is a 5-digit sequential number, e.g. A00001, A00002, etc. or respectively B00001L6, B00002L6, etc.
+where nnnnn is a 5-digit sequential number, e.g. A00001, A00002, etc.
 
 The script will format your tape in LTFS format, with no compression, and sets rules that allow smaller types of files to live in the index partition of the tape, which gives you faster access. If you need to change this, edit the mkltfs line in the script to suit your preferences.
 
