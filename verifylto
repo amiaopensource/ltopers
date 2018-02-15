@@ -8,7 +8,7 @@
 SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 TAPE_MOUNT_POINT="/Volumes"
-TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5-8])?$"
+TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
 _check_for_lto_index_dir
 LTO_LOGS="${LTO_INDEX_DIR}"
 TAPE_EJECT="Y"
@@ -50,7 +50,7 @@ if [[ "${PREMIS_DB}" = "Y" ]] ; then
     _report_to_db
 fi
 if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
-    echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers, possibly followed by 'L5', 'L6', 'L7' or 'L8' specifying the LTO generation."
+    echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers."
     exit 1
 fi
 
