@@ -8,6 +8,14 @@ MINIMUM_TAPE_SERIAL_LENGTH=2
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
+_cleanup_mount_dir(){
+    if [ -d "${MOUNT_DIR}" ] ; then
+        echo calling umount
+        umount "${MOUNT_DIR}"
+        rmdir "${MOUNT_DIR}"
+    fi
+}
+
 unset LTO_COUNT
 unset LTFS_OPTIONS
 _check_for_lto_index_dir
