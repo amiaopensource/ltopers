@@ -78,7 +78,7 @@ _checkdir "${TAPE_PATH}"
 
 gcp --preserve=mode,timestamps -nRv "${SOURCE_DIR}/"* "${TAPE_PATH}"
 
-_run_critical_event "${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
+"${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
 RSYNC_ERR_1="$?"
 HIDDEN_FILES=$(find "${TAPE_PATH}" -name ".*")
 if [[ "${HIDDEN_FILES}" ]] ; then
