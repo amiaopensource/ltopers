@@ -6,7 +6,7 @@
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(gcp)
 TAPE_MOUNT_POINT="/Volumes"
-if [[ -n "${LTOPER_TAPE_SERIAL_REGEX}" ]] ;then
+if [[ -n "${LTOPER_TAPE_SERIAL_REGEX}" ]] ; then
     #allow overwriting LTO tape serial regex with a global variable
     TAPE_SERIAL_REGEX="${LTOPER_TAPE_SERIAL_REGEX}"
 else
