@@ -59,6 +59,8 @@ brew upgrade
 
 This will update Homebrew and upgrade every package you've installed using it.
 
+By default, ltoper scripts require that tape serials are 6 character strings of numbers and capital letters. Alternate regular expressions may be provided by setting LTOPER_TAPE_SERIAL_REGEX as a global variable. For instance: `export LTOPER_TAPE_SERIAL_REGEX="^[Z1-2]{8}$" ; ./formatlto` would permit an 8 character string comprised only of capital Z, number 1, and number 2 as a tape serial.
+
 ## Formatting LTO
 
 LTO tapes need to be formatted before they can be used. Run the following command:

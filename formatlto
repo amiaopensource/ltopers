@@ -5,7 +5,12 @@
 
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(mkltfs mmfunctions)
-TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
+if [[ -n "${LTOPER_TAPE_SERIAL_REGEX}" ]] ;then
+    #allow overwriting LTO tape serial regex with a global variable
+    TAPE_SERIAL_REGEX="${LTOPER_TAPE_SERIAL_REGEX}"
+else
+    TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
+fi
 BLUE="$(tput setaf 4)"  # Blue     - For Questions
 NC="$(tput sgr0)"       # No Color
 
