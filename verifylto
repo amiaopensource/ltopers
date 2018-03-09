@@ -8,7 +8,12 @@
 SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 TAPE_MOUNT_POINT="/Volumes"
-TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
+if [[ -n "${LTOPER_TAPE_SERIAL_REGEX}" ]] ;then
+    #allow overwriting LTO tape serial regex with a global variable
+    TAPE_SERIAL_REGEX="${LTOPER_TAPE_SERIAL_REGEX}"
+else
+    TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
+fi
 _check_for_lto_index_dir
 LTO_LOGS="${LTO_INDEX_DIR}"
 TAPE_EJECT="Y"
