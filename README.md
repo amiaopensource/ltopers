@@ -69,7 +69,7 @@ LTO tapes need to be formatted before they can be used. Run the following comman
 formatlto
 ```
 
-The script will ask you select a deck (if you have more than one attached) and to name your tape. The tape ID format is exactly 6 capital letters and/or numbers.
+The script will ask you select a deck (if you have more than one attached) and to provide a tape serial your tape. The tape serial format is exactly 6 capital letters and/or numbers.
 
 Example:
 
@@ -79,7 +79,7 @@ where nnnnn is a 5-digit sequential number, e.g. A00001, A00002, etc.
 
 The script will format your tape in LTFS format, with no compression, and sets rules that allow smaller types of files to live in the index partition of the tape, which gives you faster access. If you need to change this, edit the mkltfs line in the script to suit your preferences.
 
-**Remember to physically label the tape with the tape ID!**
+**Remember to physically label the tape with the tape serial!**
 
 ## Mounting LTO
 
@@ -95,7 +95,7 @@ The script will check for attached tape drive, and will prompt for deck name if 
 
 The tape will load in deck and mount.
 
-In Finder, go to Go > Go to Folder, and enter /Volumes/$tapeid to navigate to tape in Finder.
+In Finder, go to Go > Go to Folder, and enter /Volumes/$tape_serial to navigate to tape in Finder.
 
 ## Un-mounting LTO and creating XML
 
@@ -111,11 +111,11 @@ To write data onto a tape, run the following command:
 writelto
 ```
 
-When prompted, enter the tape ID and the source directory.
+When prompted, enter the tape serial and the source directory.
 
 The script will run rsync twice the transfer the data to the LTO tape. It runs twice to address an unresolved problem with small-sized files not transferring properly (running it twice seems to fix the errors).
 
-To read back and create checksums for the contents of a tape, and write checksums to a file named with the tape name and date, run the following command:
+To read back and create checksums for the contents of a tape, and write checksums to a file named with the tape serial and date, run the following command:
 
 ```
 writelto -v
@@ -133,7 +133,7 @@ If the database is activated and configured LTOpers will store information from 
 
 Database-specific tools in LTOpers are `searchlto`, `ingestschemas` and `ingestcollectionchecksum`. Both `ingestchemas` and `ingestcollectionchecksum` are designed for importing already existing information to the database (LTO schema information and read back checksums respectively). They can be run either on individual files or on directories containing multiple files.
 
-`searchlto` is for performing searches against the LTO schema information stored in the database. It accepts either a media ID or an LTO ID as an input and will return a list of matching service files. Options are `-h` display help, `-c` compare characteristics of an input file to records in the database, and `-f` show full results (this will show all matches to search term as opposed filtering for service files only).
+`searchlto` is for performing searches against the LTO schema information stored in the database. It accepts either a media ID or an LTO tape serial as an input and will return a list of matching service files. Options are `-h` display help, `-c` compare characteristics of an input file to records in the database, and `-f` show full results (this will show all matches to search term as opposed filtering for service files only).
 
 ## License
 
