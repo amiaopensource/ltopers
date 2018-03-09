@@ -5,7 +5,7 @@
 
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(mkltfs mmfunctions)
-if [[ -n "${LTOPER_TAPE_SERIAL_REGEX}" ]] ;then
+if [[ -n "${LTOPER_TAPE_SERIAL_REGEX}" ]] ; then
     #allow overwriting LTO tape serial regex with a global variable
     TAPE_SERIAL_REGEX="${LTOPER_TAPE_SERIAL_REGEX}"
 else
