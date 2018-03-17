@@ -5,7 +5,7 @@
 # checksums). It can be run either on individual files or on directories
 # containing multiple files.
 
-SCRIPTDIR=$(dirname $(which "${0}"))
+SCRIPTDIR=$(dirname $(command -v "${0}"))
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 if [ -z "${PREMIS_NAME}" ] || [ "${PREMIS_DB}" != "Y" ] ; then
