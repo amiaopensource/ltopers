@@ -6,12 +6,7 @@
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(gcp)
 TAPE_MOUNT_POINT="/Volumes"
-if [[ -n "${LTOPER_TAPE_SERIAL_REGEX}" ]] ; then
-    #allow overwriting LTO tape serial regex with a global variable
-    TAPE_SERIAL_REGEX="${LTOPER_TAPE_SERIAL_REGEX}"
-else
-    TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
-fi
+TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
 TAPE_EJECT="Y"
 
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
@@ -30,15 +25,17 @@ Usage: $(basename "${0}") -t [-e] | -h
   -t  tape serial number
   -e  state yes (Y) or no (N) to ejecting the tape after migration, default
       is yes
+  -x  use barcode label as tape serial (caveat: this is not standard)
   -h  display this help
 EOF
 }
 
 OPTIND=1
-while getopts ":t:e:h" opt ; do
+while getopts ":t:e:xh" opt ; do
     case "${opt}" in
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
+        x) TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5-8]|M8)$"
         h) _usage ; exit 0 ;;
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
         *) echo "Bad option -${OPTARG}" ; _usage ; exit 1 ;;
