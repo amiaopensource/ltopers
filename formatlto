@@ -5,12 +5,7 @@
 
 SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(mkltfs mmfunctions)
-if [[ -n "${LTOPER_TAPE_SERIAL_REGEX}" ]] ; then
-    #allow overwriting LTO tape serial regex with a global variable
-    TAPE_SERIAL_REGEX="${LTOPER_TAPE_SERIAL_REGEX}"
-else
-    TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
-fi
+TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
 BLUE="$(tput setaf 4)"  # Blue     - For Questions
 NC="$(tput sgr0)"       # No Color
 
@@ -30,15 +25,17 @@ Dependencies: ${DEPENDENCIES[@]}
 Usage: $(basename "${0}") [-f] [-c] | -h
   -f  force formatting
   -c  use compression
+  -x  use barcode label as tape serial (caveat: this is not standard)
   -h  display this help
 EOF
 }
 
 unset MIDDLE_OPTIONS
-while getopts ":fch" opt ; do
+while getopts ":fcxh" opt ; do
     case "${opt}" in
         f) FORCE=1 ;;
         c) COMPRESS=1 ;;
+        x) TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5-8]|M8)$"
         h) _usage ; exit 0 ;;
         *) _report -w "Error: Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
@@ -85,9 +82,9 @@ else
 fi
 
 _report -qn "Enter the tape identifier: "
-read TAPE_ID
-if [[ ! $(echo "${TAPE_ID}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
-    _report -w "Error: The tape id must be exactly 6 capital letters and/or numbers."
+read TAPE_SERIAL
+if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
+    _report -w "Error: The tape serial in not valid."
     exit 1
 fi
-mkltfs ${MIDDLE_OPTIONS[@]} --device=${DECK} --tape-serial="${TAPE_ID}" --volume-name="${TAPE_ID}"
+mkltfs ${MIDDLE_OPTIONS[@]} --device=${DECK} --tape-serial="${TAPE_SERIAL}" --volume-name="${TAPE_SERIAL}"
