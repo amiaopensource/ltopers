@@ -59,7 +59,7 @@ brew upgrade
 
 This will update Homebrew and upgrade every package you've installed using it.
 
-By default, LTOpers scripts use the standard tape serials, consisting in 6 character strings of numbers and capital letters. (However, the flag `-x` allows to use the barcode label as tape serial for non-standard implementations.)
+By default, LTOpers scripts use the standard tape serials, consisting of 6 character strings of numbers and capital letters. (However, the flag `-x` allows to use the barcode label as tape serial for non-standard implementations.)
 
 ## Formatting LTO
 
