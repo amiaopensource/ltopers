@@ -8,12 +8,7 @@
 SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 TAPE_MOUNT_POINT="/Volumes"
-if [[ -n "${LTOPER_TAPE_SERIAL_REGEX}" ]] ; then
-    #allow overwriting LTO tape serial regex with a global variable
-    TAPE_SERIAL_REGEX="${LTOPER_TAPE_SERIAL_REGEX}"
-else
-    TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
-fi
+TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
 _check_for_lto_index_dir
 LTO_LOGS="${LTO_INDEX_DIR}"
 TAPE_EJECT="Y"
@@ -34,15 +29,17 @@ Usage: $(basename "${0}") -t [-e] | -h
   -t  tape serial
   -e  state yes (Y) or no (N) to ejecting the tape after write, default
       is yes
+  -x  use barcode label as tape serial (caveat: this is not standard)
   -h  display this help
 EOF
 }
 
 OPTIND=1
-while getopts ":t:e:h" opt ; do
+while getopts ":t:e:xh" opt ; do
     case "${opt}" in
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
+        x) TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5-8]|M8)$"
         h) _usage ; exit 0 ;;
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
         *) echo "Bad option -${OPTARG}" ; _usage ; exit 1 ;;
@@ -55,7 +52,7 @@ if [[ "${PREMIS_DB}" = "Y" ]] ; then
     _report_to_db
 fi
 if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
-    echo "${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers."
+    echo "${TAPE_SERIAL} is not valid."
     exit 1
 fi
 
