@@ -17,8 +17,8 @@ NC="$(tput sgr0)"       # No Color
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 unset VERSION
-if [[ $(dirname $(which "${0}")) = "/usr/local/bin" || $(dirname $(which "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
-    VERSION=$(TMP=$(brew info ltopers | grep ".*\*$" | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
+if [[ $(dirname $(command -v "${0}")) = "/usr/local/bin" || $(dirname $(which "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
+    VERSION=$(TMP=$(brew info ltopers | grep ".*\*$" | grep -Eo "/ltopers/.* \(") ; echo "${TMP:9:(${#TMP}-11)}")
 fi
 
 _usage(){
