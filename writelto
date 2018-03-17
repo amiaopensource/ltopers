@@ -8,12 +8,7 @@ SCRIPTDIR=$(dirname "${0}")
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 DEPENDENCIES=(gcp mmfunctions)
 TAPE_MOUNT_POINT="/Volumes"
-if [[ -n "${LTOPER_TAPE_SERIAL_REGEX}" ]] ; then
-    #allow overwriting LTO tape serial regex with a global variable
-    TAPE_SERIAL_REGEX="${LTOPER_TAPE_SERIAL_REGEX}"
-else
-    TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
-fi
+TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
 unset HIDDEN_FILES
 TAPE_EJECT="Y"
 _check_for_lto_index_dir
@@ -45,16 +40,18 @@ Usage: $(basename "${0}") -t [-e] [-v] | -h
   -v  reads back and creates checksums for the contents of a tape, and
       writes checksums to a file named with the tape name and date,
       located in the LTO logs directory
+  -x  use barcode label as tape serial (caveat: this is not standard)
   -h  display this help
 EOF
 }
 
 OPTIND=1
-while getopts ":t:e:vh" opt ; do
+while getopts ":t:e:vxh" opt ; do
     case "${opt}" in
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
         v) VERIFY="Y" ;;
+        x) TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5-8]|M8)$"
         h) _usage ; exit 0 ;;
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
         *) echo "Bad option -${OPTARG}" ; _usage ; exit 1 ;;
@@ -64,7 +61,7 @@ shift $(( ${OPTIND} - 1 ))
 
 SOURCE_DIR="${1}"
 if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
-    _report -w "Tape serial ${TAPE_SERIAL} is not valid. The tape id must be exactly 6 capital letters and/or numbers."
+    _report -w "Tape serial ${TAPE_SERIAL} is not valid."
     _report -w "Proceeding with non-standard Tape Serial"
 fi
 # Check for colons in filenames of source directory.
