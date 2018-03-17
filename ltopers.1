@@ -1,4 +1,4 @@
-.TH ltopers 1 "https://github.com/amiaopensource/ltopers" "2017\-12\-11" "AMIA Open Source"
+.TH ltopers 1 "https://github.com/amiaopensource/ltopers" "2018\-03\-17" "AMIA Open Source"
 .SH NAME
 LTOpers \- Scripts to manage LTO cartridges with LTFS
 .SH SYNOPSIS
@@ -10,6 +10,9 @@ force formatting
 .TP
 .B \-c
 use compression
+.TP
+.B \-x
+use barcode label as tape serial (caveat: this is \fBnot\fR standard)
 .TP
 .B \-h
 display a help message
@@ -25,6 +28,9 @@ cartridge's \fIserial
 .TP
 .B \-e
 eject the cartridge after migration: \fIY\fR (default) or \fIN
+.TP
+.B \-x
+use barcode label as tape serial (caveat: this is \fBnot\fR standard)
 .TP
 .B \-h
 display a help message
@@ -45,6 +51,9 @@ cartridge's \fIserial
 .B \-e
 eject the cartridge after migration: \fIY\fR (default) or \fIN
 .TP
+.B \-x
+use barcode label as tape serial (caveat: this is \fBnot\fR standard)
+.TP
 .B \-h
 display a help message
 .SS writelto \-t \fIserial\fB [\-e \fIY\fR|\fIN\fB] [\-v] | \-h
@@ -58,6 +67,9 @@ eject the cartridge after migration: \fIY\fR (default) or \fIN
 .TP
 .B \-v
 verify the checksums of the LTO cartridge's contents
+.TP
+.B \-x
+use barcode label as tape serial (caveat: this is \fBnot\fR standard)
 .TP
 .B \-h
 display a help message
