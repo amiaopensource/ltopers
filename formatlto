@@ -84,7 +84,7 @@ fi
 _report -qn "Enter the tape identifier: "
 read TAPE_SERIAL
 if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
-    _report -w "Error: The tape serial in not valid."
+    _report -w "Error: The tape serial is not valid."
     exit 1
 fi
 mkltfs ${MIDDLE_OPTIONS[@]} --device=${DECK} --tape-serial="${TAPE_SERIAL}" --volume-name="${TAPE_SERIAL}"
