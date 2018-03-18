@@ -82,7 +82,7 @@ while getopts ":cfmh" OPT; do
         *) echo "bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
-shift $(( ${OPTIND} - 1 ))
+shift "$((OPTIND-1))"
 
 while ! [[ "${*}" = "" ]] ; do
     SEARCH_TERM="${1}"
