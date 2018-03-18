@@ -60,7 +60,7 @@ while getopts ":t:e:vh" opt ; do
         *) echo "Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
-shift $(( ${OPTIND} - 1 ))
+shift "$((OPTIND-1))"
 
 SOURCE_DIR="${1}"
 if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
