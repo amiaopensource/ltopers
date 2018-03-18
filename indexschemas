@@ -36,7 +36,7 @@ while getopts ":th" opt ; do
         *) echo "Error: Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
-shift $(( ${OPTIND} - 1 ))
+shift "$((OPTIND-1))"
 
 renameschemas -u
 
