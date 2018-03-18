@@ -35,7 +35,7 @@ while getopts ":uh" opt ; do
         *) echo "Error: Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
-shift $(( ${OPTIND} - 1 ))
+shift "$((OPTIND-1))"
 
 _check_for_lto_index_dir
 LTO_LOGS="${LTO_INDEX_DIR}"
