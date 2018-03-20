@@ -20,8 +20,8 @@ _check_for_lto_index_dir
 LTO_LOGS="${LTO_INDEX_DIR}"
 
 unset VERSION
-if [[ $(dirname $(which "${0}")) = "/usr/local/bin" || $(dirname $(which "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
-    VERSION=$(TMP=$(brew info ltopers | grep ".*\*$" | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
+if [[ $(dirname $(command -v "${0}")) = "/usr/local/bin" || $(dirname $(command -v "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
+    VERSION=$(TMP=$(brew info ltopers | grep ".*\*$" | grep -Eo "/ltopers/.* \(") ; echo "${TMP:9:(${#TMP}-11)}")
 fi
 
 # no .DS_Store onto external storage
@@ -60,7 +60,7 @@ while getopts ":t:e:vh" opt ; do
         *) echo "Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
-shift $(( ${OPTIND} - 1 ))
+shift "$((OPTIND-1))"
 
 SOURCE_DIR="${1}"
 if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then

@@ -19,8 +19,8 @@ LTO_LOGS="${LTO_INDEX_DIR}"
 TAPE_EJECT="Y"
 
 unset VERSION
-if [[ $(dirname $(which "${0}")) = "/usr/local/bin" || $(dirname $(which "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
-    VERSION=$(TMP=$(brew info ltopers | grep ".*\*$" | grep -Eo "/ltopers/.* \(") ; echo ${TMP:9:(${#TMP}-11)})
+if [[ $(dirname $(command -v "${0}")) = "/usr/local/bin" || $(dirname $(command -v "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
+    VERSION=$(TMP=$(brew info ltopers | grep ".*\*$" | grep -Eo "/ltopers/.* \(") ; echo "${TMP:9:(${#TMP}-11)}")
 fi
 
 _usage(){
@@ -48,7 +48,7 @@ while getopts ":t:e:h" opt ; do
         *) echo "Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
 done
-shift $(( ${OPTIND} - 1 ))
+shift "$((OPTIND-1))"
 
 SOURCE_DIR="${1}"
 if [[ "${PREMIS_DB}" = "Y" ]] ; then
