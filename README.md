@@ -1,6 +1,6 @@
 # LTOpers Documentation
 
-This documentation is up to date as of LTOpers version 2018-02-15.
+This documentation is up to date as of LTOpers version 2018-03-17.
 
 ## LTOpers elements
 
@@ -59,7 +59,7 @@ brew upgrade
 
 This will update Homebrew and upgrade every package you've installed using it.
 
-By default, ltoper scripts require that tape serials are 6 character strings of numbers and capital letters. Alternate regular expressions may be provided by setting LTOPER_TAPE_SERIAL_REGEX as a global variable. For instance: `export LTOPER_TAPE_SERIAL_REGEX="^[Z1-2]{8}$" ; ./formatlto` would permit an 8 character string comprised only of capital Z, number 1, and number 2 as a tape serial.
+By default, LTOpers scripts use the standard tape serials, consisting of 6 character strings of numbers and capital letters. (However, the flag `-x` allows to use the barcode label as tape serial for non-standard implementations.)
 
 ## Formatting LTO
 
