@@ -113,7 +113,7 @@ writelto
 
 When prompted, enter the tape serial and the source directory.
 
-The script will run rsync twice the transfer the data to the LTO tape. It runs twice to address an unresolved problem with small-sized files not transferring properly (running it twice seems to fix the errors).
+The script will run `gcp` to transfer the data to the LTO tape.
 
 To read back and create checksums for the contents of a tape, and write checksums to a file named with the tape serial and date, run the following command:
 
