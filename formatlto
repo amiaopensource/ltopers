@@ -35,7 +35,7 @@ while getopts ":fcxh" opt ; do
     case "${opt}" in
         f) FORCE=1 ;;
         c) COMPRESS=1 ;;
-        x) TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5-8]|M8)$"
+        x) TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5-8]|M8)$" ;;
         h) _usage ; exit 0 ;;
         *) _report -w "Error: Bad option -${OPTARG}" ; _usage ; exit 1 ;;
     esac
