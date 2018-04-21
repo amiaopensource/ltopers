@@ -113,7 +113,7 @@ writelto
 
 When prompted, enter the tape serial and the source directory.
 
-The script will run `gcp` to transfer the data to the LTO tape.
+The script will run `gcp` to transfer the data to the LTO tape (`rsync` is used as a backup check for `gcp`).
 
 To read back and create checksums for the contents of a tape, and write checksums to a file named with the tape serial and date, run the following command:
 
