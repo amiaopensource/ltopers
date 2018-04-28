@@ -4,7 +4,7 @@
 # This script performs searches against the LTO schema information stored in the
 # database.
 
-SCRIPTDIR=$(dirname $(which "${0}"))
+SCRIPTDIR=$(dirname $(command -v "${0}"))
 RED="\033[1;31m"
 GREEN="\033[1;92m"
 NC="\033[0m"
@@ -12,7 +12,7 @@ NC="\033[0m"
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 unset VERSION
-if [[ $(dirname $(command -v "${0}")) = "/usr/local/bin" || $(dirname $(command -v "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
+if [[ "${SCRIPTDIR}" = "/usr/local/bin" || "${SCRIPTDIR}" = "${HOME}/.linuxbrew/bin" ]] ; then
     VERSION=$(TMP=$(brew info ltopers | grep ".*\*$" | grep -Eo "/ltopers/.* \(") ; echo "${TMP:9:(${#TMP}-11)}")
 fi
 
