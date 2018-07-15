@@ -1,10 +1,11 @@
-.TH ltopers 1 "https://github.com/amiaopensource/ltopers" "2018\-03\-24" "AMIA Open Source"
+.TH ltopers 1 "https://github\.com/amiaopensource/ltopers" "2018\-03\-24" "AMIA Open Source"
 .SH NAME
 LTOpers \- Scripts to manage LTO cartridges with LTFS
 .SH SYNOPSIS
-.SS formatlto [\-f] [\-c] | \-h
+.SS
+\fBformatlto\fR [\fB\-f\fR] [\fB\-c\fR] [\fB\-x\fR] | \fB\-h
 Format an LTO cartridge with LTFS\.
-.TP
+.TP 4
 .B \-f
 force formatting
 .TP
@@ -12,17 +13,20 @@ force formatting
 use compression
 .TP
 .B \-x
-use barcode label as tape serial (caveat: this is \fBnot\fR standard)
+use barcode label as tape serial (caveat: this is \fBNOT\fR standard)
 .TP
 .B \-h
 display a help message
-.SS ltopers
+.SS 
+.B ltopers
 Display this man\.
-.SS mountlto
+.SS
+.B mountlto
 Mount an LTO cartridge\.
-.SS readlto \-t \fIserial\fB [\-e \fIY\fR|\fIN\fB] | \-h
+.SS
+\fBreadlto \-t \fIserial\fR [\fB\-e \fIY\fR|\fIN\fR] | \fB\-h
 Transfer files from an LTO cartridge to another location\.
-.TP
+.TP 4
 .B \-t
 cartridge's \fIserial
 .TP
@@ -30,21 +34,23 @@ cartridge's \fIserial
 eject the cartridge after migration: \fIY\fR (default) or \fIN
 .TP
 .B \-x
-use barcode label as tape serial (caveat: this is \fBnot\fR standard)
+use barcode label as tape serial (caveat: this is \fBNOT\fR standard)
 .TP
 .B \-h
 display a help message
-.SS renameschemas  \-u | \-h
+.SS
+\fBrenameschemas \-u\fR | \fB\-h
 Find all \.schema LTFS indexes in the LTO_LOGS directory and rename them to use the top-level file system directory name rather than the UUID\. Any conflicting filenames are moved to another folder, if needed\.
-.TP
+.TP 4
 .B \-u
 change dir-named schema files to the tape UUID
 .TP
 .B \-h
 display a help message
-.SS verifylto \-t \fIserial\fB [\-e \fIY\fR|\fIN\fB] | \-h
+.SS
+\fBverifylto \-t \fIserial\fR [\fB\-e \fIY\fR|\fIN\fR] | \fB\-h
 Verify the checksums of an LTO cartridge\.
-.TP
+.TP 4
 .B \-t
 cartridge's \fIserial
 .TP
@@ -52,13 +58,14 @@ cartridge's \fIserial
 eject the cartridge after migration: \fIY\fR (default) or \fIN
 .TP
 .B \-x
-use barcode label as tape serial (caveat: this is \fBnot\fR standard)
+use barcode label as tape serial (caveat: this is \fBNOT\fR standard)
 .TP
 .B \-h
 display a help message
-.SS writelto \-t \fIserial\fB [\-e \fIY\fR|\fIN\fB] [\-v] | \-h
+.SS
+\fBwritelto \-t \fIserial\fR [\fB\-e \fIY\fR|\fIN\fR] [\fB\-v\fR] | \fB\-h
 Write the contents of a specified directory onto a mounted LTFS\-formatted LTO cartridge\.
-.TP
+.TP 4
 .B \-t
 cartridge's \fIserial
 .TP
@@ -69,18 +76,21 @@ eject the cartridge after migration: \fIY\fR (default) or \fIN
 verify the checksums of the LTO cartridge's contents
 .TP
 .B \-x
-use barcode label as tape serial (caveat: this is \fBnot\fR standard)
+use barcode label as tape serial (caveat: this is \fBNOT\fR standard)
 .TP
 .B \-h
 display a help message
 .SH DATABASE-RELATED COMMANDS
-.SS ingestcollectionchecksum
+.SS
+.B ingestcollectionchecksum
 Import already existing information to the database (read back checksums)\. It can be run either on individual files or on directories containing multiple files\.
-.SS ingestschemas
+.SS
+.B ingestschemas
 Import already existing information to the database (LTO schema information)\. It can be run either on individual files or on directories containing multiple files\.
-.SS searchlto [\-c] [\-f] [\-m] {\fIquery\fB} | \-h
+.SS
+\fBsearchlto\fR [\fB\-c\fR] [\fB\-f\fR] [\fB\-m\fR] {\fIquery\fR} | \fB\-h
 Perform at least one \fIquery\fR against the LTO schema information stored in the database\.
-.TP
+.TP 4
 .B \-c
 compare input to database
 .TP
@@ -93,11 +103,13 @@ MD5 checksums
 .B \-h
 display a help message
 .SH CUNY-SPECIFIC COMMANDS
-.SS collectionchecksum
+.SS
+.B collectionchecksum
 Create checksums of metadata files, concatenate checksum\.md5 files, and append to one large checksum file for each directory\.
-.SS indexschemas \-t | \-h
+.SS
+\fBindexschemas \-t\fR | \fB\-h
 Make a text file listing certain files from the LTFS schema file\.
-.TP
+.TP 4
 .B \-t
 check schema files modified today for volume names that may need to be overwritten
 .TP
