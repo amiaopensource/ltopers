@@ -94,11 +94,9 @@ WRITELTODIR="${LTO_LOGS}/writelto"
 _mkdir2 "${WRITELTODIR}"
 
 if [ -n "$RSYNC_ERR_2" ] ; then
-    echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass."
-    echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." >> "${WRITELTODIR}/${TAPE_SERIAL}_writelto.txt"
+    echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." | tee -a "${WRITELTODIR}/${TAPE_SERIAL}_writelto.txt" 2>&1
 else
-    echo "rsync exited with ${RSYNC_ERR_1}."
-    echo "rsync exited with ${RSYNC_ERR_1}." >> "${WRITELTODIR}/${TAPE_SERIAL}_writelto.txt"
+    echo "rsync exited with ${RSYNC_ERR_1}." | tee -a "${WRITELTODIR}/${TAPE_SERIAL}_writelto.txt" 2>&1
 fi
 
 if [[ "${PREMIS_DB}" = "Y" ]] ; then
