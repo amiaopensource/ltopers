@@ -39,9 +39,6 @@ _report -d "Checking for ready tapes..."
 
 for i in $(seq 1 "${LTO_COUNT}") ; do
     DECK=$(echo "$i - 1" | bc)
-    if [ $(command -v ltfs_ldun) ] ; then
-        ltfs_ldun load ${DECK} 1>/dev/null
-    fi
     LOADTMP=$(_maketemp)
     unset TAPE_SERIAL
     COUNTER=0
