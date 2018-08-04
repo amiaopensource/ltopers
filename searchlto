@@ -49,7 +49,7 @@ _compare_file(){
             echo "Information from Schema"
             echo "------"
             echo "${SQL_RESULTS}"
-            echo ""
+            echo
             echo "Information from File"
             echo "------"
             echo "${DATE} ${SIZE}"
