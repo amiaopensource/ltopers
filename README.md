@@ -1,6 +1,6 @@
 # LTOpers Documentation
 
-This documentation is up to date as of LTOpers version 2018-03-24.
+This documentation is up to date as of LTOpers version 2019-01-18.
 
 ## LTOpers elements
 
@@ -138,4 +138,3 @@ Database-specific tools in LTOpers are `searchlto`, `ingestschemas` and `ingestc
 ## License
 
 LTOpers is licensed under an <a href="https://github.com/amiaopensource/ltopers/blob/master/LICENSE">MIT License</a>.
-
