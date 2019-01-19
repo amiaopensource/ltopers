@@ -135,7 +135,15 @@ Database-specific tools in LTOpers are `searchlto`, `ingestschemas` and `ingestc
 
 `searchlto` is for performing searches against the LTO schema information stored in the database. It accepts either a media ID or an LTO tape serial as an input and will return a list of matching service files. Options are `-h` display help, `-c` compare characteristics of an input file to records in the database, and `-f` show full results (this will show all matches to search term as opposed filtering for service files only).
 
+## Copyright
+
+Copyright (c) 2014–2019 by AMIA Open Source
+
 ## License
 
 LTOpers is licensed under an <a href="https://github.com/amiaopensource/ltopers/blob/master/LICENSE">MIT License</a>.
+
+## Disclaimer
+
+The LTOpers package is provided "as is" without warranty or support of any kind.
 
