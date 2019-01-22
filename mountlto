@@ -50,7 +50,7 @@ for i in $(seq 1 "${LTO_COUNT}") ; do
         let COUNTER=COUNTER+1
         ltfs -f -o devname="${DECK}" 2> "${LOADTMP}"
         # find barcode by either "Volser(Barcode)" (Quantum style) or "Tape attribute: Barcode" (IBM style)
-        TAPE_SERIAL=$(cat "${LOADTMP}" | grep -a "Volser(Barcode)\|Tape attribute: Barcode" | awk 'NF>1{print $NF}')
+        TAPE_SERIAL=$(cat "${LOADTMP}" | grep -o "Volser(Barcode).*\|Tape attribute: Barcode.*" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b")
         echo -n "."
     done
     echo
