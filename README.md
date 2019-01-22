@@ -108,7 +108,7 @@ Whenever a tape is ejected, the script will export the tape’s index (as an XML
 To write data onto a tape, run the following command:
 
 ```
-writelto -t $tape_serial /Volumes/$tape_serial  
+writelto -t $tape_serial $source_directory
 ```
 
 The script will run `gcp` to transfer the data to the LTO tape (`rsync` is used as a backup check for `gcp`).
