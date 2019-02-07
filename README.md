@@ -33,7 +33,7 @@ Install the LTFS utilities. Please use version 2.2 on the [Quantum site](http://
 To install the general LTO-handling tools, run the following two commands:
 
 ```
-brew tap amiaopensource
+brew tap amiaopensource/amiaos
 brew install ltopers
 ```
 
