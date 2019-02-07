@@ -30,22 +30,25 @@ You can easily install these tools using Homebrew. To install Homebrew, follow t
 
 Install the LTFS utilities. Please use version 2.2 on the [Quantum site](http://www.quantum.com/serviceandsupport/softwareanddocumentationdownloads/ltfs/index.aspx?whattab=Third).
 
-To install the general LTO-handling tools, run the following command:
+To install the general LTO-handling tools, run the following two commands:
 
 ```
-brew install amiaopensource/amiaos/ltopers
+brew tap amiaopensource
+brew install ltopers
 ```
 
-To install the general LTO-handling and the database-specific tools, run the following command:
+To install the general LTO-handling and the database-specific tools, run the following two commands:
 
 ```
-brew install amiaopensource/amiaos/ltopers --with-db
+brew tap amiaopensource/amiaos
+brew install ltopers --with-db
 ```
 
-To install the general LTO-handling, the database-specific and the CUNY-specific tools, run the following command:
+To install the general LTO-handling, the database-specific and the CUNY-specific tools, run the following two commands:
 
 ```
-brew install amiaopensource/amiaos/ltopers --with-cuny
+brew tap amiaopensource/amiaos
+brew install ltopers --with-cuny
 ```
 
 To update LTOpers tools, run the following commands:
