@@ -28,7 +28,7 @@ This documentation is up to date as of LTOpers version 2019-01-18.
 
 You can easily install these tools using Homebrew. To install Homebrew, follow the [instructions](http://brew.sh/).
 
-Install the LTFS utilities. Please use version 2.2 on the [Quantum site](http://www.quantum.com/serviceandsupport/softwareanddocumentationdownloads/ltfs/index.aspx?whattab=Third).
+Install the LTFS utilities. Please use version 2.4 on the [Quantum site](http://www.quantum.com/serviceandsupport/softwareanddocumentationdownloads/ltfs/index.aspx?whattab=Third).
 
 To install the general LTO-handling tools, run the following two commands:
 
