@@ -9,8 +9,8 @@ MINIMUM_TAPE_SERIAL_LENGTH=2
 . "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
 
 _cleanup_mount_dir(){
-    if [ -d "${MOUNT_DIR}" ] ; then
-        echo calling umount
+    if [[ -d "${MOUNT_DIR}" ]] ; then
+        echo "calling umount"
         umount "${MOUNT_DIR}"
         rmdir "${MOUNT_DIR}"
     fi
@@ -33,7 +33,7 @@ if [[ "${LTO_COUNT}" -eq 0 ]] ; then
     exit 1
 fi
 
-[ ! -d "${LTO_LOGS}" ] && mkdir -p "${LTO_LOGS}"
+[[ ! -d "${LTO_LOGS}" ]] && mkdir -p "${LTO_LOGS}"
 
 _report -d "Checking for ready tapes..."
 
@@ -83,7 +83,7 @@ for i in $(seq 1 "${LTO_COUNT}") ; do
         LTFS_OPTIONS+=(-o uid=$(id -u))
 
         ltfs -f -o work_directory="${LTO_LOGS}" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
-        [ -d "${MOUNT_DIR}" ] && rmdir "${MOUNT_DIR}"
+        [[ -d "${MOUNT_DIR}" ]] && rmdir "${MOUNT_DIR}"
         renameschemas -u
         break
     fi
