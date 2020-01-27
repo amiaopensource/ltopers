@@ -60,6 +60,17 @@ done
 shift "$((OPTIND-1))"
 
 SOURCE_DIR="${1}"
+
+if [[ ! "${TAPE_SERIAL}" ]] ; then
+    _report -qn "Enter the LTO tape barcode: "
+    read -e TAPE_SERIAL
+fi
+
+if [[ ! "${SOURCE_DIR}" ]] ; then
+    _report -qn "Drag in the directory to write to tape: "
+    read -e SOURCE_DIR
+fi
+
 if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
     _report -w "Tape serial ${TAPE_SERIAL} is not valid."
     _report -w "Proceeding with non-standard Tape Serial"
