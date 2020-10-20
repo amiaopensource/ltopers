@@ -13,12 +13,6 @@ This documentation is up to date as of LTOpers version 2019-01-18.
 - verifylto
 - writelto
 
-### Database-specific tools
-
-- ingestcollectionchecksum
-- ingestschemas
-- searchlto
-
 ### CUNY-specific tool
 
 - collectionchecksum
@@ -35,13 +29,6 @@ To install the general LTO-handling tools, run the following two commands:
 ```
 brew tap amiaopensource/amiaos
 brew install ltopers
-```
-
-To install the general LTO-handling and the database-specific tools, run the following two commands:
-
-```
-brew tap amiaopensource/amiaos
-brew install ltopers --with-db
 ```
 
 To install the general LTO-handling, the database-specific and the CUNY-specific tools, run the following two commands:

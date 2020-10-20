@@ -21,7 +21,6 @@ _maketemp(){
 
 while [ "${*}" != "" ] ; do
     INPUT="${1}"
-    _report_to_db
     TAPECHECKSUMFILE="${INPUT}/tapechecksum.md5"
     if [ -f "${TAPECHECKSUMFILE}" ] ; then
         _report -wt "A collection checksum already exists at ${TAPECHECKSUMFILE}"
@@ -45,6 +44,4 @@ while [ "${*}" != "" ] ; do
     sort -k2 "${TEMPCHECKSUMFILE}" | grep -v .DS_Store >> "${TAPECHECKSUMFILE}"
 
     shift
-    _eventoutcome_update
-    _report_fixity_db
 done

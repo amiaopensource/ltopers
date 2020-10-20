@@ -48,9 +48,6 @@ done
 shift "$((OPTIND-1))"
 
 SOURCE_DIR="${1}"
-if [[ "${PREMIS_DB}" = "Y" ]] ; then
-    _report_to_db
-fi
 if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
     echo "${TAPE_SERIAL} is not valid."
     exit 1
@@ -68,10 +65,3 @@ case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
     *)   echo "Done verifying but not ejecting ${TAPE_SERIAL}." ;;
 esac
-
-if [[ "${PREMIS_DB}" = "Y" ]] ; then
-    _eventoutcome_update
-    _report_schema_db
-    _report_fixity_db
-    _db_email_delivery "${SQL_ERROR_EMAIL_TO}"
-fi
