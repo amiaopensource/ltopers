@@ -4,7 +4,7 @@
 
 SCRIPTDIR=$(dirname "${0}")
 
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+. "${SCRIPTDIR}/ltoperfunctions" || { echo "Missing '${SCRIPTDIR}/ltoperfunctions'. Exiting." ; exit 1 ; }
 
 unset VERSION
 if [[ $(dirname $(command -v "${0}")) = "/usr/local/bin" || $(dirname $(command -v "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then

@@ -3,10 +3,10 @@
 # mountlto
 
 SCRIPTDIR=$(dirname "${0}")
-DEPENDENCIES=(ltfs mmfunctions)
+DEPENDENCIES=(ltfs)
 MINIMUM_TAPE_SERIAL_LENGTH=2
 
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+. "${SCRIPTDIR}/ltoperfunctions" || { echo "Missing '${SCRIPTDIR}/ltoperfunctions'. Exiting." ; exit 1 ; }
 
 _cleanup_mount_dir(){
     if [[ -d "${MOUNT_DIR}" ]] ; then

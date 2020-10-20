@@ -6,7 +6,7 @@
 # correctly.
 
 SCRIPTDIR=$(dirname "${0}")
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+. "${SCRIPTDIR}/ltoperfunctions" || { echo "Missing '${SCRIPTDIR}/ltoperfunctions'. Exiting." ; exit 1 ; }
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
 _check_for_lto_index_dir

@@ -7,17 +7,7 @@
 # Information Package directory structure.
 
 SCRIPTDIR=$(dirname "${0}")
-
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
-
-_maketemp(){
-    mktemp -q "/tmp/$(basename "${0}").XXXXXX"
-    if [ "${?}" -ne 0 ] ; then
-        _report -w "${0}: Can't create temp file. Exiting."
-        _writeerrorlog "_maketemp" "was unable to create the temp file, so the script had to exit."
-        exit 1
-    fi
-}
+. "${SCRIPTDIR}/ltoperfunctions" || { echo "Missing '${SCRIPTDIR}/ltoperfunctions'. Exiting." ; exit 1 ; }
 
 while [ "${*}" != "" ] ; do
     INPUT="${1}"
