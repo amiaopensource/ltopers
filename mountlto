@@ -84,7 +84,7 @@ for i in $(seq 1 "${LTO_COUNT}") ; do
 
         ltfs -f -o work_directory="${LTO_LOGS}" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
         [[ -d "${MOUNT_DIR}" ]] && rmdir "${MOUNT_DIR}"
-        renameschemas -u
+        "${SCRIPTDIR}/renameschemas" -u
         break
     fi
     if [[ "$i" -eq "${LTO_COUNT}" ]] ; then
