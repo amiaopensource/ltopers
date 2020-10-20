@@ -4,7 +4,7 @@
 # This script makes a text file listing certain files from the ltfs schema file.
 
 SCRIPTDIR=$(dirname "${0}")
-
+DEPENDENCIES=(xmlstarlet)
 . "${SCRIPTDIR}/ltoperfunctions" || { echo "Missing '${SCRIPTDIR}/ltoperfunctions'. Exiting." ; exit 1 ; }
 
 _check_for_lto_index_dir
@@ -56,7 +56,7 @@ find "${LTO_LOGS}" -iname "*.schema" -maxdepth 1 -mindepth 1 "${TODAYCHECK[@]}" 
     fi
     if [ "${LTO_SCHEMA}" -nt "${LTO_INDEX}" ] ; then
         echo "Updating index for ${LTO_ID}."
-        xml sel -t -m ".//file" -m "ancestor-or-self::directory" -v "name" -o "/" -b -v name -n "${LTO_SCHEMA}" | grep -v "/metadata/\|/access/\|/trimmed_materials/" > "${LTO_INDEX}"
-        xml sel -t -m ".//file" -m "ancestor-or-self::directory" -v "name" -o "/" -b -v name -o " " -v length -n "${LTO_SCHEMA}" | grep -v "/metadata/\|/access/\|/trimmed_materials/" | awk -F/ '{print $NF}' > "${LTO_NAMESIZE}"
+        xmlstarlet sel -t -m ".//file" -m "ancestor-or-self::directory" -v "name" -o "/" -b -v name -n "${LTO_SCHEMA}" | grep -v "/metadata/\|/access/\|/trimmed_materials/" > "${LTO_INDEX}"
+        xmlstarlet sel -t -m ".//file" -m "ancestor-or-self::directory" -v "name" -o "/" -b -v name -o " " -v length -n "${LTO_SCHEMA}" | grep -v "/metadata/\|/access/\|/trimmed_materials/" | awk -F/ '{print $NF}' > "${LTO_NAMESIZE}"
     fi
 done
