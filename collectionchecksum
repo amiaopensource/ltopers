@@ -6,7 +6,7 @@
 # presumes a highly specific directory structure based on CUNY TV's Archival
 # Information Package directory structure.
 
-SCRIPTDIR=$(dirname "${0}")
+SCRIPTDIR="$(dirname "${0}")"
 . "${SCRIPTDIR}/ltoperfunctions" || { echo "Missing '${SCRIPTDIR}/ltoperfunctions'. Exiting." ; exit 1 ; }
 
 while [ "${*}" != "" ] ; do
@@ -16,7 +16,7 @@ while [ "${*}" != "" ] ; do
         _report -wt "A collection checksum already exists at ${TAPECHECKSUMFILE}"
         exit 1
     fi
-    TEMPCHECKSUMFILE=$(_maketemp)
+    TEMPCHECKSUMFILE="$(_maketemp)"
     cd "${INPUT}"
 
     #loop through the directories, find the checksum files, cat them together, and also sed to add the media ids

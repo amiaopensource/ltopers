@@ -56,7 +56,7 @@ fi
 TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 _checkdir "${TAPE_PATH}"
 
-VERIFYTIME=$(_get_iso8601_c)
+VERIFYTIME="$(_get_iso8601_c)"
 READBACKDIR="${LTO_LOGS}/readback_checksums"
 _mkdir2 "${READBACKDIR}"
 find "${TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;

@@ -22,7 +22,7 @@ _check_for_lto_index_dir
 LTO_LOGS="${LTO_INDEX_DIR}"
 if [[ "$(uname -s)" = "Darwin" ]] ; then
     # try to figure out how many lto decks are attached
-    LTO_COUNT=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | wc -l | awk '{print $1}')
+    LTO_COUNT="$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | wc -l | awk '{print $1}')"
 else
     # TO DO: itemize when there are multiple LTO drives in Linux and Windows
     LTO_COUNT=1
@@ -38,11 +38,11 @@ fi
 _report -d "Checking for ready tapes..."
 
 for i in $(seq 1 "${LTO_COUNT}") ; do
-    DECK=$(echo "$i - 1" | bc)
+    DECK="$(echo "$i - 1" | bc)"
     if [ $(command -v ltfs_ldun) ] ; then
-        ltfs_ldun load ${DECK} 1>/dev/null
+        ltfs_ldun load "${DECK}" 1>/dev/null
     fi
-    LOADTMP=$(_maketemp)
+    LOADTMP="$(_maketemp)"
     unset TAPE_SERIAL
     COUNTER=0
     echo -n "Checking for tape barcode"
@@ -50,7 +50,7 @@ for i in $(seq 1 "${LTO_COUNT}") ; do
         let COUNTER=COUNTER+1
         ltfs -f -o devname="${DECK}" 2> "${LOADTMP}"
         # find barcode by either "Volser(Barcode)" (Quantum style) or "Tape attribute: Barcode" (IBM style)
-        TAPE_SERIAL=$(cat "${LOADTMP}" | grep -o "Volser(Barcode).*\|Tape attribute: Barcode.*" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b")
+        TAPE_SERIAL="$(cat "${LOADTMP}" | grep -o "Volser(Barcode).*\|Tape attribute: Barcode.*" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b")"
         echo -n "."
     done
     echo
