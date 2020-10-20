@@ -1,4 +1,5 @@
 # this is a collection of shared functions for scripts in the ltopers collection
+VERSION=2020-01-27
 
 _get_iso8601(){
     date +%FT%T

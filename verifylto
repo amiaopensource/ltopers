@@ -13,11 +13,6 @@ _check_for_lto_index_dir
 LTO_LOGS="${LTO_INDEX_DIR}"
 TAPE_EJECT="Y"
 
-unset VERSION
-if [[ $(dirname $(command -v "${0}")) = "/usr/local/bin" || $(dirname $(command -v "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
-    VERSION=$(TMP=$(brew info ltopers | grep ".*\*$" | grep -Eo "/ltopers/.* \(") ; echo "${TMP:9:(${#TMP}-11)}")
-fi
-
 _usage(){
     cat <<EOF
 $(basename "${0}") ${VERSION}
