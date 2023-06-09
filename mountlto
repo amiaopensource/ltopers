@@ -137,6 +137,7 @@ echo "${LTO_LIST}" | while read LTO_RECORD ; do
         fi
     else
         echo "Deck ${DEVICE_ID} (${SERIAL}) found with tape ${TAPE_SERIAL}."
+        echo -n -e "\033]0;Deck:${SERIAL} LTO:${TAPE_SERIAL}\007"
         if [[ $(uname -s) = "Darwin" ]] ; then
             MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
         else
@@ -155,6 +156,7 @@ echo "${LTO_LIST}" | while read LTO_RECORD ; do
         LTFS_OPTIONS+=(-o volname="${TAPE_SERIAL}")
 
         ltfs -f -o work_directory="${LTO_LOGS}" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
+        echo -n -e "\033]0;\007"
         [[ -d "${MOUNT_DIR}" ]] && rmdir "${MOUNT_DIR}"
         renameschemas -u
         break
