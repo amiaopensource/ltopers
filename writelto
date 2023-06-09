@@ -14,11 +14,6 @@ TAPE_EJECT="Y"
 _check_for_lto_index_dir
 LTO_LOGS="${LTO_INDEX_DIR}"
 
-unset VERSION
-if [[ $(dirname $(command -v "${0}")) = "/usr/local/bin" || $(dirname $(command -v "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
-    VERSION=$(TMP=$(brew info ltopers | grep ".*\*$" | grep -Eo "/ltopers/.* \(") ; echo "${TMP:9:(${#TMP}-11)}")
-fi
-
 # no .DS_Store onto external storage
 if [[ "$(uname -s)" = "Darwin" ]] ; then
     if [[ "$(defaults read com.apple.desktopservices DSDontWriteNetworkStores 2>/dev/null)" != "true" ]] ; then
@@ -28,7 +23,7 @@ fi
 
 _usage(){
     cat <<EOF
-$(basename "${0}") ${VERSION}
+$(basename "${0}")
 This script writes the contents of a specified directory onto a mounted
 LTFS-formated LTO tape.
 Dependencies: ${DEPENDENCIES[@]}
