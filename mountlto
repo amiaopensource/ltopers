@@ -130,8 +130,7 @@ for i in $(seq 1 "${LTO_COUNT}") ; do
         else
             unset TAPE_SERIAL
         fi
-    fi
-    if [[ "${#TAPE_SERIAL}" -ge "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] ; then
+    else
         echo "Deck ${DECK} found with tape ${TAPE_SERIAL}"
         if [[ $(uname -s) = "Darwin" ]] ; then
             MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
