@@ -161,7 +161,7 @@ echo "${LTO_LIST}" | while read LTO_RECORD ; do
         renameschemas -u
         break
     fi
-    if [[ "$i" -eq "${LTO_COUNT}" ]] ; then
+    if [[ "${COUNTER}" -eq "${LTO_COUNT}" ]] ; then
         _report -d "Checked ${LTO_COUNT} decks and none appear to have tapes ready to mount."
     fi
 done
