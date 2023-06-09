@@ -120,7 +120,7 @@ echo "${LTO_LIST}" | while read LTO_RECORD ; do
     COUNTER=0
     echo -n "Checking for tape barcode with deck ${DEVICE_ID} (${SERIAL})"
     while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "${COUNTER}" -lt 5 ]]; do
-        COUNTER=$((COUNTER+1))
+        ((COUNTER++))
         ltfs -f -o devname="${DEVICE_ID}" 2> "${LOADTMP}"
         # find barcode by either "Volser(Barcode)" (Quantum style) or "Tape attribute: Barcode" (IBM style)
         TAPE_SERIAL=$(grep "Volser(Barcode).*\|Tape attribute: Medium Label*\|Tape attribute: Barcode.*" "${LOADTMP}" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b" | head -n 1)
