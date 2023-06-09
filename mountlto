@@ -9,7 +9,7 @@ MINIMUM_TAPE_SERIAL_LENGTH=2
 DEFAULT_LTO_INDEX_DIR="${HOME}/Documents/lto_indexes"
 
 if [[ -f "${CONFIG_FILE}" ]] ; then
-	. "${CONFIG_FILE}"
+    . "${CONFIG_FILE}"
 fi
 
 _check_dependencies(){
@@ -36,7 +36,7 @@ _check_dependencies(){
 }
 
 _check_for_lto_index_dir(){
-	# if LTO_INDEX_DIR is set in ltopers.conf then that will be used, otherwise a default
+    # if LTO_INDEX_DIR is set in ltopers.conf then that will be used, otherwise a default
     if [ -z "${LTO_INDEX_DIR}" ] ; then
         LTO_INDEX_DIR="${DEFAULT_LTO_INDEX_DIR}"
     fi
@@ -65,7 +65,7 @@ _report(){
         case "${OPT}" in
             q) COLOR="${BLUE}" ;;                         # question mode, use color blue
             d) COLOR="${GREEN}" ;;                        # declaration mode, use color green
-            w) COLOR="${RED}" ;;        				  # warning mode, use color red
+            w) COLOR="${RED}" ;;                          # warning mode, use color red
             s) STARTMESSAGE+=([$(basename "${0}")] ) ;;   # prepend scriptname to the message
             t) STARTMESSAGE+=($(_get_iso8601) '- ' ) ;;   # prepend timestamp to the message
             n) ECHOOPT="-n" ;;                            # to avoid line breaks after echo
