@@ -88,6 +88,7 @@ unset LTFS_OPTIONS
 _check_for_lto_index_dir
 _check_dependencies "${DEPENDENCIES[@]}"
 LTO_LOGS="${LTO_INDEX_DIR}"
+[[ ! -d "${LTO_LOGS}" ]] && mkdir -p "${LTO_LOGS}"
 
 LTO_LIST="$(ltfs -o device_list 2>&1 | grep "Device Name = [0-9]*")"
 # try to figure out how many lto decks are attached
@@ -96,8 +97,6 @@ if [[ "${LTO_COUNT}" -eq 0 ]] ; then
     _report -w "No available LTO decks were found (or perhaps 'ltfs' doesn't support the '-o device_list' option. Check connections or upgrade ltfs to 2.4.4.0 or newer)."
     exit 1
 fi
-
-[[ ! -d "${LTO_LOGS}" ]] && mkdir -p "${LTO_LOGS}"
 
 _report -d "Checking for ready tapes amongst..."
 printf "%-12s %20s %20s \n" "Device ID" "Product ID" "Serial Number"
