@@ -50,7 +50,6 @@ _cleanup_mount_dir(){
     fi
 }
 
-unset LTO_COUNT
 _report(){
     local RED="$(tput setaf 1)"   # Red      - For Warnings
     local GREEN="$(tput setaf 2)" # Green    - For Declarations
@@ -89,35 +88,41 @@ unset LTFS_OPTIONS
 _check_for_lto_index_dir
 _check_dependencies "${DEPENDENCIES[@]}"
 LTO_LOGS="${LTO_INDEX_DIR}"
-if [[ "$(uname -s)" = "Darwin" ]] ; then
-    # try to figure out how many lto decks are attached
-    LTO_COUNT=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | wc -l | awk '{print $1}')
-else
-    # TO DO: itemize when there are multiple LTO drives in Linux and Windows
-    LTO_COUNT=1
-fi
 
+LTO_LIST="$(ltfs -o device_list 2>&1 | grep "Device Name = [0-9]*")"
+# try to figure out how many lto decks are attached
+LTO_COUNT=$(echo -n "${LTO_LIST}" | grep -c '^')
 if [[ "${LTO_COUNT}" -eq 0 ]] ; then
-    _report -w "No LTO decks were found."
+    _report -w "No available LTO decks were found (or perhaps 'ltfs' doesn't support the '-o device_list' option. Check connections or upgrade ltfs to 2.4.4.0 or newer)."
     exit 1
 fi
 
 [[ ! -d "${LTO_LOGS}" ]] && mkdir -p "${LTO_LOGS}"
 
-_report -d "Checking for ready tapes..."
+_report -d "Checking for ready tapes amongst..."
+printf "%-12s %20s %20s \n" "Device ID" "Product ID" "Serial Number"
+echo "${LTO_LIST}" | while read LTO_RECORD ; do
+    DEVICE_ID="$(echo "${LTO_RECORD}" | grep -o "Device Name = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    PRODUCT_ID="$(echo "${LTO_RECORD}" | grep -o "Product ID = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    SERIAL="$(echo "${LTO_RECORD}" | grep -o "Serial Number = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    printf "%-12s %20s %20s \n" "${DEVICE_ID}" "${PRODUCT_ID}" "${SERIAL}"
+done
+echo
 
-for i in $(seq 1 "${LTO_COUNT}") ; do
-    DECK=$(echo "$i - 1" | bc)
-    if [ $(command -v ltfs_ldun) ] ; then
-        ltfs_ldun load ${DECK} 1>/dev/null
+echo "${LTO_LIST}" | while read LTO_RECORD ; do
+    DEVICE_ID="$(echo "${LTO_RECORD}" | grep -o "Device Name = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    PRODUCT_ID="$(echo "${LTO_RECORD}" | grep -o "Product ID = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    SERIAL="$(echo "${LTO_RECORD}" | grep -o "Serial Number = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    if [ "$(command -v ltfs_ldun)" ] ; then
+        ltfs_ldun load "${DEVICE_ID}" 1>/dev/null
     fi
     LOADTMP=$(_maketemp)
     unset TAPE_SERIAL
     COUNTER=0
-    echo -n "Checking for tape barcode"
+    echo -n "Checking for tape barcode with deck ${DEVICE_ID} (${SERIAL})"
     while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "${COUNTER}" -lt 5 ]]; do
         let COUNTER=COUNTER+1
-        ltfs -f -o devname="${DECK}" 2> "${LOADTMP}"
+        ltfs -f -o devname="${DEVICE_ID}" 2> "${LOADTMP}"
         # find barcode by either "Volser(Barcode)" (Quantum style) or "Tape attribute: Barcode" (IBM style)
         TAPE_SERIAL=$(cat "${LOADTMP}" | grep "Volser(Barcode).*\|Tape attribute: Medium Label*\|Tape attribute: Barcode.*" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b" | head -n 1)
         echo -n "."
@@ -131,7 +136,7 @@ for i in $(seq 1 "${LTO_COUNT}") ; do
             unset TAPE_SERIAL
         fi
     else
-        echo "Deck ${DECK} found with tape ${TAPE_SERIAL}"
+        echo "Deck ${DEVICE_ID} (${SERIAL}) found with tape ${TAPE_SERIAL}."
         if [[ $(uname -s) = "Darwin" ]] ; then
             MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
         else
@@ -146,7 +151,7 @@ for i in $(seq 1 "${LTO_COUNT}") ; do
         LTFS_OPTIONS+=(-o eject)
         LTFS_OPTIONS+=(-o noatime)
         LTFS_OPTIONS+=(-o capture_index)
-        LTFS_OPTIONS+=(-o devname=${DECK})
+        LTFS_OPTIONS+=(-o devname="${DEVICE_ID}")
         LTFS_OPTIONS+=(-o volname="${TAPE_SERIAL}")
 
         ltfs -f -o work_directory="${LTO_LOGS}" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
