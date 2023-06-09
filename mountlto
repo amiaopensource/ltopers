@@ -124,13 +124,13 @@ echo "${LTO_LIST}" | while read LTO_RECORD ; do
         let COUNTER=COUNTER+1
         ltfs -f -o devname="${DEVICE_ID}" 2> "${LOADTMP}"
         # find barcode by either "Volser(Barcode)" (Quantum style) or "Tape attribute: Barcode" (IBM style)
-        TAPE_SERIAL=$(cat "${LOADTMP}" | grep "Volser(Barcode).*\|Tape attribute: Medium Label*\|Tape attribute: Barcode.*" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b" | head -n 1)
+        TAPE_SERIAL=$(grep "Volser(Barcode).*\|Tape attribute: Medium Label*\|Tape attribute: Barcode.*" "${LOADTMP}" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b" | head -n 1)
         echo -n "."
     done
     echo
     if [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] ; then
         if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") && ! $(cat "${LOADTMP}" | grep -a "failed to load the tape") ]] ; then
-            DECKSERIAL=$(cat "${LOADTMP}" | grep -a -o "serial number is [A-Z0-9]*" | awk '{print $4}')
+            DECKSERIAL=$(grep -a -o "serial number is [A-Z0-9]*" "${LOADTMP}" | awk '{print $4}')
             TAPE_SERIAL="${DECKSERIAL}"
         else
             unset TAPE_SERIAL
