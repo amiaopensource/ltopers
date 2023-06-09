@@ -147,8 +147,6 @@ echo "${LTO_LIST}" | while read LTO_RECORD ; do
         _report -d "MOUNTING TAPE : AFTER MOUNT PRESS CONTROL-C$ TO EJECT"
         trap _cleanup_mount_dir SIGHUP SIGINT SIGTERM
 
-        mkdir -p "${MOUNT_DIR}"
-
         LTFS_OPTIONS+=(-o eject)
         LTFS_OPTIONS+=(-o noatime)
         LTFS_OPTIONS+=(-o capture_index)
