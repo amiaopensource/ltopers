@@ -84,7 +84,7 @@ _maketemp(){
     mktemp -q -t "${PREFIX}"
     if [ "${?}" -ne 0 ]; then
         echo "${0}: Can't create temp file, exiting..."
-        _report -w "_maketemp" "was unable to create the temp file, so the script had to exit."
+        _report -w "_maketemp was unable to create the temp file, so the script had to exit."
         exit 1
     fi
 }
@@ -123,7 +123,7 @@ echo "${LTO_LIST}" | while read LTO_RECORD ; do
     LOADTMP=$(_maketemp "${SERIAL}")
     unset TAPE_SERIAL
     COUNTER=0
-    echo -n "Checking for tape barcode with deck ${DEVICE_ID} (${SERIAL})"
+    _report -d "Checking for tape barcode with deck ${DEVICE_ID} (${SERIAL})"
     while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "${COUNTER}" -lt 5 ]]; do
         ((COUNTER++))
         ltfs -f -o devname="${DEVICE_ID}" 2> "${LOADTMP}"
@@ -140,7 +140,7 @@ echo "${LTO_LIST}" | while read LTO_RECORD ; do
             unset TAPE_SERIAL
         fi
     else
-        echo "Deck ${DEVICE_ID} (${SERIAL}) found with tape ${TAPE_SERIAL}."
+        _report -d "Deck ${DEVICE_ID} (${SERIAL}) found with tape ${TAPE_SERIAL}."
         echo -n -e "\033]0;Deck:${SERIAL} LTO:${TAPE_SERIAL}\007"
         if [[ $(uname -s) = "Darwin" ]] ; then
             MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
