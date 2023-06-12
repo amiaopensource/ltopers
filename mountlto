@@ -3,10 +3,44 @@
 # mountlto
 
 SCRIPTDIR=$(dirname "${0}")
-DEPENDENCIES=(ltfs mmfunctions)
+DEPENDENCIES=(ltfs)
+CONFIG_FILE="${SCRIPTDIR}/ltopers.conf"
 MINIMUM_TAPE_SERIAL_LENGTH=2
+DEFAULT_LTO_INDEX_DIR="${HOME}/Documents/lto_indexes"
 
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+if [[ -f "${CONFIG_FILE}" ]] ; then
+    . "${CONFIG_FILE}"
+fi
+
+_check_dependencies(){
+    DEPS_OK=YES
+    while [ "${*}" != "" ] ; do
+        DEPENDENCY="${1}"
+        if [ ! "$(which "${DEPENDENCY}")" ] ; then
+            _report -wt "This script requires ${DEPENDENCY} to run but it is not installed"
+            _report -wt "If you are running ubuntu or debian you might be able to install ${DEPENDENCY} with the following command"
+            _report -wt "sudo apt-get install ${DEPENDENCY}"
+            _report -wt "If you are running mac you might be able to install ${DEPENDENCY} with the following command"
+            _report -wt "brew install ${DEPENDENCY}"
+            DEPS_OK=NO
+        fi
+        shift
+    done
+    if [[ "${DEPS_OK}" = "NO" ]]; then
+        _report -wt "Unmet dependencies"
+        _report -wt "Aborting!"
+        exit 1
+    else
+        return 0
+    fi
+}
+
+_check_for_lto_index_dir(){
+    # if LTO_INDEX_DIR is set in ltopers.conf then that will be used, otherwise a default
+    if [ -z "${LTO_INDEX_DIR}" ] ; then
+        LTO_INDEX_DIR="${DEFAULT_LTO_INDEX_DIR}"
+    fi
+}
 
 _cleanup_mount_dir(){
     if [[ -d "${MOUNT_DIR}" ]] ; then
@@ -16,54 +50,93 @@ _cleanup_mount_dir(){
     fi
 }
 
-unset LTO_COUNT
+_report(){
+    local RED="$(tput setaf 1)"   # Red      - For Warnings
+    local GREEN="$(tput setaf 2)" # Green    - For Declarations
+    local BLUE="$(tput setaf 4)"  # Blue     - For Questions
+    local NC="$(tput sgr0)"       # No Color
+    local COLOR=""
+    local STARTMESSAGE=""
+    local ECHOOPT=""
+    local LOG_MESSAGE=""
+    OPTIND=1
+    while getopts ":qdwstn" OPT; do
+        case "${OPT}" in
+            q) COLOR="${BLUE}" ;;                         # question mode, use color blue
+            d) COLOR="${GREEN}" ;;                        # declaration mode, use color green
+            w) COLOR="${RED}" ;;                          # warning mode, use color red
+            s) STARTMESSAGE+=([$(basename "${0}")] ) ;;   # prepend scriptname to the message
+            t) STARTMESSAGE+=($(_get_iso8601) '- ' ) ;;   # prepend timestamp to the message
+            n) ECHOOPT="-n" ;;                            # to avoid line breaks after echo
+        esac
+    done
+    shift $(( OPTIND - 1 ))
+    MESSAGE="${1}"
+    echo "${ECHOOPT}" "${COLOR}${STARTMESSAGE[*]}${MESSAGE}${NC}"
+}
+
+_maketemp(){
+    mktemp -q -t "$(basename "${0}")"
+    if [ "${?}" -ne 0 ]; then
+        echo "${0}: Can't create temp file, exiting..."
+        _report -w "_maketemp" "was unable to create the temp file, so the script had to exit."
+        exit 1
+    fi
+}
+
 unset LTFS_OPTIONS
 _check_for_lto_index_dir
+_check_dependencies "${DEPENDENCIES[@]}"
 LTO_LOGS="${LTO_INDEX_DIR}"
-if [[ "$(uname -s)" = "Darwin" ]] ; then
-    # try to figure out how many lto decks are attached
-    LTO_COUNT=$(system_profiler SPSASDataType | grep "SCSI Target Identifier" | wc -l | awk '{print $1}')
-else
-    # TO DO: itemize when there are multiple LTO drives in Linux and Windows
-    LTO_COUNT=1
-fi
+[[ ! -d "${LTO_LOGS}" ]] && mkdir -p "${LTO_LOGS}"
 
+LTO_LIST="$(ltfs -o device_list 2>&1 | grep "Device Name = [0-9]*")"
+# try to figure out how many lto decks are attached
+LTO_COUNT=$(echo -n "${LTO_LIST}" | grep -c '^')
 if [[ "${LTO_COUNT}" -eq 0 ]] ; then
-    _report -w "No LTO decks were found."
+    _report -w "No available LTO decks were found (or perhaps 'ltfs' doesn't support the '-o device_list' option. Check connections or upgrade ltfs to 2.4.4.0 or newer)."
     exit 1
 fi
 
-[[ ! -d "${LTO_LOGS}" ]] && mkdir -p "${LTO_LOGS}"
+_report -d "Checking for ready tapes amongst..."
+printf "%-12s %20s %20s \n" "Device ID" "Product ID" "Serial Number"
+echo "${LTO_LIST}" | while read LTO_RECORD ; do
+    DEVICE_ID="$(echo "${LTO_RECORD}" | grep -o "Device Name = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    PRODUCT_ID="$(echo "${LTO_RECORD}" | grep -o "Product ID = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    SERIAL="$(echo "${LTO_RECORD}" | grep -o "Serial Number = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    printf "%-12s %20s %20s \n" "${DEVICE_ID}" "${PRODUCT_ID}" "${SERIAL}"
+done
+echo
 
-_report -d "Checking for ready tapes..."
-
-for i in $(seq 1 "${LTO_COUNT}") ; do
-    DECK=$(echo "$i - 1" | bc)
-    if [ $(command -v ltfs_ldun) ] ; then
-        ltfs_ldun load ${DECK} 1>/dev/null
+echo "${LTO_LIST}" | while read LTO_RECORD ; do
+    DEVICE_ID="$(echo "${LTO_RECORD}" | grep -o "Device Name = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    PRODUCT_ID="$(echo "${LTO_RECORD}" | grep -o "Product ID = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    SERIAL="$(echo "${LTO_RECORD}" | grep -o "Serial Number = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    if [ "$(command -v ltfs_ldun)" ] ; then
+        ltfs_ldun load "${DEVICE_ID}" 1>/dev/null
     fi
     LOADTMP=$(_maketemp)
     unset TAPE_SERIAL
     COUNTER=0
-    echo -n "Checking for tape barcode"
+    echo -n "Checking for tape barcode with deck ${DEVICE_ID} (${SERIAL})"
     while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "${COUNTER}" -lt 5 ]]; do
-        let COUNTER=COUNTER+1
-        ltfs -f -o devname="${DECK}" 2> "${LOADTMP}"
+        ((COUNTER++))
+        ltfs -f -o devname="${DEVICE_ID}" 2> "${LOADTMP}"
         # find barcode by either "Volser(Barcode)" (Quantum style) or "Tape attribute: Barcode" (IBM style)
-        TAPE_SERIAL=$(cat "${LOADTMP}" | grep "Volser(Barcode).*\|Tape attribute: Medium Label*\|Tape attribute: Barcode.*" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b" | head -n 1)
+        TAPE_SERIAL=$(grep "Volser(Barcode).*\|Tape attribute: Medium Label*\|Tape attribute: Barcode.*" "${LOADTMP}" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b" | head -n 1)
         echo -n "."
     done
     echo
     if [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] ; then
         if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") && ! $(cat "${LOADTMP}" | grep -a "failed to load the tape") ]] ; then
-            DECKSERIAL=$(cat "${LOADTMP}" | grep -a -o "serial number is [A-Z0-9]*" | awk '{print $4}')
+            DECKSERIAL=$(grep -a -o "serial number is [A-Z0-9]*" "${LOADTMP}" | awk '{print $4}')
             TAPE_SERIAL="${DECKSERIAL}"
         else
             unset TAPE_SERIAL
         fi
-    fi
-    if [[ "${#TAPE_SERIAL}" -ge "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] ; then
-        echo "Deck ${DECK} found with tape ${TAPE_SERIAL}"
+    else
+        echo "Deck ${DEVICE_ID} (${SERIAL}) found with tape ${TAPE_SERIAL}."
+        echo -n -e "\033]0;Deck:${SERIAL} LTO:${TAPE_SERIAL}\007"
         if [[ $(uname -s) = "Darwin" ]] ; then
             MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
         else
@@ -73,21 +146,19 @@ for i in $(seq 1 "${LTO_COUNT}") ; do
         _report -d "MOUNTING TAPE : AFTER MOUNT PRESS CONTROL-C$ TO EJECT"
         trap _cleanup_mount_dir SIGHUP SIGINT SIGTERM
 
-        mkdir -p "${MOUNT_DIR}"
-
         LTFS_OPTIONS+=(-o eject)
         LTFS_OPTIONS+=(-o noatime)
         LTFS_OPTIONS+=(-o capture_index)
-        LTFS_OPTIONS+=(-o devname=${DECK})
+        LTFS_OPTIONS+=(-o devname="${DEVICE_ID}")
         LTFS_OPTIONS+=(-o volname="${TAPE_SERIAL}")
-        LTFS_OPTIONS+=(-o uid=$(id -u))
 
         ltfs -f -o work_directory="${LTO_LOGS}" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
+        echo -n -e "\033]0;\007"
         [[ -d "${MOUNT_DIR}" ]] && rmdir "${MOUNT_DIR}"
         renameschemas -u
         break
     fi
-    if [[ "$i" -eq "${LTO_COUNT}" ]] ; then
+    if [[ "${COUNTER}" -eq "${LTO_COUNT}" ]] ; then
         _report -d "Checked ${LTO_COUNT} decks and none appear to have tapes ready to mount."
     fi
 done
