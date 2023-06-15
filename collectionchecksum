@@ -35,10 +35,10 @@ _report(){
 }
 
 _maketemp(){
-    mktemp -q "/tmp/$(basename "${0}").XXXXXX"
+    mktemp -t "$(basename "${0}")"
     if [ "${?}" -ne 0 ] ; then
         _report -w "${0}: Can't create temp file. Exiting."
-        _writeerrorlog "_maketemp" "was unable to create the temp file, so the script had to exit."
+        _report -w "_maketemp was unable to create the temp file, so the script had to exit."
         exit 1
     fi
 }
