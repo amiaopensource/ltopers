@@ -95,32 +95,48 @@ else
     _report -d "Will use compression."
 fi
 
-if [ ! "${LTO_ARRAY}" ] ; then
-    if [[ "$(uname -s)" = "Darwin" ]] ; then
-        # try to figure out how many LTO decks are attached
-        LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | sort | xargs))
+LTO_LIST="$(ltfs -o device_list 2>&1 | grep "Device Name = [0-9]*")"
+# try to figure out how many lto decks are attached
+LTO_COUNT=$(echo -n "${LTO_LIST}" | grep -c '^')
+if [[ "${LTO_COUNT}" -eq 0 ]] ; then
+    if [[ "$(ltfs -h 2>&1 | grep -c device_list)" -eq 0 ]] ; then
+        _report -w "The installed version of ltfs at $(which ltfs) doesn't support the '-o device_list' option. Please upgrade ltfs to 2.4.4.0 or newer."
+        exit 1
     else
-        #### TO DO: itemize when there are multiple LTO drives in Linux and Windows
-        LTO_ARRAY=(0)
+        _report -w "No available LTO decks were found or they're all busy."
+        df -Ph | grep "^Filesystem\|^ltfs" | sort
+        exit 1
     fi
 fi
 
-if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
-    PS3="${BLUE}Which LTO deck?${NC} "
-    eval set "${LTO_ARRAY[@]}"
-    select DECK in "$@" ; do
-       break
-    done
-    if [ ! "${DECK}" ] ; then
-        _report -w "Error: You selected an invalid deck."
-        exit 1
+_report -d "Checking for ready decks amongst..."
+printf "%-12s %20s %20s \n" "Device ID" "Product ID" "Serial Number"
+echo "${LTO_LIST}" | while read LTO_RECORD ; do
+    DEVICE_ID="$(echo "${LTO_RECORD}" | grep -o "Device Name = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    PRODUCT_ID="$(echo "${LTO_RECORD}" | grep -o "Product ID = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    SERIAL="$(echo "${LTO_RECORD}" | grep -o "Serial Number = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    printf "%-12s %20s %20s \n" "${DEVICE_ID}" "${PRODUCT_ID}" "${SERIAL}"
+done
+echo
+
+if [[ "${LTO_COUNT}" -eq 1 ]] ; then
+    DEVICE_ID="$(echo "${LTO_LIST}" | grep -o "Device Name = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    PRODUCT_ID="$(echo "${LTO_LIST}" | grep -o "Product ID = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    SERIAL="$(echo "${LTO_LIST}" | grep -o "Serial Number = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    if [[ "$(uname -s)" = "Linux" ]] ; then
+        DECK="/dev/sg3"
+        _report -d "Will use ${DECK} to format the tape."
+    else
+        DECK="${DEVICE_ID}"
+        _report -d "Will use Deck ${DECK} (${SERIAL}) to format the tape."
     fi
 else
     #### TO DO: select the correct path to the drive on Linux and Windows
     if [[ "$(uname -s)" = "Linux" ]] ; then
         DECK='/dev/sg3'
     else
-        DECK=0
+        _report -q -n "Enter the Device ID for the deck to use: "
+        read DECK
     fi
 fi
 
