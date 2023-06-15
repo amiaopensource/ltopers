@@ -46,6 +46,7 @@ _maketemp(){
 while [ "${*}" != "" ] ; do
     INPUT="${1}"
     TAPECHECKSUMFILE="${INPUT}/tapechecksum.md5"
+    TAPEWRITELOG="${INPUT}/tapewritelog.txt"
     TEMP_CHECKSUM_COMPILATION="$(_maketemp)"
     if [ -f "${TAPECHECKSUMFILE}" ] ; then
         _report -wt "A collection checksum already exists at ${TAPECHECKSUMFILE}"
@@ -90,7 +91,14 @@ while [ "${*}" != "" ] ; do
         exit 1
     fi
 
+    _report -q -n "Name of operator: "
+    read OP
+    _report -q -n "Note about tape write: "
+    read NOTE
 
+    echo "operator: ${OP}" > "${TAPEWRITELOG}"
+    echo "datetime: $(_get_iso8601)" >> "${TAPEWRITELOG}"
+    echo "note: ${NOTE}" >> "${TAPEWRITELOG}"
 
     shift
 done
