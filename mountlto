@@ -129,11 +129,6 @@ echo "${LTO_LIST}" | while read LTO_RECORD ; do
         ltfs -f -o devname="${DEVICE_ID}" 2> "${LOADTMP}"
         LTFS_ERR="${?}"
         # find barcode by either "Volser(Barcode)" (Quantum style) or "Tape attribute: Barcode" (IBM style)
-        if [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] ; then
-            _report -w "ltfs has an error code ${LTFS_ERR} ${#TAPE_SERIAL} ${TAPE_SERIAL}"
-            cat "${LOADTMP}"
-            _report -w "Will retry."
-        fi
         TAPE_SERIAL=$(grep "Volser(Barcode).*\|Tape attribute: Medium Label*\|Tape attribute: Barcode.*\|Volume mounted successfully*" "${LOADTMP}" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b" | head -n 1)
     done
     if [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] ; then
