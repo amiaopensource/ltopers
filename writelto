@@ -233,20 +233,3 @@ case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
     *)   echo "Done writing but not ejecting ${TAPE_SERIAL}." ;;
 esac
-
-if [[ "${PREMIS_DB}" = "Y" ]] ; then
-    _eventoutcome_update
-    _report_fixity_db
-    _report_schema_db
-    _db_email_delivery "${SQL_ERROR_EMAIL_TO}"
-    if [[ "${VERIFY}" = "Y" ]] ; then
-        VERIFY_CHECK="Y"
-        unset db_fixity
-        db_fixity=$(cat "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5")
-        if [ -z "${db_fixity}" ] ; then
-            event_outcome="No fixity information"
-        fi
-        _report_fixity_db
-        _db_email_delivery "${SQL_ERROR_EMAIL_TO}"
-    fi
-fi
