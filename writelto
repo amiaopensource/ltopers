@@ -155,6 +155,8 @@ SOURCE_DIR="${1}"
 
 _check_for_lto_index_dir
 LTO_LOGS="${LTO_INDEX_DIR}"
+_check_dependencies "${DEPENDENCIES[@]}"
+
 if [[ ! "${TAPE_SERIAL}" ]] ; then
     _report -qn "Enter the LTO tape barcode: "
     read -e TAPE_SERIAL
@@ -174,14 +176,13 @@ _check_for_colons "${SOURCE_DIR}"
 
 TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 
-_checkdir "${SOURCE_DIR}"
 # remove .DS_Store files
 find "${SOURCE_DIR}/" -name '.DS_Store' -type f -delete
+_check_dir "${SOURCE_DIR}"
 if [ -f "${SOURCE_DIR}"/tapechecksum.md5 ] ; then
     db_fixity=$(cat "${SOURCE_DIR}"/tapechecksum.md5)
 fi
 
-_checkdir "${TAPE_PATH}"
 
 gcp --preserve=mode,timestamps -nRv "${SOURCE_DIR}/"* "${TAPE_PATH}"
 
@@ -194,6 +195,7 @@ if [[ "${HIDDEN_FILES}" ]] ; then
     "${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
     RSYNC_ERR_2="$?"
 fi
+_check_dir "${TAPE_PATH}"
 
 WRITELTODIR="${LTO_LOGS}/writelto"
 _mkdir2 "${WRITELTODIR}"
