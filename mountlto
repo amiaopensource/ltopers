@@ -123,14 +123,16 @@ echo "${LTO_LIST}" | while read LTO_RECORD ; do
     LOADTMP=$(_maketemp "${SERIAL}")
     unset TAPE_SERIAL
     COUNTER=0
-    _report -d "Checking for tape barcode with deck ${DEVICE_ID} (${SERIAL})"
     while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "${COUNTER}" -lt 5 ]]; do
+    _report -dn "Checking for tape barcode with deck ${DEVICE_ID} (${SERIAL})"
         ((COUNTER++))
         ltfs -f -o devname="${DEVICE_ID}" 2> "${LOADTMP}"
         LTFS_ERR="${?}"
         # find barcode by either "Volser(Barcode)" (Quantum style) or "Tape attribute: Barcode" (IBM style)
         TAPE_SERIAL=$(grep "Volser(Barcode).*\|Tape attribute: Medium Label*\|Tape attribute: Barcode.*\|Volume mounted successfully*" "${LOADTMP}" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b" | head -n 1)
+        echo -n "."
     done
+    echo
     if [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] ; then
         if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") && ! $(cat "${LOADTMP}" | grep -a "failed to load the tape") ]] ; then
             DECKSERIAL=$(grep -a -o "serial number is [A-Z0-9]*" "${LOADTMP}" | awk '{print $4}')
