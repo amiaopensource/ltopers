@@ -128,14 +128,14 @@ LTFS-formated LTO tape.
 Dependencies: ${DEPENDENCIES[@]}
 
 Usage: $(basename "${0}") -t [-e] [-v] | -h
-  -t  tape serial
-  -e  state yes (Y) or no (N) to ejecting the tape after write, default
-      is yes
-  -v  reads back and creates checksums for the contents of a tape, and
-      writes checksums to a file named with the tape name and date,
-      located in the LTO logs directory
-  -x  use barcode label as tape serial (caveat: this is not standard)
-  -h  display this help
+  -t <tape_serial>    tape serial
+  -e [Y|N]            state yes (Y) or no (N) to ejecting the tape after write, default
+                      is yes
+  -v                  reads back and creates checksums for the contents of a tape, and
+                      writes checksums to a file named with the tape name and date,
+                      located in the LTO logs directory
+  -x                  use barcode label as tape serial (caveat: this is not standard)
+  -h                  display this help
 EOF
 }
 
