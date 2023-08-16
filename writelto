@@ -212,7 +212,7 @@ fi
 
 _check_for_lto_md5_flags
 if [[ "${VERIFY}" = "Y" ]] ; then
-    VERIFYTIME=$(_get_iso8601_c)
+    VERIFYTIME="$(_get_iso8601_c)"
     READBACKDIR="${LTO_LOGS}/readback_checksums"
     _mkdir2 "${READBACKDIR}"
     find "${TAPE_PATH}" -type f ! -name .DS_Store -exec $LTO_MD5_FLAGS "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
