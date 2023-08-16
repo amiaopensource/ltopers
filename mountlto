@@ -123,8 +123,8 @@ echo "${LTO_LIST}" | while read LTO_RECORD ; do
     LOADTMP=$(_maketemp "${SERIAL}")
     unset TAPE_SERIAL
     COUNTER=0
-    while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "${COUNTER}" -lt 5 ]]; do
     _report -dn "Checking for tape barcode with deck ${DEVICE_ID} (${SERIAL})"
+    while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "${COUNTER}" -lt 2 ]]; do
         ((COUNTER++))
         ltfs -f -o devname="${DEVICE_ID}" 2> "${LOADTMP}"
         LTFS_ERR="${?}"
