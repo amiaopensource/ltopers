@@ -76,10 +76,15 @@ _report(){
 }
 
 _maketemp(){
-    mktemp -q -t "$(basename "${0}")"
+    if [[ -n "${1}" ]] ; then
+        PREFIX="$(basename "${0}").${1}"
+    else
+        PREFIX="$(basename "${0}")"
+    fi
+    mktemp -q -t "${PREFIX}"
     if [ "${?}" -ne 0 ]; then
         echo "${0}: Can't create temp file, exiting..."
-        _report -w "_maketemp" "was unable to create the temp file, so the script had to exit."
+        _report -w "_maketemp was unable to create the temp file, so the script had to exit."
         exit 1
     fi
 }
@@ -115,15 +120,16 @@ echo "${LTO_LIST}" | while read LTO_RECORD ; do
     if [ "$(command -v ltfs_ldun)" ] ; then
         ltfs_ldun load "${DEVICE_ID}" 1>/dev/null
     fi
-    LOADTMP=$(_maketemp)
+    LOADTMP=$(_maketemp "${SERIAL}")
     unset TAPE_SERIAL
     COUNTER=0
-    echo -n "Checking for tape barcode with deck ${DEVICE_ID} (${SERIAL})"
-    while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "${COUNTER}" -lt 5 ]]; do
+    _report -dn "Checking for tape barcode with deck ${DEVICE_ID} (${SERIAL})"
+    while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "${COUNTER}" -lt 2 ]]; do
         ((COUNTER++))
         ltfs -f -o devname="${DEVICE_ID}" 2> "${LOADTMP}"
+        LTFS_ERR="${?}"
         # find barcode by either "Volser(Barcode)" (Quantum style) or "Tape attribute: Barcode" (IBM style)
-        TAPE_SERIAL=$(grep "Volser(Barcode).*\|Tape attribute: Medium Label*\|Tape attribute: Barcode.*" "${LOADTMP}" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b" | head -n 1)
+        TAPE_SERIAL=$(grep "Volser(Barcode).*\|Tape attribute: Medium Label*\|Tape attribute: Barcode.*\|Volume mounted successfully*" "${LOADTMP}" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b" | head -n 1)
         echo -n "."
     done
     echo
@@ -135,7 +141,7 @@ echo "${LTO_LIST}" | while read LTO_RECORD ; do
             unset TAPE_SERIAL
         fi
     else
-        echo "Deck ${DEVICE_ID} (${SERIAL}) found with tape ${TAPE_SERIAL}."
+        _report -d "Deck ${DEVICE_ID} (${SERIAL}) found with tape ${TAPE_SERIAL}."
         echo -n -e "\033]0;Deck:${SERIAL} LTO:${TAPE_SERIAL}\007"
         if [[ $(uname -s) = "Darwin" ]] ; then
             MOUNT_DIR="/Volumes/${TAPE_SERIAL}"

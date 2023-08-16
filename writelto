@@ -5,19 +5,11 @@
 # LTFS-formated LTO tape.
 
 SCRIPTDIR=$(dirname "${0}")
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
-DEPENDENCIES=(gcp mmfunctions)
+DEPENDENCIES=(rsync gcp)
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
 unset HIDDEN_FILES
 TAPE_EJECT="Y"
-_check_for_lto_index_dir
-LTO_LOGS="${LTO_INDEX_DIR}"
-
-unset VERSION
-if [[ $(dirname $(command -v "${0}")) = "/usr/local/bin" || $(dirname $(command -v "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
-    VERSION=$(TMP=$(brew info ltopers | grep ".*\*$" | grep -Eo "/ltopers/.* \(") ; echo "${TMP:9:(${#TMP}-11)}")
-fi
 
 # no .DS_Store onto external storage
 if [[ "$(uname -s)" = "Darwin" ]] ; then
@@ -26,22 +18,122 @@ if [[ "$(uname -s)" = "Darwin" ]] ; then
     fi
 fi
 
+_check_dependencies(){
+    DEPS_OK=YES
+    while [ "${*}" != "" ] ; do
+        DEPENDENCY="${1}"
+        if [ ! "$(which "${DEPENDENCY}")" ] ; then
+            _report -wt "This script requires ${DEPENDENCY} to run but it is not installed"
+            _report -wt "If you are running ubuntu or debian you might be able to install ${DEPENDENCY} with the following command"
+            _report -wt "sudo apt-get install ${DEPENDENCY}"
+            _report -wt "If you are running mac you might be able to install ${DEPENDENCY} with the following command"
+            _report -wt "brew install ${DEPENDENCY}"
+            DEPS_OK=NO
+        fi
+        shift
+    done
+    if [[ "${DEPS_OK}" = "NO" ]]; then
+        _report -wt "Unmet dependencies"
+        _report -wt "Aborting!"
+        exit 1
+    else
+        return 0
+    fi
+}
+
+_check_dir(){
+    if [[ ! -d "${1}" ]] ; then
+        _report -w "[${1}] is not a directory."
+        _usage
+        exit 1
+    fi
+}
+
+_check_for_colons(){
+    COLONALERT=$(find "${1}" -iname '*:*')
+    if [ -n "${COLONALERT}" ] ; then
+        _report -w "Note that LTFS formatted tapes called store files with colons in their filenames. Colons have been detected in the following file(s):"
+        for i in ${COLONALERT} ; do
+            _report -w "    ${i}"
+        done
+        _report -w "Exiting"
+        exit 1
+    fi
+}
+
+_check_for_lto_md5_flags(){
+    if [ -z "${LTO_MD5_FLAGS}" ] ; then
+        LTO_MD5_FLAGS="md5deep -rel"
+    fi
+}
+
+_check_for_lto_index_dir(){
+    # if LTO_INDEX_DIR is set in ltopers.conf then that will be used, otherwise a default
+    if [ -z "${LTO_INDEX_DIR}" ] ; then
+        LTO_INDEX_DIR="${DEFAULT_LTO_INDEX_DIR}"
+    fi
+}
+
+_get_iso8601_c(){
+    date +%Y%m%d-%H%M%S
+}
+
+_mkdir2(){
+    local DIR2MAKE=""
+    while [ "${*}" != "" ] ; do
+        DIR2MAKE="${1}"
+        if [ ! -d "${DIR2MAKE}" ] ; then
+            mkdir -p "${DIR2MAKE}"
+            if [ "${?}" -ne 0 ]; then
+                _report -wt "${0}: Can't create directory at ${DIR2MAKE}"
+                exit 1
+            fi
+        fi
+        shift
+    done
+}
+
+_report(){
+    local RED="$(tput setaf 1)"   # Red      - For Warnings
+    local GREEN="$(tput setaf 2)" # Green    - For Declarations
+    local BLUE="$(tput setaf 4)"  # Blue     - For Questions
+    local NC="$(tput sgr0)"       # No Color
+    local COLOR=""
+    local STARTMESSAGE=""
+    local ECHOOPT=""
+    local LOG_MESSAGE=""
+    OPTIND=1
+    while getopts ":qdwstn" OPT; do
+        case "${OPT}" in
+            q) COLOR="${BLUE}" ;;                         # question mode, use color blue
+            d) COLOR="${GREEN}" ;;                        # declaration mode, use color green
+            w) COLOR="${RED}" ;;                          # warning mode, use color red
+            s) STARTMESSAGE+=([$(basename "${0}")] ) ;;   # prepend scriptname to the message
+            t) STARTMESSAGE+=($(_get_iso8601_c) '- ' ) ;;   # prepend timestamp to the message
+            n) ECHOOPT="-n" ;;                            # to avoid line breaks after echo
+        esac
+    done
+    shift $(( OPTIND - 1 ))
+    MESSAGE="${1}"
+    echo "${ECHOOPT}" "${COLOR}${STARTMESSAGE[*]}${MESSAGE}${NC}"
+}
+
 _usage(){
     cat <<EOF
-$(basename "${0}") ${VERSION}
+$(basename "${0}")
 This script writes the contents of a specified directory onto a mounted
 LTFS-formated LTO tape.
 Dependencies: ${DEPENDENCIES[@]}
 
 Usage: $(basename "${0}") -t [-e] [-v] | -h
-  -t  tape serial
-  -e  state yes (Y) or no (N) to ejecting the tape after write, default
-      is yes
-  -v  reads back and creates checksums for the contents of a tape, and
-      writes checksums to a file named with the tape name and date,
-      located in the LTO logs directory
-  -x  use barcode label as tape serial (caveat: this is not standard)
-  -h  display this help
+  -t <tape_serial>    tape serial
+  -e [Y|N]            state yes (Y) or no (N) to ejecting the tape after write, default
+                      is yes
+  -v                  reads back and creates checksums for the contents of a tape, and
+                      writes checksums to a file named with the tape name and date,
+                      located in the LTO logs directory
+  -x                  use barcode label as tape serial (caveat: this is not standard)
+  -h                  display this help
 EOF
 }
 
@@ -60,6 +152,10 @@ done
 shift "$((OPTIND-1))"
 
 SOURCE_DIR="${1}"
+
+_check_for_lto_index_dir
+LTO_LOGS="${LTO_INDEX_DIR}"
+_check_dependencies "${DEPENDENCIES[@]}"
 
 if [[ ! "${TAPE_SERIAL}" ]] ; then
     _report -qn "Enter the LTO tape barcode: "
@@ -80,14 +176,13 @@ _check_for_colons "${SOURCE_DIR}"
 
 TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 
-_checkdir "${SOURCE_DIR}"
 # remove .DS_Store files
 find "${SOURCE_DIR}/" -name '.DS_Store' -type f -delete
+_check_dir "${SOURCE_DIR}"
 if [ -f "${SOURCE_DIR}"/tapechecksum.md5 ] ; then
     db_fixity=$(cat "${SOURCE_DIR}"/tapechecksum.md5)
 fi
 
-_checkdir "${TAPE_PATH}"
 
 gcp --preserve=mode,timestamps -nRv "${SOURCE_DIR}/"* "${TAPE_PATH}"
 
@@ -100,6 +195,7 @@ if [[ "${HIDDEN_FILES}" ]] ; then
     "${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
     RSYNC_ERR_2="$?"
 fi
+_check_dir "${TAPE_PATH}"
 
 WRITELTODIR="${LTO_LOGS}/writelto"
 _mkdir2 "${WRITELTODIR}"
@@ -116,7 +212,7 @@ fi
 
 _check_for_lto_md5_flags
 if [[ "${VERIFY}" = "Y" ]] ; then
-    VERIFYTIME=$(_get_iso8601_c)
+    VERIFYTIME="$(_get_iso8601_c)"
     READBACKDIR="${LTO_LOGS}/readback_checksums"
     _mkdir2 "${READBACKDIR}"
     find "${TAPE_PATH}" -type f ! -name .DS_Store -exec $LTO_MD5_FLAGS "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
@@ -139,20 +235,3 @@ case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
     *)   echo "Done writing but not ejecting ${TAPE_SERIAL}." ;;
 esac
-
-if [[ "${PREMIS_DB}" = "Y" ]] ; then
-    _eventoutcome_update
-    _report_fixity_db
-    _report_schema_db
-    _db_email_delivery "${SQL_ERROR_EMAIL_TO}"
-    if [[ "${VERIFY}" = "Y" ]] ; then
-        VERIFY_CHECK="Y"
-        unset db_fixity
-        db_fixity=$(cat "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5")
-        if [ -z "${db_fixity}" ] ; then
-            event_outcome="No fixity information"
-        fi
-        _report_fixity_db
-        _db_email_delivery "${SQL_ERROR_EMAIL_TO}"
-    fi
-fi

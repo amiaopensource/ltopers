@@ -6,45 +6,99 @@
 # presumes a highly specific directory structure based on CUNY TV's Archival
 # Information Package directory structure.
 
-SCRIPTDIR=$(dirname "${0}")
+_get_iso8601(){
+    date +%FT%T
+}
 
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+_report(){
+    local RED="$(tput setaf 1)"   # Red      - For Warnings
+    local GREEN="$(tput setaf 2)" # Green    - For Declarations
+    local BLUE="$(tput setaf 4)"  # Blue     - For Questions
+    local NC="$(tput sgr0)"       # No Color
+    local COLOR=""
+    local STARTMESSAGE=""
+    local ECHOOPT=""
+    OPTIND=1
+    while getopts ":qdwstn" OPT; do
+        case "${OPT}" in
+            q) COLOR="${BLUE}" ;;                         # question mode, use color blue
+            d) COLOR="${GREEN}" ;;                        # declaration mode, use color green
+            w) COLOR="${RED}" ;;                          # warning mode, use color red
+            s) STARTMESSAGE+=([$(basename "${0}")] ) ;;   # prepend scriptname to the message
+            t) STARTMESSAGE+=($(_get_iso8601) '- ' ) ;;   # prepend timestamp to the message
+            n) ECHOOPT="-n" ;;                            # to avoid line breaks after echo
+        esac
+    done
+    shift $(( OPTIND - 1 ))
+    MESSAGE="${1}"
+    echo "${ECHOOPT}" "${COLOR}${STARTMESSAGE[*]}${MESSAGE}${NC}"
+}
 
 _maketemp(){
-    mktemp -q "/tmp/$(basename "${0}").XXXXXX"
+    mktemp -t "$(basename "${0}")"
     if [ "${?}" -ne 0 ] ; then
         _report -w "${0}: Can't create temp file. Exiting."
-        _writeerrorlog "_maketemp" "was unable to create the temp file, so the script had to exit."
+        _report -w "_maketemp was unable to create the temp file, so the script had to exit."
         exit 1
     fi
 }
 
 while [ "${*}" != "" ] ; do
     INPUT="${1}"
-    _report_to_db
     TAPECHECKSUMFILE="${INPUT}/tapechecksum.md5"
+    TAPEWRITELOG="${INPUT}/tapewritelog.txt"
+    TEMP_CHECKSUM_COMPILATION="$(_maketemp)"
     if [ -f "${TAPECHECKSUMFILE}" ] ; then
         _report -wt "A collection checksum already exists at ${TAPECHECKSUMFILE}"
         exit 1
     fi
-    TEMPCHECKSUMFILE=$(_maketemp)
-    cd "${INPUT}"
+    _report -d -n "Concatenating existing checksum.md5 files ... "
+    find "${INPUT}" -type f -name checksum.md5 | while read CHECKSUM_FILE ; do
+        UPF="$(basename "$(dirname "${CHECKSUM_FILE}")")"
+        if [[ "${UPF}" == "metadata" ]] ; then
+            PATH_CLEANING="$(basename "$(dirname "$(dirname "${CHECKSUM_FILE}")")")/objects/"
+        else
+            PATH_CLEANING="$(echo "${CHECKSUM_FILE}" | sed "s|${INPUT}/||g;s|checksum.md5||g")"
+        fi
+        sed "s|  ./|  ./${PATH_CLEANING}|g" "${CHECKSUM_FILE}"
+    done > "${TEMP_CHECKSUM_COMPILATION}"
+    _report -d "$(wc -l "${TEMP_CHECKSUM_COMPILATION}" | awk '{print $1}') checksum.md5 were gathered for ${INPUT}."
 
-    #loop through the directories, find the checksum files, cat them together, and also sed to add the media ids
-    while read CHECKSUMFILES ; do
-        PACKAGE="$(basename "$(dirname "$(dirname "${CHECKSUMFILES}")")")"
-        _report -d "Concatenating ${CHECKSUMFILES}."
-        cat "${CHECKSUMFILES}" | sed "s|  ./|  ./${PACKAGE}/objects/|g" >> "${TEMPCHECKSUMFILE}"
-    done < <(find "${INPUT}" -maxdepth 3 -mindepth 3 -type f -iname "checksum.md5")
+    if [[ -d "${INPUT}" ]] ; then
+        cd "${INPUT}"
+        TEMP_FILE_LIST="$(_maketemp)"
+        TEMP_LIST2MD5="$(_maketemp)"
+        find . -type f ! -name ".DS_Store" > "${TEMP_FILE_LIST}"
+        LIST_COMPARE="$(diff <(cut -c 35- "${TEMP_CHECKSUM_COMPILATION}" | sort) <(sort "${TEMP_FILE_LIST}"))"
+        MISSING_FILES="$(echo "${LIST_COMPARE}" | grep "^<")"
+        echo "${LIST_COMPARE}" | grep "^>" | cut -c 3- > "${TEMP_LIST2MD5}"
+        if [[ -n "${MISSING_FILES}" ]] ; then
+            _report -w "Warning there are files that are in the checksum.md5 files but not present"
+            echo "${MISSING_FILES}"
+            exit 1
+        fi
+        TEMP_NEWMD5S="$(_maketemp)"
+        if [[ -s "${TEMP_LIST2MD5}" ]] ; then
+            _report -d "For the tape checksum, these $(wc -l "${TEMP_LIST2MD5}" | awk '{print $1}') additional files must be checksummed"
+            cat "${TEMP_LIST2MD5}"
+            md5deep -rel -f "${TEMP_LIST2MD5}" > "${TEMP_NEWMD5S}"
+            _report -d "Checksummed $(wc -l "${TEMP_CHECKSUM_COMPILATION}" | awk '{print $1}') additional files."
+        fi
+        cat "${TEMP_NEWMD5S}" "${TEMP_CHECKSUM_COMPILATION}" | sort -k2 > "${TAPECHECKSUMFILE}"
+        _report -d "${TAPECHECKSUMFILE} is ready with $(wc -l "${TAPECHECKSUMFILE}" | awk '{print $1}') checksums."
+    else
+        _report -d "${INPUT} is not a directory. Exiting."
+        exit 1
+    fi
 
-    #create md5 checksums for all of the files in the metadata directory
-    _report -d "Creating checksums for all metadata directories."
-    md5deep -rel ./*/metadata >> "${TEMPCHECKSUMFILE}"
+    _report -q -n "Name of operator: "
+    read OP
+    _report -q -n "Note about tape write: "
+    read NOTE
 
-    _report -d "Sorting and saving ${TAPECHECKSUMFILE}."
-    sort -k2 "${TEMPCHECKSUMFILE}" | grep -v .DS_Store >> "${TAPECHECKSUMFILE}"
+    echo "operator: ${OP}" > "${TAPEWRITELOG}"
+    echo "datetime: $(_get_iso8601)" >> "${TAPEWRITELOG}"
+    echo "note: ${NOTE}" >> "${TAPEWRITELOG}"
 
     shift
-    _eventoutcome_update
-    _report_fixity_db
 done

@@ -4,21 +4,62 @@
 # Formats an LTO tape with LTFS.
 
 SCRIPTDIR=$(dirname "${0}")
-DEPENDENCIES=(mkltfs mmfunctions)
+DEPENDENCIES=(mkltfs)
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
 BLUE="$(tput setaf 4)"  # Blue     - For Questions
 NC="$(tput sgr0)"       # No Color
 
-. "${SCRIPTDIR}/mmfunctions" || { echo "Missing '${SCRIPTDIR}/mmfunctions'. Exiting." ; exit 1 ; }
+_check_dependencies(){
+    DEPS_OK=YES
+    while [ "${*}" != "" ] ; do
+        DEPENDENCY="${1}"
+        if [ ! "$(which "${DEPENDENCY}")" ] ; then
+            _report -wt "This script requires ${DEPENDENCY} to run but it is not installed"
+            _report -wt "If you are running ubuntu or debian you might be able to install ${DEPENDENCY} with the following command"
+            _report -wt "sudo apt-get install ${DEPENDENCY}"
+            _report -wt "If you are running mac you might be able to install ${DEPENDENCY} with the following command"
+            _report -wt "brew install ${DEPENDENCY}"
+            DEPS_OK=NO
+        fi
+        shift
+    done
+    if [[ "${DEPS_OK}" = "NO" ]]; then
+        _report -wt "Unmet dependencies"
+        _report -wt "Aborting!"
+        exit 1
+    else
+        return 0
+    fi
+}
 
-unset VERSION
-if [[ $(dirname $(command -v "${0}")) = "/usr/local/bin" || $(dirname $(command -v "${0}")) = "${HOME}/.linuxbrew/bin" ]] ; then
-    VERSION=$(TMP=$(brew info ltopers | grep ".*\*$" | grep -Eo "/ltopers/.* \(") ; echo "${TMP:9:(${#TMP}-11)}")
-fi
+_report(){
+    local RED="$(tput setaf 1)"   # Red      - For Warnings
+    local GREEN="$(tput setaf 2)" # Green    - For Declarations
+    local BLUE="$(tput setaf 4)"  # Blue     - For Questions
+    local NC="$(tput sgr0)"       # No Color
+    local COLOR=""
+    local STARTMESSAGE=""
+    local ECHOOPT=""
+    local LOG_MESSAGE=""
+    OPTIND=1
+    while getopts ":qdwstn" OPT; do
+        case "${OPT}" in
+            q) COLOR="${BLUE}" ;;                         # question mode, use color blue
+            d) COLOR="${GREEN}" ;;                        # declaration mode, use color green
+            w) COLOR="${RED}" ;;                          # warning mode, use color red
+            s) STARTMESSAGE+=([$(basename "${0}")] ) ;;   # prepend scriptname to the message
+            t) STARTMESSAGE+=($(_get_iso8601) '- ' ) ;;   # prepend timestamp to the message
+            n) ECHOOPT="-n" ;;                            # to avoid line breaks after echo
+        esac
+    done
+    shift $(( OPTIND - 1 ))
+    MESSAGE="${1}"
+    echo "${ECHOOPT}" "${COLOR}${STARTMESSAGE[*]}${MESSAGE}${NC}"
+}
 
 _usage(){
     cat <<EOF
-$(basename "${0}") ${VERSION}
+$(basename "${0}")
 This script formats an LTO tape with LTFS.
 Dependencies: ${DEPENDENCIES[@]}
 
@@ -41,6 +82,8 @@ while getopts ":fcxh" opt ; do
     esac
 done
 
+_check_dependencies "${DEPENDENCIES[@]}"
+
 if [ "${FORCE}" = "1" ] ; then
     MIDDLE_OPTIONS+=(-f)
     _report -d "Will force formatting."
@@ -52,32 +95,48 @@ else
     _report -d "Will use compression."
 fi
 
-if [ ! "${LTO_ARRAY}" ] ; then
-    if [[ "$(uname -s)" = "Darwin" ]] ; then
-        # try to figure out how many LTO decks are attached
-        LTO_ARRAY=($(system_profiler SPSASDataType | grep "SCSI Target Identifier" | cut -d : -f2 | sort | xargs))
+LTO_LIST="$(ltfs -o device_list 2>&1 | grep "Device Name = [0-9]*")"
+# try to figure out how many lto decks are attached
+LTO_COUNT=$(echo -n "${LTO_LIST}" | grep -c '^')
+if [[ "${LTO_COUNT}" -eq 0 ]] ; then
+    if [[ "$(ltfs -h 2>&1 | grep -c device_list)" -eq 0 ]] ; then
+        _report -w "The installed version of ltfs at $(which ltfs) doesn't support the '-o device_list' option. Please upgrade ltfs to 2.4.4.0 or newer."
+        exit 1
     else
-        #### TO DO: itemize when there are multiple LTO drives in Linux and Windows
-        LTO_ARRAY=(0)
+        _report -w "No available LTO decks were found or they're all busy."
+        df -Ph | grep "^Filesystem\|^ltfs" | sort
+        exit 1
     fi
 fi
 
-if [[ "${#LTO_ARRAY[@]}" -gt 1 ]] ; then
-    PS3="${BLUE}Which LTO deck?${NC} "
-    eval set "${LTO_ARRAY[@]}"
-    select DECK in "$@" ; do
-       break
-    done
-    if [ ! "${DECK}" ] ; then
-        _report -w "Error: You selected an invalid deck."
-        exit 1
+_report -d "Checking for ready decks amongst..."
+printf "%-12s %20s %20s \n" "Device ID" "Product ID" "Serial Number"
+echo "${LTO_LIST}" | while read LTO_RECORD ; do
+    DEVICE_ID="$(echo "${LTO_RECORD}" | grep -o "Device Name = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    PRODUCT_ID="$(echo "${LTO_RECORD}" | grep -o "Product ID = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    SERIAL="$(echo "${LTO_RECORD}" | grep -o "Serial Number = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    printf "%-12s %20s %20s \n" "${DEVICE_ID}" "${PRODUCT_ID}" "${SERIAL}"
+done
+echo
+
+if [[ "${LTO_COUNT}" -eq 1 ]] ; then
+    DEVICE_ID="$(echo "${LTO_LIST}" | grep -o "Device Name = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    PRODUCT_ID="$(echo "${LTO_LIST}" | grep -o "Product ID = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    SERIAL="$(echo "${LTO_LIST}" | grep -o "Serial Number = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+    if [[ "$(uname -s)" = "Linux" ]] ; then
+        DECK="/dev/sg3"
+        _report -d "Will use ${DECK} to format the tape."
+    else
+        DECK="${DEVICE_ID}"
+        _report -d "Will use Deck ${DECK} (${SERIAL}) to format the tape."
     fi
 else
     #### TO DO: select the correct path to the drive on Linux and Windows
     if [[ "$(uname -s)" = "Linux" ]] ; then
         DECK='/dev/sg3'
     else
-        DECK=0
+        _report -q -n "Enter the Device ID for the deck to use: "
+        read DECK
     fi
 fi
 
