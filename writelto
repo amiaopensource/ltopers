@@ -10,8 +10,6 @@ TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
 unset HIDDEN_FILES
 TAPE_EJECT="Y"
-_check_for_lto_index_dir
-LTO_LOGS="${LTO_INDEX_DIR}"
 
 # no .DS_Store onto external storage
 if [[ "$(uname -s)" = "Darwin" ]] ; then
@@ -155,6 +153,8 @@ shift "$((OPTIND-1))"
 
 SOURCE_DIR="${1}"
 
+_check_for_lto_index_dir
+LTO_LOGS="${LTO_INDEX_DIR}"
 if [[ ! "${TAPE_SERIAL}" ]] ; then
     _report -qn "Enter the LTO tape barcode: "
     read -e TAPE_SERIAL
