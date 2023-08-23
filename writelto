@@ -4,7 +4,6 @@
 # This script writes the contents of a specified directory onto a mounted
 # LTFS-formated LTO tape.
 
-SCRIPTDIR=$(dirname "${0}")
 DEPENDENCIES=(rsync gcp)
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
@@ -101,7 +100,6 @@ _report(){
     local COLOR=""
     local STARTMESSAGE=""
     local ECHOOPT=""
-    local LOG_MESSAGE=""
     OPTIND=1
     while getopts ":qdwstn" OPT; do
         case "${OPT}" in
