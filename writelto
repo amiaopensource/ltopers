@@ -178,11 +178,6 @@ _check_for_colons "${SOURCE_DIR}"
 TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 
 _check_dir "${SOURCE_DIR}"
-if [ -f "${SOURCE_DIR}"/tapechecksum.md5 ] ; then
-    db_fixity=$(cat "${SOURCE_DIR}"/tapechecksum.md5)
-fi
-
-
 _check_dir "${TAPE_PATH}"
 
 WRITELTODIR="${LTO_LOGS}/writelto"
