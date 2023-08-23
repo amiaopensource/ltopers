@@ -214,12 +214,12 @@ _check_for_lto_md5_flags
 if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFYTIME="$(_get_iso8601_c)"
     READBACKDIR="${LTO_LOGS}/readback_checksums"
+    READBACKOUTPUT="${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5"
     _mkdir2 "${READBACKDIR}"
-    find "${TAPE_PATH}" -type f ! -name .DS_Store -exec $LTO_MD5_FLAGS "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
+    find "${TAPE_PATH}" -type f ! -name .DS_Store -exec $LTO_MD5_FLAGS "{}" >> "${READBACKOUTPUT}" \;
+    sort -k 2 -o "${READBACKOUTPUT}" "${READBACKOUTPUT}"
+    _report -d "readback checksums written to: ${READBACKOUTPUT}"
 fi
-
-READBACKOUTPUT="${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5"
-sort -k 2 -o "${READBACKOUTPUT}" "${READBACKOUTPUT}"
 
 echo -n "$(date +%FT%T) " >> "${LTO_LOGS}/tape_capacity.txt"
 echo $(df -Ph "${TAPE_PATH}" | tail -n 1) >> "${LTO_LOGS}/tape_capacity.txt"
