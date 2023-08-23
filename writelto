@@ -155,6 +155,7 @@ shift "$((OPTIND-1))"
 
 SOURCE_DIR="${1}"
 
+DEFAULT_LTO_INDEX_DIR="${HOME}/Documents/lto_indexes"
 _check_for_lto_index_dir
 LTO_LOGS="${LTO_INDEX_DIR}"
 _check_dependencies "${DEPENDENCIES[@]}"
