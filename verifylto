@@ -64,6 +64,8 @@ READBACKDIR="${LTO_LOGS}/readback_checksums"
 READBACKOUTPUT="${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5"
 _mkdir2 "${READBACKDIR}"
 find "${TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKOUTPUT}" \;
+sort -k 2 -o "${READBACKOUTPUT}" "${READBACKOUTPUT}"
+_report -d "readback checksums written to: ${READBACKOUTPUT}"
 
 case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
