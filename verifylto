@@ -67,7 +67,7 @@ if [[ -n "${VERIFY_TOP_LEVEL}" ]]; then
     READBACKDIR="${LTO_LOGS}/readback_checksums"
     READBACKOUTPUT="${READBACKDIR}/${TAPE_SERIAL}_${VERIFY_TOP_LEVEL}_ReadBack_checksum_${VERIFYTIME}.md5"
     _mkdir2 "${READBACKDIR}"
-    find "${VERIFY_TAPE_PATH}" -type f ! -name .DS_Store -exec $LTO_MD5_FLAGS "{}" >> "${READBACKOUTPUT}" \;
+    find "${VERIFY_TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKOUTPUT}" \;
 else
     VERIFYTIME=$(_get_iso8601_c)
     READBACKDIR="${LTO_LOGS}/readback_checksums"
