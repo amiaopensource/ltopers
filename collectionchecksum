@@ -53,7 +53,7 @@ while [ "${*}" != "" ] ; do
         exit 1
     fi
     _report -d -n "Concatenating existing checksum.md5 files ... "
-    find "${INPUT}" -type f -name checksum.md5 | while read CHECKSUM_FILE ; do
+    find "${INPUT}" -type f ! -path "*/objects/*" -name checksum.md5 | while read CHECKSUM_FILE ; do
         UPF="$(basename "$(dirname "${CHECKSUM_FILE}")")"
         if [[ "${UPF}" == "metadata" ]] ; then
             PATH_CLEANING="$(basename "$(dirname "$(dirname "${CHECKSUM_FILE}")")")/objects/"
