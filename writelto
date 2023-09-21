@@ -60,12 +60,6 @@ _check_for_colons(){
     fi
 }
 
-_check_for_lto_md5_flags(){
-    if [ -z "${LTO_MD5_FLAGS}" ] ; then
-        LTO_MD5_FLAGS="md5deep -rel"
-    fi
-}
-
 _check_for_lto_index_dir(){
     # if LTO_INDEX_DIR is set in ltopers.conf then that will be used, otherwise a default
     if [ -z "${LTO_INDEX_DIR}" ] ; then
@@ -205,13 +199,12 @@ fi
 
 _report -d "rsync error report written to: ${RSYNC_ERROR_REPORT}, "
 
-_check_for_lto_md5_flags
 if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFYTIME="$(_get_iso8601_c)"
     READBACKDIR="${LTO_LOGS}/readback_checksums"
     READBACKOUTPUT="${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5"
     _mkdir2 "${READBACKDIR}"
-    find "${TAPE_PATH}" -type f ! -name .DS_Store -exec $LTO_MD5_FLAGS "{}" >> "${READBACKOUTPUT}" \;
+    find "${TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKOUTPUT}" \;
     sort -k 2 -o "${READBACKOUTPUT}" "${READBACKOUTPUT}"
     _report -d "readback checksums written to: ${READBACKOUTPUT}"
 elif [[ -n "${VERIFY_TOP_LEVEL}" ]]; then
@@ -220,7 +213,7 @@ elif [[ -n "${VERIFY_TOP_LEVEL}" ]]; then
     READBACKDIR="${LTO_LOGS}/readback_checksums"
     READBACKOUTPUT="${READBACKDIR}/${TAPE_SERIAL}_${VERIFY_TOP_LEVEL}_ReadBack_checksum_${VERIFYTIME}.md5"
     _mkdir2 "${READBACKDIR}"
-    find "${VERIFY_TAPE_PATH}" -type f ! -name .DS_Store -exec $LTO_MD5_FLAGS "{}" >> "${READBACKOUTPUT}" \;
+    find "${VERIFY_TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKOUTPUT}" \;
     sort -k 2 -o "${READBACKOUTPUT}" "${READBACKOUTPUT}"
     _report -d "readback checksums written to: ${READBACKOUTPUT}"
 fi
