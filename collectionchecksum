@@ -79,10 +79,11 @@ while [ "${*}" != "" ] ; do
         fi
         TEMP_NEWMD5S="$(_maketemp)"
         if [[ -s "${TEMP_LIST2MD5}" ]] ; then
-            _report -d "For the tape checksum, these $(wc -l "${TEMP_LIST2MD5}" | awk '{print $1}') additional files must be checksummed"
+            TO_CHECKSUM_COUNT="$(wc -l "${TEMP_LIST2MD5}" | awk '{print $1}')"
+            _report -d "For the tape checksum, these "${TO_CHECKSUM_COUNT}" additional files must be checksummed"
             cat "${TEMP_LIST2MD5}"
             md5deep -rel -f "${TEMP_LIST2MD5}" > "${TEMP_NEWMD5S}"
-            _report -d "Checksummed $(wc -l "${TEMP_CHECKSUM_COMPILATION}" | awk '{print $1}') additional files."
+            _report -d "Checksummed ${TO_CHECKSUM_COUNT} additional files."
         fi
         cat "${TEMP_NEWMD5S}" "${TEMP_CHECKSUM_COMPILATION}" | sort -k2 > "${TAPECHECKSUMFILE}"
         _report -d "${TAPECHECKSUMFILE} is ready with $(wc -l "${TAPECHECKSUMFILE}" | awk '{print $1}') checksums."
