@@ -162,7 +162,7 @@ fi
 if [ "$(command -v ltfs_ldun)" ] ; then
     ltfs_ldun load "${DEVICE_ID}" 1>/dev/null
 fi
-LOADTMP=$(_maketemp "${SERIAL}")
+LOADTMP="$(_maketemp "${SERIAL}")_loadtmp.txt"
 unset TAPE_SERIAL
 COUNTER=0
 _report -dn "Checking for tape barcode with deck ${DEVICE_ID} (${SERIAL})"
