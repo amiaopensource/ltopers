@@ -12,6 +12,21 @@ if [[ -f "${CONFIG_FILE}" ]] ; then
     . "${CONFIG_FILE}"
 fi
 
+_usage(){
+    cat <<EOF
+$(basename "${0}")
+This mounts an LTFS-formatted LTO tape from an attached drive. By default the first drive
+ready to mount a tape is used. Or run `$(basename "${0}") X` where X is the device id to
+mount from a specific drive.
+
+Dependencies: ${DEPENDENCIES[@]}
+
+Usage: $(basename "${0}") [-n] | -h
+  -n                  don't mount any tape, just list the available decks and their device id
+  -h                  display this help
+EOF
+}
+
 _check_dependencies(){
     DEPS_OK=YES
     while [ "${*}" != "" ] ; do
@@ -89,6 +104,17 @@ _maketemp(){
     fi
 }
 
+OPTIND=1
+while getopts ":nh" opt ; do
+    case "${opt}" in
+        n) LISTONLY="Y" ;;
+        h) _usage ; exit 0 ;;
+        :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
+        *) echo "Bad option -${OPTARG}" ; _usage ; exit 1 ;;
+    esac
+done
+shift "$((OPTIND-1))"
+
 unset LTFS_OPTIONS
 _check_for_lto_index_dir
 _check_dependencies "${DEPENDENCIES[@]}"
@@ -113,58 +139,69 @@ echo "${LTO_LIST}" | while read LTO_RECORD ; do
 done
 echo
 
-echo "${LTO_LIST}" | while read LTO_RECORD ; do
-    DEVICE_ID="$(echo "${LTO_RECORD}" | grep -o "Device Name = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
-    PRODUCT_ID="$(echo "${LTO_RECORD}" | grep -o "Product ID = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
-    SERIAL="$(echo "${LTO_RECORD}" | grep -o "Serial Number = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
-    if [ "$(command -v ltfs_ldun)" ] ; then
-        ltfs_ldun load "${DEVICE_ID}" 1>/dev/null
-    fi
-    LOADTMP=$(_maketemp "${SERIAL}")
-    unset TAPE_SERIAL
-    COUNTER=0
-    _report -dn "Checking for tape barcode with deck ${DEVICE_ID} (${SERIAL})"
-    while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "${COUNTER}" -lt 2 ]]; do
-        ((COUNTER++))
-        ltfs -f -o devname="${DEVICE_ID}" 2> "${LOADTMP}"
-        LTFS_ERR="${?}"
-        # find barcode by either "Volser(Barcode)" (Quantum style) or "Tape attribute: Barcode" (IBM style)
-        TAPE_SERIAL=$(grep "Volser(Barcode).*\|Tape attribute: Medium Label*\|Tape attribute: Barcode.*\|Volume mounted successfully*" "${LOADTMP}" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b" | head -n 1)
-        echo -n "."
-    done
-    echo
-    if [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] ; then
-        if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") && ! $(cat "${LOADTMP}" | grep -a "failed to load the tape") ]] ; then
-            DECKSERIAL=$(grep -a -o "serial number is [A-Z0-9]*" "${LOADTMP}" | awk '{print $4}')
-            TAPE_SERIAL="${DECKSERIAL}"
-        else
-            unset TAPE_SERIAL
-        fi
-    else
-        _report -d "Deck ${DEVICE_ID} (${SERIAL}) found with tape ${TAPE_SERIAL}."
-        echo -n -e "\033]0;Deck:${SERIAL} LTO:${TAPE_SERIAL}\007"
-        if [[ $(uname -s) = "Darwin" ]] ; then
-            MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
-        else
-            MOUNT_DIR="/mnt/${TAPE_SERIAL}"
-        fi
-        _report -d "MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${MOUNT_DIR} FOLDER"
-        _report -d "MOUNTING TAPE : AFTER MOUNT PRESS CONTROL-C$ TO EJECT"
-        trap _cleanup_mount_dir SIGHUP SIGINT SIGTERM
+if [[ "$LISTONLY" = "Y" ]] ; then
+    exit
+fi
+if [[ -n "${1}" ]] ; then
+    SELECTED_DEVICE_ID="${1}"
+    _report -d "Will try to mount device ${SELECTED_DEVICE_ID} (as requested)."
+else
+    SELECTED_DEVICE_ID="$(echo "${LTO_LIST}" | grep -o "Device Name = [^ ,]*" | cut -d = -f2 | sed 's/ //g' | head -n 1)"
+    _report -d "Will try to mount device ${SELECTED_DEVICE_ID} (first available)."
+fi
 
-        LTFS_OPTIONS+=(-o eject)
-        LTFS_OPTIONS+=(-o noatime)
-        LTFS_OPTIONS+=(-o capture_index)
-        LTFS_OPTIONS+=(-o devname="${DEVICE_ID}")
-        LTFS_OPTIONS+=(-o volname="${TAPE_SERIAL}")
+SELECTED_DEVICE_RECORD="$(echo "${LTO_LIST}" | grep "Device Name = ${SELECTED_DEVICE_ID},")"
+DEVICE_ID="$(echo "${SELECTED_DEVICE_RECORD}" | grep -o "Device Name = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+PRODUCT_ID="$(echo "${SELECTED_DEVICE_RECORD}" | grep -o "Product ID = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
+SERIAL="$(echo "${SELECTED_DEVICE_RECORD}" | grep -o "Serial Number = [^ ,]*" | cut -d = -f2 | sed 's/ //g')"
 
-        ltfs -f -o work_directory="${LTO_LOGS}" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
-        echo -n -e "\033]0;\007"
-        [[ -d "${MOUNT_DIR}" ]] && rmdir "${MOUNT_DIR}"
-        renameschemas -u
-        break
-    fi
-    if [[ "${COUNTER}" -eq "${LTO_COUNT}" ]] ; then
-        _report -d "Checked ${LTO_COUNT} decks and none appear to have tapes ready to mount."
-    fi
+if [[ -z "${DEVICE_ID}" ]] ; then
+    _report -w "Could not determine the device id. Error."
+    exit
+fi
+if [ "$(command -v ltfs_ldun)" ] ; then
+    ltfs_ldun load "${DEVICE_ID}" 1>/dev/null
+fi
+LOADTMP="$(_maketemp "${SERIAL}")_loadtmp.txt"
+unset TAPE_SERIAL
+COUNTER=0
+_report -dn "Checking for tape barcode with deck ${DEVICE_ID} (${SERIAL})"
+while [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] && [[ "${COUNTER}" -lt 2 ]]; do
+    ((COUNTER++))
+    ltfs -f -o devname="${DEVICE_ID}" 2> "${LOADTMP}"
+    LTFS_ERR="${?}"
+    # find barcode by either "Volser(Barcode)" (Quantum style) or "Tape attribute: Barcode" (IBM style)
+    TAPE_SERIAL=$(grep "Volser(Barcode).*\|Tape attribute: Medium Label*\|Tape attribute: Barcode.*\|Volume mounted successfully*" "${LOADTMP}" | grep -Eo "\b[A-Z0-9]{6}\b|\b[A-Z0-9]{8}\b" | head -n 1)
+    echo -n "."
 done
+echo
+if [[ "${#TAPE_SERIAL}" -lt "${MINIMUM_TAPE_SERIAL_LENGTH}" ]] ; then
+    if [[ $(cat "${LOADTMP}" | grep -a "Mounting the volume") && ! $(cat "${LOADTMP}" | grep -a "failed to load the tape") ]] ; then
+        DECKSERIAL=$(grep -a -o "serial number is [A-Z0-9]*" "${LOADTMP}" | awk '{print $4}')
+        TAPE_SERIAL="${DECKSERIAL}"
+    else
+        unset TAPE_SERIAL
+    fi
+else
+    _report -d "Deck ${DEVICE_ID} (${SERIAL}) found with tape ${TAPE_SERIAL}."
+    echo -n -e "\033]0;Deck:${SERIAL} LTO:${TAPE_SERIAL}\007"
+    if [[ $(uname -s) = "Darwin" ]] ; then
+        MOUNT_DIR="/Volumes/${TAPE_SERIAL}"
+    else
+        MOUNT_DIR="/mnt/${TAPE_SERIAL}"
+    fi
+    _report -d "MOUNTING TAPE : THE TAPE WILL MOUNT TO THE ${MOUNT_DIR} FOLDER"
+    _report -d "MOUNTING TAPE : AFTER MOUNT PRESS CONTROL-C$ TO EJECT"
+    trap _cleanup_mount_dir SIGHUP SIGINT SIGTERM
+
+    LTFS_OPTIONS+=(-o eject)
+    LTFS_OPTIONS+=(-o noatime)
+    LTFS_OPTIONS+=(-o capture_index)
+    LTFS_OPTIONS+=(-o devname="${DEVICE_ID}")
+    LTFS_OPTIONS+=(-o volname="${TAPE_SERIAL}")
+
+    ltfs -f -o work_directory="${LTO_LOGS}" ${LTFS_OPTIONS[@]} "${MOUNT_DIR}"
+    echo -n -e "\033]0;\007"
+    [[ -d "${MOUNT_DIR}" ]] && rmdir "${MOUNT_DIR}"
+    renameschemas -u
+fi

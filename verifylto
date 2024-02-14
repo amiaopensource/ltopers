@@ -29,17 +29,19 @@ Usage: $(basename "${0}") -t [-e] | -h
   -t  tape serial
   -e  state yes (Y) or no (N) to ejecting the tape after write, default
       is yes
+  -V <folder_name>    only verifies the specified top level directory
   -x  use barcode label as tape serial (caveat: this is not standard)
   -h  display this help
 EOF
 }
 
 OPTIND=1
-while getopts ":t:e:xh" opt ; do
+while getopts ":t:e:xV:h" opt ; do
     case "${opt}" in
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
         x) TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5-9]|M8)$" ;;
+        V) VERIFY_TOP_LEVEL="${OPTARG}" ;;
         h) _usage ; exit 0 ;;
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
         *) echo "Bad option -${OPTARG}" ; _usage ; exit 1 ;;
@@ -59,19 +61,24 @@ fi
 TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 _checkdir "${TAPE_PATH}"
 
-VERIFYTIME=$(_get_iso8601_c)
-READBACKDIR="${LTO_LOGS}/readback_checksums"
-_mkdir2 "${READBACKDIR}"
-find "${TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
+if [[ -n "${VERIFY_TOP_LEVEL}" ]]; then
+    VERIFY_TAPE_PATH="${TAPE_PATH}/${VERIFY_TOP_LEVEL}"
+    VERIFYTIME="$(_get_iso8601_c)"
+    READBACKDIR="${LTO_LOGS}/readback_checksums"
+    READBACKOUTPUT="${READBACKDIR}/${TAPE_SERIAL}_${VERIFY_TOP_LEVEL}_ReadBack_checksum_${VERIFYTIME}.md5"
+    _mkdir2 "${READBACKDIR}"
+    find "${VERIFY_TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKOUTPUT}" \;
+else
+    VERIFYTIME=$(_get_iso8601_c)
+    READBACKDIR="${LTO_LOGS}/readback_checksums"
+    READBACKOUTPUT="${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5"
+    _mkdir2 "${READBACKDIR}"
+    find "${TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKOUTPUT}" \;
+fi
+sort -k 2 -o "${READBACKOUTPUT}" "${READBACKOUTPUT}"
+_report -d "readback checksums written to: ${READBACKOUTPUT}"
 
 case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
     *)   echo "Done verifying but not ejecting ${TAPE_SERIAL}." ;;
 esac
-
-if [[ "${PREMIS_DB}" = "Y" ]] ; then
-    _eventoutcome_update
-    _report_schema_db
-    _report_fixity_db
-    _db_email_delivery "${SQL_ERROR_EMAIL_TO}"
-fi

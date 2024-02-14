@@ -4,8 +4,7 @@
 # This script writes the contents of a specified directory onto a mounted
 # LTFS-formated LTO tape.
 
-SCRIPTDIR=$(dirname "${0}")
-DEPENDENCIES=(rsync gcp)
+DEPENDENCIES=(rsync)
 TAPE_MOUNT_POINT="/Volumes"
 TAPE_SERIAL_REGEX="^[A-Z0-9]{6}$"
 unset HIDDEN_FILES
@@ -61,12 +60,6 @@ _check_for_colons(){
     fi
 }
 
-_check_for_lto_md5_flags(){
-    if [ -z "${LTO_MD5_FLAGS}" ] ; then
-        LTO_MD5_FLAGS="md5deep -rel"
-    fi
-}
-
 _check_for_lto_index_dir(){
     # if LTO_INDEX_DIR is set in ltopers.conf then that will be used, otherwise a default
     if [ -z "${LTO_INDEX_DIR}" ] ; then
@@ -101,7 +94,6 @@ _report(){
     local COLOR=""
     local STARTMESSAGE=""
     local ECHOOPT=""
-    local LOG_MESSAGE=""
     OPTIND=1
     while getopts ":qdwstn" OPT; do
         case "${OPT}" in
@@ -132,17 +124,19 @@ Usage: $(basename "${0}") -t [-e] [-v] | -h
   -v                  reads back and creates checksums for the contents of a tape, and
                       writes checksums to a file named with the tape name and date,
                       located in the LTO logs directory
+  -V <folder_name>    this is like '-v' but only verifies the specified top level directory
   -x                  use barcode label as tape serial (caveat: this is not standard)
   -h                  display this help
 EOF
 }
 
 OPTIND=1
-while getopts ":t:e:vxh" opt ; do
+while getopts ":t:e:vV:xh" opt ; do
     case "${opt}" in
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
         v) VERIFY="Y" ;;
+        V) VERIFY_TOP_LEVEL="${OPTARG}" ;;
         x) TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5-9]|M8)$" ;;
         h) _usage ; exit 0 ;;
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
@@ -153,6 +147,7 @@ shift "$((OPTIND-1))"
 
 SOURCE_DIR="${1}"
 
+DEFAULT_LTO_INDEX_DIR="${HOME}/Documents/lto_indexes"
 _check_for_lto_index_dir
 LTO_LOGS="${LTO_INDEX_DIR}"
 _check_dependencies "${DEPENDENCIES[@]}"
@@ -176,60 +171,57 @@ _check_for_colons "${SOURCE_DIR}"
 
 TAPE_PATH="${TAPE_MOUNT_POINT}/${TAPE_SERIAL}"
 
-# remove .DS_Store files
-find "${SOURCE_DIR}/" -name '.DS_Store' -type f -delete
 _check_dir "${SOURCE_DIR}"
-if [ -f "${SOURCE_DIR}"/tapechecksum.md5 ] ; then
-    db_fixity=$(cat "${SOURCE_DIR}"/tapechecksum.md5)
-fi
-
-
-gcp --preserve=mode,timestamps -nRv "${SOURCE_DIR}/"* "${TAPE_PATH}"
-
-"${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
-RSYNC_ERR_1="$?"
-HIDDEN_FILES=$(find "${TAPE_PATH}" -name ".*")
-if [[ "${HIDDEN_FILES}" ]] ; then
-    echo "Removing hidden files from tape."
-    find "${TAPE_PATH}" -name ".*" -delete
-    "${SCRIPTDIR}/migratefiles" -o "${TAPE_PATH}" "${SOURCE_DIR}/"
-    RSYNC_ERR_2="$?"
-fi
 _check_dir "${TAPE_PATH}"
 
 WRITELTODIR="${LTO_LOGS}/writelto"
 _mkdir2 "${WRITELTODIR}"
 
-if [ -n "$RSYNC_ERR_2" ] ; then
-    echo "rsync exited with ${RSYNC_ERR_1} on the first pass and ${RSYNC_ERR_2} on the second pass." | tee -a "${WRITELTODIR}/${TAPE_SERIAL}_writelto.txt" 2>&1
-else
-    echo "rsync exited with ${RSYNC_ERR_1}." | tee -a "${WRITELTODIR}/${TAPE_SERIAL}_writelto.txt" 2>&1
+RSYNC_LOGS="${LTO_INDEX_DIR}/writelto_logs"
+_mkdir2 "${RSYNC_LOGS}"
+
+LOGFILE="${RSYNC_LOGS}/writelto_${TAPE_SERIAL}_$(_get_iso8601_c).log"
+LOGFILE2="${RSYNC_LOGS}/writelto_${TAPE_SERIAL}_$(_get_iso8601_c)2.log"
+RSYNC_ERROR_REPORT="${WRITELTODIR}/${TAPE_SERIAL}_writelto.txt"
+removeDSStore "${SOURCE_DIR}"
+rsync -rtvPih --log-file="${LOGFILE}" --cc none --whole-file --log-file-format="%t,%o,%C,%i,%M,%b,%l,%f" --exclude=".DS_Store" "${SOURCE_DIR}" "${TAPE_PATH}"
+#gcp --preserve=mode,timestamps -nRv "${SOURCE_DIR}/" "${TAPE_PATH}"
+
+RSYNC_ERR_1="${?}"
+if [ -n "${RSYNC_ERR_1}" ] ; then
+    echo "$(_get_iso8601_c) rsync exited with ${RSYNC_ERR_1}. ${SOURCE_DIR} -> ${TAPE_PATH}" | tee -a "${RSYNC_ERROR_REPORT}" 2>&1
+fi
+rsync -rtvPih --log-file="${LOGFILE2}" --cc none --whole-file --log-file-format="%t,%o,%C,%i,%M,%b,%l,%f" --exclude=".DS_Store" "${SOURCE_DIR}" "${TAPE_PATH}"
+RSYNC_ERR_2="${?}"
+if [ -n "${RSYNC_ERR_2}" ] ; then
+    echo "$(_get_iso8601_c) rsync exited with ${RSYNC_ERR_2}. ${SOURCE_DIR} -> ${TAPE_PATH}" | tee -a "${RSYNC_ERROR_REPORT}" 2>&1
 fi
 
-if [[ "${PREMIS_DB}" = "Y" ]] ; then
-    _report_to_db
-fi
+_report -d "rsync error report written to: ${RSYNC_ERROR_REPORT}, "
 
-_check_for_lto_md5_flags
 if [[ "${VERIFY}" = "Y" ]] ; then
     VERIFYTIME="$(_get_iso8601_c)"
     READBACKDIR="${LTO_LOGS}/readback_checksums"
+    READBACKOUTPUT="${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5"
     _mkdir2 "${READBACKDIR}"
-    find "${TAPE_PATH}" -type f ! -name .DS_Store -exec $LTO_MD5_FLAGS "{}" >> "${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5" \;
+    find "${TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKOUTPUT}" \;
+    sort -k 2 -o "${READBACKOUTPUT}" "${READBACKOUTPUT}"
+    _report -d "readback checksums written to: ${READBACKOUTPUT}"
+elif [[ -n "${VERIFY_TOP_LEVEL}" ]]; then
+    VERIFY_TAPE_PATH="${TAPE_PATH}/${VERIFY_TOP_LEVEL}"
+    VERIFYTIME="$(_get_iso8601_c)"
+    READBACKDIR="${LTO_LOGS}/readback_checksums"
+    READBACKOUTPUT="${READBACKDIR}/${TAPE_SERIAL}_${VERIFY_TOP_LEVEL}_ReadBack_checksum_${VERIFYTIME}.md5"
+    _mkdir2 "${READBACKDIR}"
+    find "${VERIFY_TAPE_PATH}" -type f ! -name .DS_Store -exec md5deep -rel "{}" >> "${READBACKOUTPUT}" \;
+    sort -k 2 -o "${READBACKOUTPUT}" "${READBACKOUTPUT}"
+    _report -d "readback checksums written to: ${READBACKOUTPUT}"
 fi
-
-READBACKOUTPUT="${READBACKDIR}/${TAPE_SERIAL}_ReadBack_checksum_${VERIFYTIME}.md5"
-sort -k 2 -o "${READBACKOUTPUT}" "${READBACKOUTPUT}"
 
 echo -n "$(date +%FT%T) " >> "${LTO_LOGS}/tape_capacity.txt"
 echo $(df -Ph "${TAPE_PATH}" | tail -n 1) >> "${LTO_LOGS}/tape_capacity.txt"
 
 renameschemas -u
-SCHEMA_FILE="${LTO_LOGS}/schema/${TAPE_SERIAL}.schema"
-
-printf "\nrsync error report written to:\n\t%s/%s_writelto.txt" "${WRITELTODIR}" "${TAPE_SERIAL}"
-printf "\nreadback checksums written to:\n\t%s" "${READBACKOUTPUT}"
-printf "\nafter ejecting tape, lto schema file written to:\n\t%s\n\n" "${SCHEMA_FILE}"
 
 case "${TAPE_EJECT}" in
     y|Y) umount "${TAPE_PATH}" ;;
