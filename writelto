@@ -191,11 +191,18 @@ RSYNC_ERR_1="${?}"
 if [ -n "${RSYNC_ERR_1}" ] ; then
     echo "$(_get_iso8601_c) rsync exited with ${RSYNC_ERR_1}. ${SOURCE_DIR} -> ${TAPE_PATH}" | tee -a "${RSYNC_ERROR_REPORT}" 2>&1
 fi
+
+# try rsync a second time just to copy any missing file attributes
+rsync -rtvO --size-only --log-file-format="%t,%o,%C,%i,%M,%b,%l,%f" --exclude=".DS_Store" "${SOURCE_DIR}" "${TAPE_PATH}"
+
 rsync -rtvPih --log-file="${LOGFILE2}" --cc none --whole-file --log-file-format="%t,%o,%C,%i,%M,%b,%l,%f" --exclude=".DS_Store" "${SOURCE_DIR}" "${TAPE_PATH}"
 RSYNC_ERR_2="${?}"
 if [ -n "${RSYNC_ERR_2}" ] ; then
     echo "$(_get_iso8601_c) rsync exited with ${RSYNC_ERR_2}. ${SOURCE_DIR} -> ${TAPE_PATH}" | tee -a "${RSYNC_ERROR_REPORT}" 2>&1
 fi
+
+# try rsync a once more just to copy any missing file attributes
+rsync -rtvO --size-only --log-file-format="%t,%o,%C,%i,%M,%b,%l,%f" --exclude=".DS_Store" "${SOURCE_DIR}" "${TAPE_PATH}"
 
 _report -d "rsync error report written to: ${RSYNC_ERROR_REPORT}, "
 
