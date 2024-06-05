@@ -49,10 +49,6 @@ while getopts ":t:e:xV:h" opt ; do
 done
 shift "$((OPTIND-1))"
 
-SOURCE_DIR="${1}"
-if [[ "${PREMIS_DB}" = "Y" ]] ; then
-    _report_to_db
-fi
 if [[ ! $(echo "${TAPE_SERIAL}" | grep -E "${TAPE_SERIAL_REGEX}") ]] ; then
     echo "${TAPE_SERIAL} is not valid."
     exit 1
