@@ -80,7 +80,7 @@ Example:
 
 where nnnnn is a 5-digit sequential number, e.g. A00001, A00002, etc.
 
-The script will format your tape in LTFS format, with no compression, and sets rules that allow smaller types of files to live in the index partition of the tape, which gives you faster access. If you need to change this, edit the mkltfs line in the script to suit your preferences.
+The script will format your tape in LTFS format, with no compression (by default), and sets rules that allow smaller types of files to live in the index partition of the tape, which gives you faster access. If you need to change this, edit the mkltfs line in the script to suit your preferences.
 
 **Remember to physically label the tape with the tape serial!**
 
@@ -141,4 +141,3 @@ Database-specific tools in LTOpers are `searchlto`, `ingestschemas` and `ingestc
 ## License
 
 LTOpers is licensed under an <a href="https://github.com/amiaopensource/ltopers/blob/master/LICENSE">MIT License</a>.
-
