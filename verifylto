@@ -40,7 +40,7 @@ while getopts ":t:e:xV:h" opt ; do
     case "${opt}" in
         t) TAPE_SERIAL="${OPTARG}" ;;
         e) TAPE_EJECT="${OPTARG}" ;;
-        x) TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5-9]|M8)$" ;;
+        x) TAPE_SERIAL_REGEX="^[A-Z0-9]{6}(L[5-9A]|M8)$" ;;
         V) VERIFY_TOP_LEVEL="${OPTARG}" ;;
         h) _usage ; exit 0 ;;
         :) echo "Option -${OPTARG} requires an argument" ; exit 1 ;;
