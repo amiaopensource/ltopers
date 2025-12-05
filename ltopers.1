@@ -1,4 +1,4 @@
-.TH ltopers 1 "https://github.com/amiaopensource/ltopers" "2019-01-22" "AMIA Open Source"
+.TH ltopers 1 "https://github.com/amiaopensource/ltopers" "2025-12-05" "AMIA Open Source"
 .\" Turn off justification for nroff.
 .if n .ad l
 .\" Turn off hyphenation.
@@ -27,8 +27,13 @@ Display this man.
 .SS
 .B mountlto
 Mount an LTO cartridge.
+.TP 4
+.B -n
+don't mount any tape, just list the available decks and their device id
+.B -h
+display a help message
 .SS
-\fBreadlto -t \fIserial\fR [\fB-e \fIY\fR|\fIN\fR] | \fB-h\fR
+\fBreadlto -t \fIserial\fR [\fB-e \fIY\fR|\fIN\fR] [\fB-x\fR] | \fB-h\fR
 Transfer files from an LTO cartridge to another location.
 .TP 4
 .B -t
@@ -52,7 +57,7 @@ change dir-named schema files to the tape UUID
 .B -h
 display a help message
 .SS
-\fBverifylto -t \fIserial\fR [\fB-e \fIY\fR|\fIN\fR] | \fB-h\fR
+\fBverifylto -t \fIserial\fR [\fB-e \fIY\fR|\fIN\fR] [\fB-V\fR] [\fB-x\fR] | \fB-h\fR
 Verify the checksums of an LTO cartridge.
 .TP 4
 .B -t
@@ -61,13 +66,16 @@ cartridge's \fIserial
 .B -e
 eject the cartridge after migration: \fIY\fR (default) or \fIN
 .TP
+\fB-V \fIfolder_name
+only verifies the specified top level directory
+.TP
 .B -x
 use barcode label as tape serial (caveat: this is \fBNOT\fR standard)
 .TP
 .B -h
 display a help message
 .SS
-\fBwritelto -t \fIserial\fR [\fB-e \fIY\fR|\fIN\fR] [\fB-v\fR] | \fB-h\fR
+\fBwritelto -t \fIserial\fR [\fB-e \fIY\fR|\fIN\fR] [\fB-v\fR] [\fB-V\fR] | \fB-h\fR
 Write the contents of a specified directory onto a mounted LTFS-formatted LTO cartridge.
 .TP 4
 .B -t
@@ -77,7 +85,10 @@ cartridge's \fIserial
 eject the cartridge after migration: \fIY\fR (default) or \fIN
 .TP
 .B -v
-verify the checksums of the LTO cartridge's contents
+reads back and creates checksums for the contents of a tape, and writes checksums to a file named with the tape name and date, located in the LTO logs directory
+.TP
+\fB-V \fIfolder_name
+this is like \fB-v\fR but only verifies the specified top level directory
 .TP
 .B -x
 use barcode label as tape serial (caveat: this is \fBNOT\fR standard)
