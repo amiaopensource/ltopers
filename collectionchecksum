@@ -34,6 +34,8 @@ _report(){
     echo "${ECHOOPT}" "${COLOR}${STARTMESSAGE[*]}${MESSAGE}${NC}"
 }
 
+_nfd(){ iconv -f UTF-8 -t UTF-8-MAC ; }
+
 _maketemp(){
     mktemp -t "$(basename "${0}")"
     if [ "${?}" -ne 0 ] ; then
@@ -53,7 +55,7 @@ while [ "${*}" != "" ] ; do
         exit 1
     fi
     _report -d -n "Concatenating existing checksum.md5 files ... "
-    find "${INPUT}" -type f ! -path "*/objects/*" ! -path "*/historic_checksums/*" -name checksum.md5 | while read CHECKSUM_FILE ; do
+    find "${INPUT}" -type f -name checksum.md5 ! -path "*/historic_checksums/*" ! -path "*/alternates/*" | while IFS= read CHECKSUM_FILE ; do
         UPF="$(basename "$(dirname "${CHECKSUM_FILE}")")"
         if [[ "${UPF}" == "metadata" ]] ; then
             PATH_CLEANING="$(basename "$(dirname "$(dirname "${CHECKSUM_FILE}")")")/objects/"
@@ -69,7 +71,7 @@ while [ "${*}" != "" ] ; do
         TEMP_FILE_LIST="$(_maketemp)"
         TEMP_LIST2MD5="$(_maketemp)"
         find . -type f ! -name ".DS_Store" > "${TEMP_FILE_LIST}"
-        LIST_COMPARE="$(diff <(cut -c 35- "${TEMP_CHECKSUM_COMPILATION}" | sort) <(sort "${TEMP_FILE_LIST}"))"
+        LIST_COMPARE="$(diff <(cut -c 35- "${TEMP_CHECKSUM_COMPILATION}" | _nfd | LC_ALL=C sort) <(LC_ALL=C sort "${TEMP_FILE_LIST}"))"
         MISSING_FILES="$(echo "${LIST_COMPARE}" | grep "^<")"
         echo "${LIST_COMPARE}" | grep "^>" | cut -c 3- > "${TEMP_LIST2MD5}"
         if [[ -n "${MISSING_FILES}" ]] ; then
@@ -79,13 +81,12 @@ while [ "${*}" != "" ] ; do
         fi
         TEMP_NEWMD5S="$(_maketemp)"
         if [[ -s "${TEMP_LIST2MD5}" ]] ; then
-            TO_CHECKSUM_COUNT="$(wc -l "${TEMP_LIST2MD5}" | awk '{print $1}')"
-            _report -d "For the tape checksum, these "${TO_CHECKSUM_COUNT}" additional files must be checksummed"
+            _report -d "For the tape checksum, these $(wc -l "${TEMP_LIST2MD5}" | awk '{print $1}') additional files must be checksummed"
             cat "${TEMP_LIST2MD5}"
             md5deep -rel -f "${TEMP_LIST2MD5}" > "${TEMP_NEWMD5S}"
-            _report -d "Checksummed ${TO_CHECKSUM_COUNT} additional files."
+            _report -d "Checksummed $(wc -l "${TEMP_CHECKSUM_COMPILATION}" | awk '{print $1}') additional files."
         fi
-        cat "${TEMP_NEWMD5S}" "${TEMP_CHECKSUM_COMPILATION}" | sort -k2 > "${TAPECHECKSUMFILE}"
+        cat "${TEMP_NEWMD5S}" "${TEMP_CHECKSUM_COMPILATION}" | LC_ALL=C sort -k2 > "${TAPECHECKSUMFILE}"
         _report -d "${TAPECHECKSUMFILE} is ready with $(wc -l "${TAPECHECKSUMFILE}" | awk '{print $1}') checksums."
     else
         _report -d "${INPUT} is not a directory. Exiting."
